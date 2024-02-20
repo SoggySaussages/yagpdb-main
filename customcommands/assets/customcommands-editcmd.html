@@ -141,10 +141,10 @@
                                             The command will run at a minute interval, for example every 10 minutes.
                                         </p>
                                         <p id="trigger-desc-component">
-                                            When a component (a button or a select menu) whose custom ID starts with the trigger is used, it will run the command.
+                                            When a component (a button or a select menu) whose custom ID matches the regex is used, it will run the command.
                                         </p>
                                         <p id="trigger-desc-modal">
-                                            When a modal whose custom ID starts with the trigger is submitted, it will run the command.
+                                            When a modal whose custom ID matches the regex is submitted, it will run the command.
                                         </p>
                                     </div>
                                 </div>
@@ -153,7 +153,8 @@
                                 <div class="row">
                                     <div class="col-sm-12">
                                         <div class="form-group">
-                                            <label>Trigger (<span id="trigger-length">{{len .CC.TextTrigger}}</span>/1000)</label>
+                                            <label id="text-trigger-label">Trigger (<span id="trigger-length">{{len .CC.TextTrigger}}</span>/1000)</label>
+                                            <label id="customid-trigger-label">Custom ID Regex (<span id="trigger-length">{{len .CC.TextTrigger}}</span>/1000)</label>
                                             <div class="input-group mb-2">
                                                 <div class="input-group-prepend" id="command-trigger-prepended-prefix">
                                                     <div class="input-group-text">{{.CommandPrefix}}</div>
@@ -165,19 +166,6 @@
                                             {{$disabledClass := ""}}
                                             {{if not .IsGuildPremium}}{{$disabledClass = "disabled"}}{{end}}
                                             {{checkbox "trigger_on_edit" "trigger_on_edit" "Trigger on message edits too? (Premium Only!)" .CC.TriggerOnEdit $disabledClass}}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div id="cc-interaction-trigger-details" class="hidden col-sm-8">
-                                <div class="row">
-                                    <div class="col-sm-12">
-                                        <div class="form-group">
-                                            <label>Custom ID prefix (<span id="trigger-length">{{len .CC.TextTrigger}}</span>/1000)</label>
-                                            <div class="input-group mb-2">
-                                                <input id="trigger" type="text" class="form-control" name="trigger" placeholder="fun"
-                                                    value="{{.CC.TextTrigger}}">
-                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -508,7 +496,6 @@
             $("#cc-text-trigger-details").addClass("hidden");
             $("#cc-extra-settings").addClass("hidden");
             $("#cc-reaction-trigger-details").addClass("hidden")
-            $("#cc-interaction-trigger-details").addClass("hidden");
 
             $("#trigger-warning").attr("hidden", true);
 
@@ -525,7 +512,6 @@
 
             $("#cc-time-trigger-details").addClass("hidden");
             $("#cc-text-trigger-details").addClass("hidden");
-            $("#cc-interaction-trigger-details").addClass("hidden");
 
             $("#interval-cc-run-now").addClass("hidden")
 
@@ -537,18 +523,21 @@
         } else if (dropdown.val() === "modal" || dropdown.val() === "component") {
             // Interaction triggers
 
-            $("#cc-interaction-trigger-details").removeClass("hidden");
+            $("#cc-text-trigger-details").removeClass("hidden");
             $("#cc-extra-settings").removeClass("hidden");
+            $("#customid-trigger-label").removeClass("hidden");
 
+            $("#text-trigger-label").addClass("hidden");
+            $("#trigger_on_edit").addClass("hidden");
+            $("#cc-reaction-trigger-details").addClass("hidden");
             $("#cc-time-trigger-details").addClass("hidden");
-            $("#cc-text-trigger-details").addClass("hidden");
-            $("#cc-reaction-trigger-details").addClass("hidden")
 
             $("#interval-cc-run-now").addClass("hidden")
 
             $("#trigger-warning").attr("hidden", true);
             $("#require-no-channels-warning").removeClass("hidden");
             $("#require-no-roles-warning").removeClass("hidden");
+            // $("#trigger-warning").text("No trigger set, this command will only be able to be called from other commands")
             $("#time-trigger-no-channel-warning").addClass("hidden");
 
         } else if (isTextTrigger(dropdown.val())) {
@@ -556,9 +545,11 @@
 
             $("#cc-text-trigger-details").removeClass("hidden");
             $("#cc-extra-settings").removeClass("hidden");
+            $("#text-trigger-label").removeClass("hidden");
+            $("#trigger_on_edit").removeClass("hidden");
 
+            $("#customid-trigger-label").addClass("hidden");
             $("#cc-reaction-trigger-details").addClass("hidden");
-            $("#cc-interaction-trigger-details").addClass("hidden");
             $("#cc-time-trigger-details").addClass("hidden");
 
             $("#interval-cc-run-now").addClass("hidden")
@@ -576,7 +567,6 @@
             $("#cc-extra-settings").addClass("hidden");
             $("#cc-reaction-trigger-details").addClass("hidden")
             $("#cc-time-trigger-details").addClass("hidden");
-            $("#cc-interaction-trigger-details").addClass("hidden");
 
             $("#interval-cc-run-now").addClass("hidden")
 
