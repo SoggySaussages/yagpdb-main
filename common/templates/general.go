@@ -199,6 +199,60 @@ func CreateEmbed(values ...interface{}) (*discordgo.MessageEmbed, error) {
 	return embed, nil
 }
 
+func CreateComponent(expectedType discordgo.ComponentType, values ...interface{}) (discordgo.MessageComponent, error) {
+	if len(values) < 1 && expectedType != discordgo.ActionsRowComponent {
+		return discordgo.ActionsRow{}, errors.New("no values passed to component builder")
+	}
+
+	var m map[string]interface{}
+	switch t := values[0].(type) {
+	case SDict:
+		m = t
+	case *SDict:
+		m = *t
+	case map[string]interface{}:
+		m = t
+	default:
+		dict, err := StringKeyDictionary(values...)
+		if err != nil {
+			return nil, err
+		}
+		m = dict
+	}
+
+	encoded, err := json.Marshal(m)
+	if err != nil {
+		return nil, err
+	}
+
+	var component discordgo.MessageComponent
+	switch expectedType {
+	case discordgo.ActionsRowComponent:
+		component = discordgo.ActionsRow{}
+	case discordgo.ButtonComponent:
+		component = discordgo.Button{}
+	case discordgo.SelectMenuComponent:
+		component = discordgo.SelectMenu{}
+	case discordgo.TextInputComponent:
+		component = discordgo.TextInput{}
+	case discordgo.UserSelectMenuComponent:
+		component = discordgo.SelectMenu{MenuType: discordgo.UserSelectMenu}
+	case discordgo.RoleSelectMenuComponent:
+		component = discordgo.SelectMenu{MenuType: discordgo.RoleSelectMenu}
+	case discordgo.MentionableSelectMenuComponent:
+		component = discordgo.SelectMenu{MenuType: discordgo.MentionableSelectMenu}
+	case discordgo.ChannelSelectMenuComponent:
+		component = discordgo.SelectMenu{MenuType: discordgo.ChannelSelectMenu}
+	}
+
+	err = json.Unmarshal(encoded, &component)
+	if err != nil {
+		return nil, err
+	}
+
+	return component, nil
+}
+
 func CreateMessageSend(values ...interface{}) (*discordgo.MessageSend, error) {
 	if len(values) < 1 {
 		return &discordgo.MessageSend{}, nil
@@ -272,6 +326,34 @@ func CreateMessageSend(values ...interface{}) (*discordgo.MessageSend, error) {
 		case "filename":
 			// Cut the filename to a reasonable length if it's too long
 			filename = common.CutStringShort(ToString(val), 64)
+		case "components":
+			if val == nil {
+				continue
+			}
+			v, _ := indirect(reflect.ValueOf(val))
+			if v.Kind() == reflect.Slice {
+				msg.Components, err = distributeComponents(v)
+				if err != nil {
+					return nil, err
+				}
+			} else {
+				var component discordgo.MessageComponent
+				m, isMenu := val.(*discordgo.SelectMenu)
+				b, ok := val.(*discordgo.Button)
+				if isMenu {
+					component = m
+				} else if ok {
+					component = b
+				} else {
+					return nil, errors.New("invalid component passed to send message builder")
+				}
+				if err != nil {
+					return nil, err
+				}
+				msg.Components = append(msg.Components, discordgo.ActionsRow{[]discordgo.MessageComponent{component}})
+			}
+		case "ephemeral":
+			msg.Flags |= discordgo.MessageFlagsEphemeral
 		case "reply":
 			msgID := ToInt64(val)
 			if msgID <= 0 {
@@ -353,6 +435,32 @@ func CreateMessageEdit(values ...interface{}) (*discordgo.MessageEdit, error) {
 				return nil, err
 			}
 			msg.AllowedMentions = *parsed
+		case "components":
+			if val == nil {
+				continue
+			}
+			v, _ := indirect(reflect.ValueOf(val))
+			if v.Kind() == reflect.Slice {
+				msg.Components, err = distributeComponents(v)
+				if err != nil {
+					return nil, err
+				}
+			} else {
+				var component discordgo.MessageComponent
+				m, isMenu := val.(*discordgo.SelectMenu)
+				b, ok := val.(*discordgo.Button)
+				if isMenu {
+					component = m
+				} else if ok {
+					component = b
+				} else {
+					return nil, errors.New("invalid component passed to send message builder")
+				}
+				if err != nil {
+					return nil, err
+				}
+				msg.Components = append(msg.Components, discordgo.ActionsRow{[]discordgo.MessageComponent{component}})
+			}
 		default:
 			return nil, errors.New(`invalid key "` + key + `" passed to message edit builder`)
 		}
@@ -440,6 +548,67 @@ func parseAllowedMentions(Data interface{}) (*discordgo.AllowedMentions, error) 
 	}
 
 	return allowedMentions, nil
+}
+
+func distributeComponents(components reflect.Value) (returnComponents []discordgo.MessageComponent, err error) {
+	const maxRows = 5       // Discord limitation
+	const maxComponents = 5 // (per action row) Discord limitation
+	for i := 0; i < components.Len() && i < maxRows; i++ {
+		v, _ := indirect(reflect.ValueOf(components.Index(i).Interface()))
+		if v.Kind() == reflect.Slice {
+			// slice within a slice. user is defining their own action row
+			// layout; treat each slice as an action row
+			actionRow := discordgo.ActionsRow{Components: []discordgo.MessageComponent{}}
+			for i := 0; i < v.Len() && i < maxComponents; i++ {
+				var component discordgo.MessageComponent
+				m, isMenu := v.Index(i).Interface().(*discordgo.SelectMenu)
+				b, ok := v.Index(i).Interface().(*discordgo.Button)
+				if isMenu {
+					component = m
+				} else if ok {
+					component = b
+				} else {
+					return nil, errors.New("invalid component passed to send message builder")
+				}
+				if isMenu && len(actionRow.Components) != 0 {
+					return nil, errors.New("a select menu cannot share an action row with any other components")
+				} else if len(actionRow.Components) == 1 {
+					_, currentComponentIsMenu := actionRow.Components[0].(*discordgo.SelectMenu)
+					if currentComponentIsMenu {
+						return nil, errors.New("a select menu cannot share an action row with any other components")
+					}
+				}
+				actionRow.Components = append(actionRow.Components, component)
+			}
+			returnComponents = append(returnComponents, actionRow)
+		} else {
+			// user just slapped a bunch of components into a slice. we need to organize ourselves
+			// i'm sure there's a better way to structure this entire branch
+			var component discordgo.MessageComponent
+			m, isMenu := components.Index(i).Interface().(*discordgo.SelectMenu)
+			b, ok := components.Index(i).Interface().(*discordgo.Button)
+			if isMenu {
+				component = m
+			} else if ok {
+				component = b
+			} else {
+				return nil, errors.New("invalid component passed to send message builder")
+			}
+			if len(returnComponents) > 0 {
+				latestRow := returnComponents[len(returnComponents)-1].(*discordgo.ActionsRow)
+				availableSpace := maxComponents - len(latestRow.Components)
+				if isMenu && availableSpace == 5 || !isMenu && availableSpace >= 1 {
+					latestRow.Components = append(latestRow.Components, component)
+					returnComponents = append(returnComponents[0:len(returnComponents)-1], latestRow)
+				} else if len(returnComponents) < 5 {
+					returnComponents = append(returnComponents, discordgo.ActionsRow{Components: []discordgo.MessageComponent{component}})
+				}
+			} else {
+				returnComponents = append(returnComponents, discordgo.ActionsRow{Components: []discordgo.MessageComponent{component}})
+			}
+		}
+	}
+	return
 }
 
 // indirect is taken from 'text/template/exec.go'
