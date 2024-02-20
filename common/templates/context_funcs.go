@@ -2515,7 +2515,7 @@ func (c *Context) tmplParseButton(values ...interface{}) (*discordgo.Button, err
 		}
 	}
 
-	b, err := CreateComponent(discordgo.ButtonComponent, values)
+	b, err := CreateComponent(discordgo.ButtonComponent, convertedButton)
 	if err == nil {
 		button = b.(discordgo.Button)
 		if button.Style != discordgo.LinkButton {
@@ -2560,7 +2560,7 @@ func (c *Context) tmplParseSelectMenu(values ...interface{}) (*discordgo.SelectM
 		}
 	}
 
-	m, err := CreateComponent(menuType, values)
+	m, err := CreateComponent(menuType, convertedMenu)
 	if err == nil {
 		menu = m.(discordgo.SelectMenu)
 		menu.CustomID = "templates-" + menu.CustomID

@@ -746,8 +746,8 @@ func baseContextFuncs(c *Context) {
 	c.addContextFunc("updateMessageNoEscape", c.tmplUpdateMessage(false))
 
 	// message component functions
-	c.addContextFunc("button", c.tmplParseButton)
-	c.addContextFunc("menu", c.tmplParseSelectMenu)
+	c.addContextFunc("cbutton", c.tmplParseButton)
+	c.addContextFunc("cmenu", c.tmplParseSelectMenu)
 }
 
 type limitedWriter struct {
