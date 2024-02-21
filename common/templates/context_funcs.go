@@ -2485,7 +2485,7 @@ func (c *Context) tmplUpdateMessage(filterSpecialMentions bool) func(msg interfa
 
 func (c *Context) tmplParseButton(values ...interface{}) (*discordgo.Button, error) {
 	var button discordgo.Button
-	messageSdict, err := StringKeyDictionary(values)
+	messageSdict, err := StringKeyDictionary(values...)
 	if err != nil {
 		return nil, err
 	}
@@ -2527,7 +2527,7 @@ func (c *Context) tmplParseButton(values ...interface{}) (*discordgo.Button, err
 
 func (c *Context) tmplParseSelectMenu(values ...interface{}) (*discordgo.SelectMenu, error) {
 	var menu discordgo.SelectMenu
-	messageSdict, err := StringKeyDictionary(values)
+	messageSdict, err := StringKeyDictionary(values...)
 	if err != nil {
 		return nil, err
 	}
