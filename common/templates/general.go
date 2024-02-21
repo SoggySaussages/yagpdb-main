@@ -228,24 +228,39 @@ func CreateComponent(expectedType discordgo.ComponentType, values ...interface{}
 	var component discordgo.MessageComponent
 	switch expectedType {
 	case discordgo.ActionsRowComponent:
-		component = discordgo.ActionsRow{}
+		var comp discordgo.ActionsRow
+		err = json.Unmarshal(encoded, &comp)
+		component = comp
 	case discordgo.ButtonComponent:
-		component = discordgo.Button{}
+		var comp discordgo.Button
+		err = json.Unmarshal(encoded, &comp)
+		component = comp
 	case discordgo.SelectMenuComponent:
-		component = discordgo.SelectMenu{}
+		var comp discordgo.SelectMenu
+		err = json.Unmarshal(encoded, &comp)
+		component = comp
 	case discordgo.TextInputComponent:
-		component = discordgo.TextInput{}
+		var comp discordgo.TextInput
+		err = json.Unmarshal(encoded, &comp)
+		component = comp
 	case discordgo.UserSelectMenuComponent:
-		component = discordgo.SelectMenu{MenuType: discordgo.UserSelectMenu}
+		comp := discordgo.SelectMenu{MenuType: discordgo.UserSelectMenu}
+		err = json.Unmarshal(encoded, &comp)
+		component = comp
 	case discordgo.RoleSelectMenuComponent:
-		component = discordgo.SelectMenu{MenuType: discordgo.RoleSelectMenu}
+		comp := discordgo.SelectMenu{MenuType: discordgo.RoleSelectMenu}
+		err = json.Unmarshal(encoded, &comp)
+		component = comp
 	case discordgo.MentionableSelectMenuComponent:
-		component = discordgo.SelectMenu{MenuType: discordgo.MentionableSelectMenu}
+		comp := discordgo.SelectMenu{MenuType: discordgo.MentionableSelectMenu}
+		err = json.Unmarshal(encoded, &comp)
+		component = comp
 	case discordgo.ChannelSelectMenuComponent:
-		component = discordgo.SelectMenu{MenuType: discordgo.ChannelSelectMenu}
+		comp := discordgo.SelectMenu{MenuType: discordgo.ChannelSelectMenu}
+		err = json.Unmarshal(encoded, &comp)
+		component = comp
 	}
 
-	err = json.Unmarshal(encoded, &component)
 	if err != nil {
 		return nil, err
 	}
