@@ -203,7 +203,7 @@ func CreateComponent(expectedType discordgo.ComponentType, values ...interface{}
 	if len(values) < 1 && expectedType != discordgo.ActionsRowComponent {
 		return discordgo.ActionsRow{}, errors.New("no values passed to component builder")
 	}
-	logger.Infoln("bump")
+
 	var m map[string]interface{}
 	switch t := values[0].(type) {
 	case SDict:
@@ -213,9 +213,7 @@ func CreateComponent(expectedType discordgo.ComponentType, values ...interface{}
 	case map[string]interface{}:
 		m = t
 	default:
-		logger.Infoln("bump")
 		dict, err := StringKeyDictionary(values...)
-		logger.Infoln("bump")
 		if err != nil {
 			return nil, err
 		}

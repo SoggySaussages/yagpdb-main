@@ -2527,20 +2527,15 @@ func (c *Context) tmplParseButton(values ...interface{}) (*discordgo.Button, err
 
 func (c *Context) tmplParseSelectMenu(values ...interface{}) (*discordgo.SelectMenu, error) {
 	var menu discordgo.SelectMenu
-	logger.Infoln("bump")
 	messageSdict, err := StringKeyDictionary(values)
-	logger.Infoln("bump")
 	if err != nil {
-		logger.Infoln("bump")
 		return nil, err
 	}
 
 	menuType := discordgo.SelectMenuComponent
-	logger.Infoln("bump")
+
 	convertedMenu := make(map[string]interface{})
-	logger.Infoln("bump")
 	for k, v := range messageSdict {
-		logger.Infoln("bump")
 		switch strings.ToLower(k) {
 		case "type":
 			val, ok := v.(string)
@@ -2564,9 +2559,8 @@ func (c *Context) tmplParseSelectMenu(values ...interface{}) (*discordgo.SelectM
 			convertedMenu[k] = v
 		}
 	}
-	logger.Infoln("bump")
+
 	m, err := CreateComponent(menuType, convertedMenu)
-	logger.Infoln("bump")
 	if err == nil {
 		menu = m.(discordgo.SelectMenu)
 		menu.CustomID = "templates-" + menu.CustomID
