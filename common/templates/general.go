@@ -653,12 +653,12 @@ func distributeComponents(components reflect.Value) (returnComponents []discordg
 				b, ok := v.Index(i).Interface().(*discordgo.Button)
 				if isMenu {
 					if m.CustomID == "templates-" {
-						m.CustomID += ToString(i)
+						m.CustomID = "templates-" + ToString(i)
 					}
 					component = m
 				} else if ok {
 					if b.CustomID == "templates-" {
-						m.CustomID += ToString(i)
+						b.CustomID = "templates-" + ToString(i)
 					}
 					component = b
 				} else {
@@ -683,12 +683,12 @@ func distributeComponents(components reflect.Value) (returnComponents []discordg
 			b, ok := components.Index(i).Interface().(*discordgo.Button)
 			if isMenu {
 				if m.CustomID == "templates-" {
-					m.CustomID += ToString(i)
+					m.CustomID = "templates-" + ToString(i)
 				}
 				component = m
 			} else if ok {
 				if b.CustomID == "templates-" {
-					m.CustomID += ToString(i)
+					b.CustomID = "templates-" + ToString(i)
 				}
 				component = b
 			} else {
