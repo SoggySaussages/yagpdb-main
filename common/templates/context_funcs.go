@@ -2298,7 +2298,7 @@ func (c *Context) tmplSendModal(values ...interface{}) (interface{}, error) {
 		switch key {
 		case "title":
 			modal.Title = ToString(val)
-		case "customid":
+		case "custom_id":
 			modal.CustomID = "templates-" + ToString(val)
 		case "fields":
 			if val == nil {
@@ -2312,7 +2312,7 @@ func (c *Context) tmplSendModal(values ...interface{}) (interface{}, error) {
 					if err != nil {
 						return nil, err
 					}
-					field := f.(*discordgo.TextInput)
+					field := f.(discordgo.TextInput)
 					// validation
 					if field.Style == 0 {
 						field.Style = discordgo.TextInputShort
