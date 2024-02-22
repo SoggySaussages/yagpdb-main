@@ -638,7 +638,8 @@ func CreateModal(values ...interface{}) (*discordgo.InteractionResponse, error) 
 	}, nil
 }
 
-func distributeComponents(components reflect.Value) (returnComponents []discordgo.MessageComponent, err error) {
+func distributeComponents(components reflect.Value) ([]discordgo.MessageComponent, error) {
+	var actionRows []*discordgo.ActionsRow
 	const maxRows = 5       // Discord limitation
 	const maxComponents = 5 // (per action row) Discord limitation
 	for i := 0; i < components.Len() && i < maxRows; i++ {
@@ -647,18 +648,18 @@ func distributeComponents(components reflect.Value) (returnComponents []discordg
 			// slice within a slice. user is defining their own action row
 			// layout; treat each slice as an action row
 			actionRow := discordgo.ActionsRow{Components: []discordgo.MessageComponent{}}
-			for i := 0; i < v.Len() && i < maxComponents; i++ {
+			for i2 := 0; i2 < v.Len() && i2 < maxComponents; i2++ {
 				var component discordgo.MessageComponent
-				m, isMenu := v.Index(i).Interface().(*discordgo.SelectMenu)
-				b, ok := v.Index(i).Interface().(*discordgo.Button)
+				m, isMenu := v.Index(i2).Interface().(*discordgo.SelectMenu)
+				b, ok := v.Index(i2).Interface().(*discordgo.Button)
 				if isMenu {
 					if m.CustomID == "templates-" {
-						m.CustomID = "templates-" + ToString(i)
+						m.CustomID = "templates-" + ToString(i2)
 					}
 					component = m
 				} else if ok {
 					if b.CustomID == "templates-" {
-						b.CustomID = "templates-" + ToString(i)
+						b.CustomID = "templates-" + ToString(i2)
 					}
 					component = b
 				} else {
@@ -674,7 +675,7 @@ func distributeComponents(components reflect.Value) (returnComponents []discordg
 				}
 				actionRow.Components = append(actionRow.Components, component)
 			}
-			returnComponents = append(returnComponents, actionRow)
+			actionRows = append(actionRows, &actionRow)
 		} else {
 			// user just slapped a bunch of components into a slice. we need to organize ourselves
 			// i'm sure there's a better way to structure this entire branch
@@ -694,21 +695,25 @@ func distributeComponents(components reflect.Value) (returnComponents []discordg
 			} else {
 				return nil, errors.New("invalid component passed to send message builder")
 			}
-			if len(returnComponents) > 0 {
-				latestRow := returnComponents[len(returnComponents)-1].(discordgo.ActionsRow)
+			if len(actionRows) > 0 {
+				latestRow := actionRows[len(actionRows)-1]
 				availableSpace := maxComponents - len(latestRow.Components)
 				if isMenu && availableSpace == 5 || !isMenu && availableSpace >= 1 {
 					latestRow.Components = append(latestRow.Components, component)
-					returnComponents = append(returnComponents[0:len(returnComponents)-1], latestRow)
-				} else if len(returnComponents) < 5 {
-					returnComponents = append(returnComponents, discordgo.ActionsRow{Components: []discordgo.MessageComponent{component}})
+				} else if len(actionRows) < 5 {
+					actionRows = append(actionRows, &discordgo.ActionsRow{Components: []discordgo.MessageComponent{component}})
 				}
 			} else {
-				returnComponents = append(returnComponents, discordgo.ActionsRow{Components: []discordgo.MessageComponent{component}})
+				actionRows = append(actionRows, &discordgo.ActionsRow{Components: []discordgo.MessageComponent{component}})
 			}
 		}
 	}
-	return
+
+	var returnComponents []discordgo.MessageComponent
+	for _, c := range actionRows {
+		returnComponents = append(returnComponents, c)
+	}
+	return returnComponents, nil
 }
 
 // indirect is taken from 'text/template/exec.go'
