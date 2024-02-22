@@ -2519,7 +2519,7 @@ func (c *Context) tmplParseSelectMenu(values ...interface{}) (*discordgo.SelectM
 				return nil, errors.New("invalid select menu type")
 			}
 			switch strings.ToLower(val) {
-			case "string":
+			case "string", "text":
 			case "user":
 				menuType = discordgo.UserSelectMenuComponent
 			case "role":

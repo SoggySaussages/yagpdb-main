@@ -1109,9 +1109,6 @@ func ExecuteCustomCommandFromComponent(cc *models.CustomCommand, gs *dstate.Guil
 		case discordgo.ChannelSelectMenuComponent:
 			tmplCtx.Data["MenuType"] = "channel"
 		}
-	}
-	switch interaction.MessageComponentData().ComponentType {
-	case discordgo.SelectMenuComponent, discordgo.UserSelectMenuComponent, discordgo.RoleSelectMenuComponent, discordgo.MentionableSelectMenuComponent, discordgo.ChannelSelectMenuComponent:
 		tmplCtx.Data["CmdArgs"] = interaction.MessageComponentData().Values
 	}
 
@@ -1127,7 +1124,6 @@ func ExecuteCustomCommandFromComponent(cc *models.CustomCommand, gs *dstate.Guil
 
 func ExecuteCustomCommandFromModal(cc *models.CustomCommand, gs *dstate.GuildSet, cs *dstate.ChannelState, stripped string, interaction *discordgo.Interaction) error {
 	ms := dstate.MemberStateFromMember(interaction.Member)
-	ms.GuildID = gs.ID
 	tmplCtx := templates.NewContext(gs, cs, ms)
 	tmplCtx.CurrentFrame.Interaction = interaction
 
