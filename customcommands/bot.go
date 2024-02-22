@@ -647,6 +647,8 @@ func handleInteractionCreate(evt *eventsystem.EventData) {
 		return
 	}
 
+	interaction.Member.GuildID = evt.GS.ID
+
 	switch interactionType {
 	case discordgo.InteractionMessageComponent:
 		cMessage, err := common.BotSession.ChannelMessage(cState.ID, interaction.Message.ID)
