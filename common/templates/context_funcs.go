@@ -2254,6 +2254,9 @@ func (c *Context) tmplEditResponse(filterSpecialMentions bool) func(interactionT
 
 		if editOriginal {
 			_, err = common.BotSession.EditOriginalInteractionResponse(common.BotApplication.ID, token, msgEdit)
+			if err == nil && token == c.CurrentFrame.Interaction.Token {
+				c.CurrentFrame.InteractionRespondedTo = true
+			}
 		} else {
 			_, err = common.BotSession.EditFollowupMessage(common.BotApplication.ID, token, mID, msgEdit)
 		}
@@ -2300,6 +2303,7 @@ func (c *Context) tmplSendModal(modal interface{}) (interface{}, error) {
 	if err != nil {
 		return "", err
 	}
+	c.CurrentFrame.InteractionRespondedTo = true
 	return "", nil
 }
 
@@ -2354,8 +2358,13 @@ func (c *Context) tmplSendResponse(filterSpecialMentions bool, returnID bool) fu
 				Type: discordgo.InteractionResponseChannelMessageWithSource,
 				Data: msgSend,
 			})
-			if err == nil && returnID {
-				m, err = common.BotSession.GetOriginalInteractionResponse(common.BotApplication.ID, token)
+			if err == nil {
+				if token == c.CurrentFrame.Interaction.Token {
+					c.CurrentFrame.InteractionRespondedTo = true
+				}
+				if returnID {
+					m, err = common.BotSession.GetOriginalInteractionResponse(common.BotApplication.ID, token)
+				}
 			}
 		case sendMessageInteractionFollowup:
 			m, err = common.BotSession.CreateFollowupMessage(common.BotApplication.ID, token, &discordgo.WebhookParams{
@@ -2438,6 +2447,7 @@ func (c *Context) tmplUpdateMessage(filterSpecialMentions bool) func(msg interfa
 			return "", err
 		}
 
+		c.CurrentFrame.InteractionRespondedTo = true
 		return "", nil
 	}
 }
