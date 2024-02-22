@@ -638,8 +638,7 @@ func CreateModal(values ...interface{}) (*discordgo.InteractionResponse, error) 
 	}, nil
 }
 
-func distributeComponents(components reflect.Value) ([]discordgo.MessageComponent, error) {
-	var actionRows []*discordgo.ActionsRow
+func distributeComponents(components reflect.Value) (returnComponents []discordgo.MessageComponent, err error) {
 	const maxRows = 5       // Discord limitation
 	const maxComponents = 5 // (per action row) Discord limitation
 	for i := 0; i < components.Len() && i < maxRows; i++ {
@@ -675,11 +674,12 @@ func distributeComponents(components reflect.Value) ([]discordgo.MessageComponen
 				}
 				actionRow.Components = append(actionRow.Components, component)
 			}
-			actionRows = append(actionRows, &actionRow)
+			returnComponents = append(returnComponents, &actionRow)
 		} else {
 			// user just slapped a bunch of components into a slice. we need to organize ourselves
 			// i'm sure there's a better way to structure this entire branch
 			var component discordgo.MessageComponent
+			tempRow := discordgo.ActionsRow{}
 			m, isMenu := components.Index(i).Interface().(*discordgo.SelectMenu)
 			b, ok := components.Index(i).Interface().(*discordgo.Button)
 			if isMenu {
@@ -695,25 +695,17 @@ func distributeComponents(components reflect.Value) ([]discordgo.MessageComponen
 			} else {
 				return nil, errors.New("invalid component passed to send message builder")
 			}
-			if len(actionRows) > 0 {
-				latestRow := actionRows[len(actionRows)-1]
-				availableSpace := maxComponents - len(latestRow.Components)
-				if isMenu && availableSpace == 5 || !isMenu && availableSpace >= 1 {
-					latestRow.Components = append(latestRow.Components, component)
-				} else if len(actionRows) < 5 {
-					actionRows = append(actionRows, &discordgo.ActionsRow{Components: []discordgo.MessageComponent{component}})
-				}
+			availableSpace := 5 - len(tempRow.Components)
+			if ok && availableSpace > 0 || isMenu && availableSpace == 5 {
+				tempRow.Components = append(tempRow.Components, component)
 			} else {
-				actionRows = append(actionRows, &discordgo.ActionsRow{Components: []discordgo.MessageComponent{component}})
+				returnComponents = append(returnComponents, tempRow)
+				tempRow.Components = []discordgo.MessageComponent{component}
 			}
 		}
 	}
 
-	var returnComponents []discordgo.MessageComponent
-	for _, c := range actionRows {
-		returnComponents = append(returnComponents, c)
-	}
-	return returnComponents, nil
+	return
 }
 
 // indirect is taken from 'text/template/exec.go'
