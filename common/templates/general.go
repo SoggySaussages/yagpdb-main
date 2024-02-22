@@ -652,8 +652,14 @@ func distributeComponents(components reflect.Value) (returnComponents []discordg
 				m, isMenu := v.Index(i).Interface().(*discordgo.SelectMenu)
 				b, ok := v.Index(i).Interface().(*discordgo.Button)
 				if isMenu {
+					if m.CustomID == "templates-" {
+						m.CustomID += ToString(i)
+					}
 					component = m
 				} else if ok {
+					if b.CustomID == "templates-" {
+						m.CustomID += ToString(i)
+					}
 					component = b
 				} else {
 					return nil, errors.New("invalid component passed to send message builder")
