@@ -2199,7 +2199,11 @@ func (c *Context) tmplEditResponse(filterSpecialMentions bool) func(interactionT
 
 		_, token := c.tokenArg(interactionToken)
 		if token == "" {
-			return "", errors.New("invalid interaction token")
+			if c.CurrentFrame.Interaction != nil {
+				token = c.CurrentFrame.Interaction.Token
+			} else {
+				return "", nil
+			}
 		}
 
 		var editOriginal bool
@@ -2254,6 +2258,9 @@ func (c *Context) tmplEditResponse(filterSpecialMentions bool) func(interactionT
 
 		if editOriginal {
 			_, err = common.BotSession.EditOriginalInteractionResponse(common.BotApplication.ID, token, msgEdit)
+			if err == nil && token == c.CurrentFrame.Interaction.Token {
+				c.CurrentFrame.InteractionRespondedTo = true
+			}
 		} else {
 			_, err = common.BotSession.EditFollowupMessage(common.BotApplication.ID, token, mID, msgEdit)
 		}
@@ -2300,6 +2307,7 @@ func (c *Context) tmplSendModal(modal interface{}) (interface{}, error) {
 	if err != nil {
 		return "", err
 	}
+	c.CurrentFrame.InteractionRespondedTo = true
 	return "", nil
 }
 
@@ -2359,6 +2367,9 @@ func (c *Context) tmplSendResponse(filterSpecialMentions bool, returnID bool) fu
 				Data: msgSend,
 			})
 			if err == nil && returnID {
+				if token == c.CurrentFrame.Interaction.Token {
+					c.CurrentFrame.InteractionRespondedTo = true
+				}
 				m, err = common.BotSession.GetOriginalInteractionResponse(common.BotApplication.ID, token)
 			}
 		case sendMessageInteractionFollowup:
@@ -2442,6 +2453,7 @@ func (c *Context) tmplUpdateMessage(filterSpecialMentions bool) func(msg interfa
 			return "", err
 		}
 
+		c.CurrentFrame.InteractionRespondedTo = true
 		return "", nil
 	}
 }
