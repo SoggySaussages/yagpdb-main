@@ -537,7 +537,6 @@ func (c *Context) SendResponse(content string) (m *discordgo.Message, err error)
 			},
 		})
 		if err == nil {
-			c.CurrentFrame.InteractionRespondedTo = true
 			m, getErr = common.BotSession.GetOriginalInteractionResponse(common.BotApplication.ID, c.CurrentFrame.Interaction.Token)
 		}
 	case sendMessageInteractionFollowup:
