@@ -620,7 +620,7 @@ func CreateModal(values ...interface{}) (*discordgo.InteractionResponse, error) 
 				if err != nil {
 					return nil, err
 				}
-				field := f.(*discordgo.TextInput)
+				field := f.(discordgo.TextInput)
 				if field.Style == 0 {
 					field.Style = discordgo.TextInputShort
 				}
