@@ -641,10 +641,9 @@ func CreateModal(values ...interface{}) (*discordgo.InteractionResponse, error) 
 func distributeComponents(components reflect.Value) (returnComponents []discordgo.MessageComponent, err error) {
 	const maxRows = 5       // Discord limitation
 	const maxComponents = 5 // (per action row) Discord limitation
-	tempRow := discordgo.ActionsRow{}
-	for i := 0; i < components.Len() && i < maxRows; i++ {
-		v, _ := indirect(reflect.ValueOf(components.Index(i).Interface()))
-		if v.Kind() == reflect.Slice {
+	v, _ := indirect(reflect.ValueOf(components.Index(0).Interface()))
+	if v.Kind() == reflect.Slice {
+		for i := 0; i < components.Len() && i < maxRows; i++ {
 			// slice within a slice. user is defining their own action row
 			// layout; treat each slice as an action row
 			actionRow := discordgo.ActionsRow{Components: []discordgo.MessageComponent{}}
@@ -676,9 +675,12 @@ func distributeComponents(components reflect.Value) (returnComponents []discordg
 				actionRow.Components = append(actionRow.Components, component)
 			}
 			returnComponents = append(returnComponents, &actionRow)
-		} else {
-			// user just slapped a bunch of components into a slice. we need to organize ourselves
-			// i'm sure there's a better way to structure this entire branch
+		}
+	} else {
+		// user just slapped a bunch of components into a slice. we need to organize ourselves
+		// i'm sure there's a better way to structure this entire branch
+		tempRow := discordgo.ActionsRow{}
+		for i := 0; i < components.Len() && i < maxRows; i++ {
 			var component discordgo.MessageComponent
 			m, isMenu := components.Index(i).Interface().(*discordgo.SelectMenu)
 			b, ok := components.Index(i).Interface().(*discordgo.Button)
@@ -713,7 +715,6 @@ func distributeComponents(components reflect.Value) (returnComponents []discordg
 			}
 		}
 	}
-
 	return
 }
 
