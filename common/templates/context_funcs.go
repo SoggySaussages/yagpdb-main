@@ -2326,11 +2326,7 @@ func (c *Context) tmplSendResponse(filterSpecialMentions bool, returnID bool) fu
 
 		sendMessageType, token := c.tokenArg(interactionToken)
 		if token == "" {
-			if c.CurrentFrame.Interaction != nil {
-				token = c.CurrentFrame.Interaction.Token
-			} else {
-				return ""
-			}
+			return ""
 		}
 
 		var m *discordgo.Message
