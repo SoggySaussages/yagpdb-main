@@ -2313,8 +2313,12 @@ func (c *Context) tmplSendModal(values ...interface{}) (interface{}, error) {
 						return nil, err
 					}
 					field := f.(*discordgo.TextInput)
+					// validation
 					if field.Style == 0 {
 						field.Style = discordgo.TextInputShort
+					}
+					if field.CustomID == "" {
+						field.CustomID = fmt.Sprintf("templates-text_field_%d", i)
 					}
 					modal.Components = append(modal.Components, discordgo.ActionsRow{[]discordgo.MessageComponent{field}})
 				}
@@ -2509,6 +2513,8 @@ func (c *Context) tmplParseButton(values ...interface{}) (*discordgo.Button, err
 				convertedButton["style"] = discordgo.DangerButton
 			case "link", "url":
 				convertedButton["style"] = discordgo.LinkButton
+			default:
+				return nil, errors.New("invalid button style")
 			}
 		default:
 			convertedButton[k] = v
@@ -2520,6 +2526,11 @@ func (c *Context) tmplParseButton(values ...interface{}) (*discordgo.Button, err
 		button = b.(discordgo.Button)
 		if button.Style != discordgo.LinkButton {
 			button.CustomID = "templates-" + button.CustomID
+		}
+
+		// validation
+		if button.Style == discordgo.LinkButton && button.URL == "" {
+			return nil, errors.New("a link is required for a link button")
 		}
 	}
 	return &button, err
@@ -2564,6 +2575,17 @@ func (c *Context) tmplParseSelectMenu(values ...interface{}) (*discordgo.SelectM
 	if err == nil {
 		menu = m.(discordgo.SelectMenu)
 		menu.CustomID = "templates-" + menu.CustomID
+
+		// validation
+		if menu.MenuType == discordgo.StringSelectMenu && len(menu.Options) < 1 || len(menu.Options) > 25 {
+			return nil, errors.New("invalid number of menu options, must have between 1 and 25")
+		}
+		if *menu.MinValues < 1 || *menu.MinValues > 25 {
+			return nil, errors.New("invalid min values, must be between 1 and 25")
+		}
+		if menu.MaxValues > 25 {
+			return nil, errors.New("invalid max values, max 25")
+		}
 	}
 	return &menu, err
 }

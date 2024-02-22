@@ -228,9 +228,7 @@ func CreateComponent(expectedType discordgo.ComponentType, values ...interface{}
 	var component discordgo.MessageComponent
 	switch expectedType {
 	case discordgo.ActionsRowComponent:
-		var comp discordgo.ActionsRow
-		err = json.Unmarshal(encoded, &comp)
-		component = comp
+		component = discordgo.ActionsRow{}
 	case discordgo.ButtonComponent:
 		var comp discordgo.Button
 		err = json.Unmarshal(encoded, &comp)
