@@ -680,7 +680,7 @@ func distributeComponents(components reflect.Value) (returnComponents []discordg
 		// user just slapped a bunch of components into a slice. we need to organize ourselves
 		// i'm sure there's a better way to structure this entire branch
 		tempRow := discordgo.ActionsRow{}
-		for i := 0; i < components.Len() && i < maxRows; i++ {
+		for i := 0; i < components.Len() && i < maxRows*maxComponents; i++ {
 			var component discordgo.MessageComponent
 			m, isMenu := components.Index(i).Interface().(*discordgo.SelectMenu)
 			b, ok := components.Index(i).Interface().(*discordgo.Button)
