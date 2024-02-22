@@ -2564,9 +2564,6 @@ func (c *Context) tmplParseSelectMenu(values ...interface{}) (*discordgo.SelectM
 	if err == nil {
 		menu = m.(discordgo.SelectMenu)
 		menu.CustomID = "templates-" + menu.CustomID
-		if len(menu.Options) < 1 || len(menu.Options) > 25 {
-			return nil, errors.New("invalid number of menu options, must be between 1 and 25")
-		}
 	}
 	return &menu, err
 }
