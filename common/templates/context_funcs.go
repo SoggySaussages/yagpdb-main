@@ -2273,75 +2273,30 @@ func (c *Context) tmplEphemeralResponse() string {
 	return ""
 }
 
-func (c *Context) tmplSendModal(values ...interface{}) (interface{}, error) {
+func (c *Context) tmplSendModal(modal interface{}) (interface{}, error) {
 	if c.IncreaseCheckGenericAPICall() {
 		return "", ErrTooManyAPICalls
 	}
 
-	if len(values) < 1 {
-		return "", nil
+	var typedModal *discordgo.InteractionResponse
+	switch m := modal.(type) {
+	case *discordgo.InteractionResponse:
+		typedModal = m
+	case discordgo.InteractionResponse:
+		typedModal = &m
+	default:
+		return "", errors.New("invalid modal passed to sendModal")
+	}
+
+	if typedModal.Type != discordgo.InteractionResponseModal {
+		return "", errors.New("invalid modal passed to sendModal")
 	}
 
 	if c.CurrentFrame.Interaction == nil {
 		return "", errors.New("no interaction data in context")
 	}
 
-	messageSdict, err := StringKeyDictionary(values...)
-	if err != nil {
-		return "", err
-	}
-
-	modal := &discordgo.InteractionResponseData{}
-
-	for key, val := range messageSdict {
-
-		switch key {
-		case "title":
-			modal.Title = ToString(val)
-		case "custom_id":
-			modal.CustomID = "templates-" + ToString(val)
-		case "fields":
-			if val == nil {
-				continue
-			}
-			v, _ := indirect(reflect.ValueOf(val))
-			if v.Kind() == reflect.Slice {
-				const maxRows = 5 // Discord limitation
-				for i := 0; i < v.Len() && i < maxRows; i++ {
-					f, err := CreateComponent(discordgo.TextInputComponent, v.Index(i).Interface())
-					if err != nil {
-						return nil, err
-					}
-					field := f.(discordgo.TextInput)
-					// validation
-					if field.Style == 0 {
-						field.Style = discordgo.TextInputShort
-					}
-					if field.CustomID == "" {
-						field.CustomID = fmt.Sprintf("templates-text_field_%d", i)
-					}
-					modal.Components = append(modal.Components, discordgo.ActionsRow{[]discordgo.MessageComponent{field}})
-				}
-			} else {
-				f, err := CreateComponent(discordgo.TextInputComponent, val)
-				if err != nil {
-					return nil, err
-				}
-				field := f.(*discordgo.TextInput)
-				if field.Style == 0 {
-					field.Style = discordgo.TextInputShort
-				}
-				modal.Components = append(modal.Components, discordgo.ActionsRow{[]discordgo.MessageComponent{field}})
-			}
-		default:
-			return "", errors.New(`invalid key "` + key + `" passed to send message builder`)
-		}
-
-	}
-	err = common.BotSession.CreateInteractionResponse(c.CurrentFrame.Interaction.ID, c.CurrentFrame.Interaction.Token, &discordgo.InteractionResponse{
-		Type: discordgo.InteractionResponseModal,
-		Data: modal,
-	})
+	err := common.BotSession.CreateInteractionResponse(c.CurrentFrame.Interaction.ID, c.CurrentFrame.Interaction.Token, typedModal)
 	if err != nil {
 		return "", err
 	}

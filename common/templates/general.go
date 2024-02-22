@@ -162,43 +162,6 @@ func CreateSlice(values ...interface{}) (Slice, error) {
 	return Slice(slice), nil
 }
 
-func CreateEmbed(values ...interface{}) (*discordgo.MessageEmbed, error) {
-	if len(values) < 1 {
-		return &discordgo.MessageEmbed{}, nil
-	}
-
-	var m map[string]interface{}
-	switch t := values[0].(type) {
-	case SDict:
-		m = t
-	case *SDict:
-		m = *t
-	case map[string]interface{}:
-		m = t
-	case *discordgo.MessageEmbed:
-		return t, nil
-	default:
-		dict, err := StringKeyDictionary(values...)
-		if err != nil {
-			return nil, err
-		}
-		m = dict
-	}
-
-	encoded, err := json.Marshal(m)
-	if err != nil {
-		return nil, err
-	}
-
-	var embed *discordgo.MessageEmbed
-	err = json.Unmarshal(encoded, &embed)
-	if err != nil {
-		return nil, err
-	}
-
-	return embed, nil
-}
-
 func CreateComponent(expectedType discordgo.ComponentType, values ...interface{}) (discordgo.MessageComponent, error) {
 	if len(values) < 1 && expectedType != discordgo.ActionsRowComponent {
 		return discordgo.ActionsRow{}, errors.New("no values passed to component builder")
@@ -264,6 +227,43 @@ func CreateComponent(expectedType discordgo.ComponentType, values ...interface{}
 	}
 
 	return component, nil
+}
+
+func CreateEmbed(values ...interface{}) (*discordgo.MessageEmbed, error) {
+	if len(values) < 1 {
+		return &discordgo.MessageEmbed{}, nil
+	}
+
+	var m map[string]interface{}
+	switch t := values[0].(type) {
+	case SDict:
+		m = t
+	case *SDict:
+		m = *t
+	case map[string]interface{}:
+		m = t
+	case *discordgo.MessageEmbed:
+		return t, nil
+	default:
+		dict, err := StringKeyDictionary(values...)
+		if err != nil {
+			return nil, err
+		}
+		m = dict
+	}
+
+	encoded, err := json.Marshal(m)
+	if err != nil {
+		return nil, err
+	}
+
+	var embed *discordgo.MessageEmbed
+	err = json.Unmarshal(encoded, &embed)
+	if err != nil {
+		return nil, err
+	}
+
+	return embed, nil
 }
 
 func CreateMessageSend(values ...interface{}) (*discordgo.MessageSend, error) {
@@ -561,6 +561,44 @@ func parseAllowedMentions(Data interface{}) (*discordgo.AllowedMentions, error) 
 	}
 
 	return allowedMentions, nil
+}
+
+func CreateModal(values ...interface{}) (*discordgo.InteractionResponse, error) {
+	if len(values) < 1 {
+		return &discordgo.InteractionResponse{}, errors.New("no values passed to component builder")
+	}
+
+	var m map[string]interface{}
+	switch t := values[0].(type) {
+	case SDict:
+		m = t
+	case *SDict:
+		m = *t
+	case map[string]interface{}:
+		m = t
+	default:
+		dict, err := StringKeyDictionary(values...)
+		if err != nil {
+			return nil, err
+		}
+		m = dict
+	}
+
+	encoded, err := json.Marshal(m)
+	if err != nil {
+		return nil, err
+	}
+
+	var modal *discordgo.InteractionResponseData
+	err = json.Unmarshal(encoded, &modal)
+	if err != nil {
+		return nil, err
+	}
+
+	return &discordgo.InteractionResponse{
+		Type: discordgo.InteractionResponseModal,
+		Data: modal,
+	}, nil
 }
 
 func distributeComponents(components reflect.Value) (returnComponents []discordgo.MessageComponent, err error) {
