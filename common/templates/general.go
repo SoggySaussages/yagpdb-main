@@ -641,6 +641,7 @@ func CreateModal(values ...interface{}) (*discordgo.InteractionResponse, error) 
 func distributeComponents(components reflect.Value) (returnComponents []discordgo.MessageComponent, err error) {
 	const maxRows = 5       // Discord limitation
 	const maxComponents = 5 // (per action row) Discord limitation
+	tempRow := discordgo.ActionsRow{}
 	for i := 0; i < components.Len() && i < maxRows; i++ {
 		v, _ := indirect(reflect.ValueOf(components.Index(i).Interface()))
 		if v.Kind() == reflect.Slice {
@@ -679,7 +680,6 @@ func distributeComponents(components reflect.Value) (returnComponents []discordg
 			// user just slapped a bunch of components into a slice. we need to organize ourselves
 			// i'm sure there's a better way to structure this entire branch
 			var component discordgo.MessageComponent
-			tempRow := discordgo.ActionsRow{}
 			m, isMenu := components.Index(i).Interface().(*discordgo.SelectMenu)
 			b, ok := components.Index(i).Interface().(*discordgo.Button)
 			if isMenu {
