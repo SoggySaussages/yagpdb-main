@@ -654,12 +654,12 @@ func distributeComponents(components reflect.Value) ([]discordgo.MessageComponen
 				b, ok := v.Index(i2).Interface().(*discordgo.Button)
 				if isMenu {
 					if m.CustomID == "templates-" {
-						m.CustomID = "templates-" + ToString(i2)
+						m.CustomID = "templates-" + ToString(i*5+i2)
 					}
 					component = m
 				} else if ok {
 					if b.CustomID == "templates-" {
-						b.CustomID = "templates-" + ToString(i2)
+						b.CustomID = "templates-" + ToString(i*5+i2)
 					}
 					component = b
 				} else {
