@@ -584,15 +584,52 @@ func CreateModal(values ...interface{}) (*discordgo.InteractionResponse, error) 
 		m = dict
 	}
 
-	encoded, err := json.Marshal(m)
-	if err != nil {
-		return nil, err
-	}
-
 	var modal *discordgo.InteractionResponseData
-	err = json.Unmarshal(encoded, &modal)
-	if err != nil {
-		return nil, err
+
+	for key, val := range m {
+
+		switch key {
+		case "title":
+			modal.Title = ToString(val)
+		case "custom_id":
+			modal.CustomID = "templates-" + ToString(val)
+		case "fields":
+			if val == nil {
+				continue
+			}
+			v, _ := indirect(reflect.ValueOf(val))
+			if v.Kind() == reflect.Slice {
+				const maxRows = 5 // Discord limitation
+				for i := 0; i < v.Len() && i < maxRows; i++ {
+					f, err := CreateComponent(discordgo.TextInputComponent, v.Index(i).Interface())
+					if err != nil {
+						return nil, err
+					}
+					field := f.(discordgo.TextInput)
+					// validation
+					if field.Style == 0 {
+						field.Style = discordgo.TextInputShort
+					}
+					if field.CustomID == "" {
+						field.CustomID = fmt.Sprintf("templates-text_field_%d", i)
+					}
+					modal.Components = append(modal.Components, discordgo.ActionsRow{[]discordgo.MessageComponent{field}})
+				}
+			} else {
+				f, err := CreateComponent(discordgo.TextInputComponent, val)
+				if err != nil {
+					return nil, err
+				}
+				field := f.(*discordgo.TextInput)
+				if field.Style == 0 {
+					field.Style = discordgo.TextInputShort
+				}
+				modal.Components = append(modal.Components, discordgo.ActionsRow{[]discordgo.MessageComponent{field}})
+			}
+		default:
+			return nil, errors.New(`invalid key "` + key + `" passed to send message builder`)
+		}
+
 	}
 
 	return &discordgo.InteractionResponse{
