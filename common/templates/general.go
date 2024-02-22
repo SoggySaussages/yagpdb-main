@@ -683,7 +683,7 @@ func distributeComponents(components reflect.Value) (returnComponents []discordg
 				return nil, errors.New("invalid component passed to send message builder")
 			}
 			if len(returnComponents) > 0 {
-				latestRow := returnComponents[len(returnComponents)-1].(*discordgo.ActionsRow)
+				latestRow := returnComponents[len(returnComponents)-1].(discordgo.ActionsRow)
 				availableSpace := maxComponents - len(latestRow.Components)
 				if isMenu && availableSpace == 5 || !isMenu && availableSpace >= 1 {
 					latestRow.Components = append(latestRow.Components, component)
