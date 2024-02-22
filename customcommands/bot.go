@@ -652,15 +652,14 @@ func handleInteractionCreate(evt *eventsystem.EventData) {
 	switch interactionType {
 	case discordgo.InteractionMessageComponent:
 		cMessage, err := common.BotSession.ChannelMessage(cState.ID, interaction.Message.ID)
-		if err != nil {
-			logger.WithField("guild", evt.GS.ID).WithError(err).Error("failed finding component ccs")
-			return
+		if err == nil {
+			cMessage.GuildID = cState.GuildID
+			interaction.Message = cMessage
 		}
-		cMessage.GuildID = cState.GuildID
-		interaction.Message = cMessage
 
 		cID := interaction.MessageComponentData().CustomID
 
+		// continue only if this component was created by a cc
 		if strings.HasPrefix(cID, "templates-") {
 			cID = strings.TrimPrefix(cID, "templates-")
 		} else {
@@ -669,12 +668,6 @@ func handleInteractionCreate(evt *eventsystem.EventData) {
 
 		triggeredCmds, err := findComponentOrModalTriggerCustomCommands(evt.Context(), cState, interaction.Member, cID, false)
 		if err != nil {
-			if common.IsDiscordErr(err, discordgo.ErrCodeUnknownMember) {
-				// example scenario: removing reactions of a user that's not on the server
-				// (reactions aren't cleared automatically when a user leaves)
-				return
-			}
-
 			logger.WithField("guild", evt.GS.ID).WithError(err).Error("failed finding component ccs")
 			return
 		}
@@ -682,8 +675,6 @@ func handleInteractionCreate(evt *eventsystem.EventData) {
 		if len(triggeredCmds) < 1 {
 			return
 		}
-
-		//	metricsExecutedCommands.With(prometheus.Labels{"trigger": "reaction"}).Inc()
 
 		for _, matched := range triggeredCmds {
 			err = ExecuteCustomCommandFromComponent(matched.CC, evt.GS, cState, matched.Stripped, &interaction)
@@ -694,6 +685,7 @@ func handleInteractionCreate(evt *eventsystem.EventData) {
 	case discordgo.InteractionModalSubmit:
 		cID := interaction.ModalSubmitData().CustomID
 
+		// continue only if this modal was created by a cc
 		if strings.HasPrefix(cID, "templates-") {
 			cID = strings.TrimPrefix(cID, "templates-")
 		} else {
@@ -702,12 +694,6 @@ func handleInteractionCreate(evt *eventsystem.EventData) {
 
 		triggeredCmds, err := findComponentOrModalTriggerCustomCommands(evt.Context(), cState, interaction.Member, cID, true)
 		if err != nil {
-			if common.IsDiscordErr(err, discordgo.ErrCodeUnknownMember) {
-				// example scenario: removing reactions of a user that's not on the server
-				// (reactions aren't cleared automatically when a user leaves)
-				return
-			}
-
 			logger.WithField("guild", evt.GS.ID).WithError(err).Error("failed finding component ccs")
 			return
 		}
@@ -715,8 +701,6 @@ func handleInteractionCreate(evt *eventsystem.EventData) {
 		if len(triggeredCmds) < 1 {
 			return
 		}
-
-		//	metricsExecutedCommands.With(prometheus.Labels{"trigger": "reaction"}).Inc()
 
 		for _, matched := range triggeredCmds {
 			err = ExecuteCustomCommandFromModal(matched.CC, evt.GS, cState, matched.Stripped, &interaction)
@@ -1102,14 +1086,34 @@ func ExecuteCustomCommand(cmd *models.CustomCommand, tmplCtx *templates.Context)
 func ExecuteCustomCommandFromComponent(cc *models.CustomCommand, gs *dstate.GuildSet, cs *dstate.ChannelState, stripped string, interaction *discordgo.Interaction) error {
 	ms := dstate.MemberStateFromMember(interaction.Member)
 	tmplCtx := templates.NewContext(gs, cs, ms)
+	tmplCtx.CurrentFrame.Interaction = interaction
+
 	tmplCtx.Data["Interaction"] = interaction
 	tmplCtx.Data["InteractionData"] = interaction.MessageComponentData()
+	tmplCtx.Data["CustomID"] = interaction.MessageComponentData().CustomID
+	tmplCtx.Data["Cmd"] = interaction.MessageComponentData().CustomID
 	tmplCtx.Data["StrippedID"] = stripped
+	tmplCtx.Data["StrippedMsg"] = stripped
+	tmplCtx.Data["IsButton"] = interaction.MessageComponentData().ComponentType == discordgo.ButtonComponent
+	tmplCtx.Data["IsMenu"] = interaction.MessageComponentData().ComponentType == discordgo.SelectMenuComponent
+	if tmplCtx.Data["IsMenu"] == true {
+		switch interaction.MessageComponentData().ComponentType {
+		case discordgo.SelectMenuComponent:
+			tmplCtx.Data["MenuType"] = "string"
+		case discordgo.UserSelectMenuComponent:
+			tmplCtx.Data["MenuType"] = "user"
+		case discordgo.RoleSelectMenuComponent:
+			tmplCtx.Data["MenuType"] = "role"
+		case discordgo.MentionableSelectMenuComponent:
+			tmplCtx.Data["MenuType"] = "mentionable"
+		case discordgo.ChannelSelectMenuComponent:
+			tmplCtx.Data["MenuType"] = "channel"
+		}
+	}
 	switch interaction.MessageComponentData().ComponentType {
 	case discordgo.SelectMenuComponent, discordgo.UserSelectMenuComponent, discordgo.RoleSelectMenuComponent, discordgo.MentionableSelectMenuComponent, discordgo.ChannelSelectMenuComponent:
-		tmplCtx.Data["CmdValues"] = interaction.MessageComponentData().Values
+		tmplCtx.Data["CmdArgs"] = interaction.MessageComponentData().Values
 	}
-	tmplCtx.CurrentFrame.Interaction = interaction
 
 	msg := interaction.Message
 	msg.Member = ms.DgoMember()
@@ -1125,17 +1129,22 @@ func ExecuteCustomCommandFromModal(cc *models.CustomCommand, gs *dstate.GuildSet
 	ms := dstate.MemberStateFromMember(interaction.Member)
 	ms.GuildID = gs.ID
 	tmplCtx := templates.NewContext(gs, cs, ms)
+	tmplCtx.CurrentFrame.Interaction = interaction
+
 	tmplCtx.Data["Interaction"] = interaction
 	tmplCtx.Data["InteractionData"] = interaction.ModalSubmitData()
+	tmplCtx.Data["CustomID"] = interaction.ModalSubmitData().CustomID
+	tmplCtx.Data["Cmd"] = interaction.ModalSubmitData().CustomID
 	tmplCtx.Data["StrippedID"] = stripped
+	tmplCtx.Data["StrippedMsg"] = stripped
+	tmplCtx.Data["IsModal"] = true
 	cmdValues := []string{}
 	for i := 0; i < len(interaction.ModalSubmitData().Components); i++ {
 		row := interaction.ModalSubmitData().Components[i].(discordgo.ActionsRow)
 		field := row.Components[0].(discordgo.TextInput)
 		cmdValues = append(cmdValues, field.Value)
 	}
-	tmplCtx.Data["CmdValues"] = cmdValues
-	tmplCtx.CurrentFrame.Interaction = interaction
+	tmplCtx.Data["CmdArgs"] = cmdValues
 
 	msg := interaction.Message
 	msg.Member = ms.DgoMember()
