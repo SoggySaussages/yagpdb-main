@@ -687,18 +687,27 @@ func distributeComponents(components reflect.Value) (returnComponents []discordg
 					m.CustomID = "templates-" + ToString(i)
 				}
 				component = m
+				logger.Println(*m)
 			} else if ok {
 				if b.CustomID == "templates-" {
 					b.CustomID = "templates-" + ToString(i)
 				}
 				component = b
+				logger.Println(*b)
 			} else {
 				return nil, errors.New("invalid component passed to send message builder")
 			}
+			logger.Println(tempRow.Components)
+			logger.Println(len(tempRow.Components))
 			availableSpace := 5 - len(tempRow.Components)
+			logger.Println(availableSpace)
+			logger.Println(ok)
+			logger.Println(isMenu)
 			if ok && availableSpace > 0 || isMenu && availableSpace == 5 {
+				logger.Println("button")
 				tempRow.Components = append(tempRow.Components, component)
 			} else {
+				logger.Println("buttont")
 				returnComponents = append(returnComponents, tempRow)
 				tempRow.Components = []discordgo.MessageComponent{component}
 			}
