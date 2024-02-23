@@ -590,7 +590,7 @@ func CreateModal(values ...interface{}) (*discordgo.InteractionResponse, error) 
 	}
 	logger.Info("button")
 
-	modal := &discordgo.InteractionResponseData{}
+	modal := &discordgo.InteractionResponseData{CustomID: "templates-"}
 
 	for key, val := range m {
 		switch key {
@@ -600,7 +600,7 @@ func CreateModal(values ...interface{}) (*discordgo.InteractionResponse, error) 
 			logger.Info("button")
 		case "custom_id":
 			logger.Info("button")
-			modal.CustomID = "templates-" + ToString(val)
+			modal.CustomID = modal.CustomID + ToString(val)
 			logger.Info("button")
 		case "fields":
 			logger.Info("button")
