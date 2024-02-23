@@ -647,9 +647,9 @@ func distributeComponents(components reflect.Value) (returnComponents []discordg
 		// layout; treat each slice as an action row
 		for i := 0; i < components.Len() && i < maxRows; i++ {
 			tempRow := discordgo.ActionsRow{}
-			for i2 := 0; i2 < v.Len() && i2 < maxComponents; i2++ {
+			for i2 := 0; i2 < components.Index(i).Len() && i2 < maxComponents; i2++ {
 				var component discordgo.MessageComponent
-				switch val := v.Index(i2).Interface().(type) {
+				switch val := components.Index(i).Index(i2).Interface().(type) {
 				case *discordgo.Button:
 					if val.CustomID == "templates-" {
 						val.CustomID = "templates-" + ToString(i*5+i2)
