@@ -60,10 +60,6 @@ func cmdFuncRoleMenuCreate(parsed *dcmd.Data) (interface{}, error) {
 	}
 
 	skipAmount := parsed.Switches["skip"].Int()
-	rolemenuChannel := parsed.Switches["channel"].Int64()
-	if rolemenuChannel == 0 {
-		rolemenuChannel = parsed.ChannelID
-	}
 
 	cmdsLen := len(group.R.RoleCommands)
 	if cmdsLen < 1 {
@@ -73,7 +69,7 @@ func cmdFuncRoleMenuCreate(parsed *dcmd.Data) (interface{}, error) {
 	model := &models.RoleMenu{
 		GuildID:   parsed.GuildData.GS.ID,
 		OwnerID:   parsed.Author.ID,
-		ChannelID: rolemenuChannel,
+		ChannelID: parsed.ChannelID,
 
 		RoleGroupID:                null.Int64From(group.ID),
 		OwnMessage:                 true,
@@ -91,7 +87,7 @@ func cmdFuncRoleMenuCreate(parsed *dcmd.Data) (interface{}, error) {
 		model.OwnMessage = false
 
 		id := parsed.Switches["m"].Int64()
-		msg, err = common.BotSession.ChannelMessage(rolemenuChannel, id)
+		msg, err = common.BotSession.ChannelMessage(parsed.ChannelID, id)
 		if err != nil {
 			return nil, err
 		}
@@ -100,7 +96,7 @@ func cmdFuncRoleMenuCreate(parsed *dcmd.Data) (interface{}, error) {
 	} else {
 
 		// set up the message if not provided
-		msg, err = common.BotSession.ChannelMessageSend(rolemenuChannel, "Role menu\nSetting up...")
+		msg, err = common.BotSession.ChannelMessageSend(parsed.ChannelID, "Role menu\nSetting up...")
 		if err != nil {
 			_, dErr := common.DiscordError(err)
 			errStr := "Failed creating the menu message, check the permissions on the channel"
@@ -128,7 +124,7 @@ func cmdFuncRoleMenuCreate(parsed *dcmd.Data) (interface{}, error) {
 	ClearRolemenuCache(parsed.GuildData.GS.ID)
 	recentMenusTracker.AddMenu(model.MessageID)
 	resp, err := NextRoleMenuSetupStep(parsed.Context(), model, true)
-	updateSetupMessage(parsed.Context(), model, parsed.ChannelID, resp)
+	updateSetupMessage(parsed.Context(), model, resp)
 	return nil, err
 }
 
@@ -176,7 +172,7 @@ func UpdateMenu(parsed *dcmd.Data, menu *models.RoleMenu) (interface{}, error) {
 	// Add all mising options
 	resp, err := NextRoleMenuSetupStep(parsed.Context(), menu, false)
 	if resp != "" {
-		createSetupMessage(parsed.Context(), menu, parsed.ChannelID, resp, true)
+		createSetupMessage(parsed.Context(), menu, resp, true)
 	}
 	ClearRolemenuCache(parsed.GuildData.GS.ID)
 	return nil, err
@@ -475,9 +471,9 @@ func handleReactionAddRemove(evt *eventsystem.EventData) {
 
 		if resp != "" {
 			if err != nil {
-				createSetupMessage(evt.Context(), menu, evt.CS().ID, resp, false)
+				createSetupMessage(evt.Context(), menu, resp, false)
 			} else {
-				updateSetupMessage(evt.Context(), menu, evt.CS().ID, resp)
+				updateSetupMessage(evt.Context(), menu, resp)
 			}
 		}
 
@@ -777,7 +773,7 @@ func cmdFuncRoleMenuEditOption(data *dcmd.Data) (interface{}, error) {
 
 	ClearRolemenuCache(data.GuildData.GS.ID)
 
-	createSetupMessage(data.Context(), menu, data.ChannelID, "React on the emoji for the option you want to change", true)
+	createSetupMessage(data.Context(), menu, "React on the emoji for the option you want to change", true)
 	return nil, nil
 }
 
@@ -905,29 +901,29 @@ func MenuReactedNotDone(ctx context.Context, gs *dstate.GuildSet, rm *models.Rol
 	return "", nil
 }
 
-func updateSetupMessage(ctx context.Context, rm *models.RoleMenu, cID int64, msgContents string) {
+func updateSetupMessage(ctx context.Context, rm *models.RoleMenu, msgContents string) {
 	msgContents = msgContents + "\n\n*This message will be updated with new info throughout the setup.*"
 
 	if rm.SetupMSGID == 0 {
-		createSetupMessage(ctx, rm, cID, msgContents, true)
+		createSetupMessage(ctx, rm, msgContents, true)
 		return
 	}
 
 	// if this is a old message, then don't reuse it
 	msgAge := bot.SnowflakeToTime(rm.SetupMSGID)
 	if msgAge.Before(time.Now().Add(-time.Hour)) {
-		createSetupMessage(ctx, rm, cID, msgContents, true)
+		createSetupMessage(ctx, rm, msgContents, true)
 		return
 	}
 
 	_, err := common.BotSession.ChannelMessageEdit(rm.ChannelID, rm.SetupMSGID, msgContents)
 	if err != nil {
-		createSetupMessage(ctx, rm, cID, msgContents, true)
+		createSetupMessage(ctx, rm, msgContents, true)
 		return
 	}
 }
 
-func createSetupMessage(ctx context.Context, rm *models.RoleMenu, cID int64, msgContents string, updateModel bool) {
+func createSetupMessage(ctx context.Context, rm *models.RoleMenu, msgContents string, updateModel bool) {
 	msgContents = "**Rolemenu setup:** " + msgContents
 
 	msg, err := common.BotSession.ChannelMessageSend(rm.ChannelID, msgContents)
