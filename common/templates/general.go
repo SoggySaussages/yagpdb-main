@@ -679,7 +679,7 @@ func distributeComponents(components reflect.Value) (returnComponents []discordg
 		tempRow := discordgo.ActionsRow{}
 		for i := 0; i < components.Len() && i < maxRows*maxComponents; i++ {
 			var component discordgo.MessageComponent
-			switch val := v.Index(i).Interface().(type) {
+			switch val := components.Index(i).Interface().(type) {
 			case *discordgo.Button:
 				if val.CustomID == "templates-" {
 					val.CustomID = "templates-" + ToString(i)
