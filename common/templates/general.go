@@ -643,38 +643,35 @@ func distributeComponents(components reflect.Value) (returnComponents []discordg
 	const maxComponents = 5 // (per action row) Discord limitation
 	v, _ := indirect(reflect.ValueOf(components.Index(0).Interface()))
 	if v.Kind() == reflect.Slice {
+		// slice within a slice. user is defining their own action row
+		// layout; treat each slice as an action row
 		for i := 0; i < components.Len() && i < maxRows; i++ {
-			// slice within a slice. user is defining their own action row
-			// layout; treat each slice as an action row
-			actionRow := discordgo.ActionsRow{Components: []discordgo.MessageComponent{}}
+			tempRow := discordgo.ActionsRow{}
 			for i2 := 0; i2 < v.Len() && i2 < maxComponents; i2++ {
 				var component discordgo.MessageComponent
-				m, isMenu := v.Index(i2).Interface().(*discordgo.SelectMenu)
-				b, ok := v.Index(i2).Interface().(*discordgo.Button)
-				if isMenu {
-					if m.CustomID == "templates-" {
-						m.CustomID = "templates-" + ToString(i*5+i2)
+				switch val := v.Index(i2).Interface().(type) {
+				case *discordgo.Button:
+					if val.CustomID == "templates-" {
+						val.CustomID = "templates-" + ToString(i*5+i2)
 					}
-					component = m
-				} else if ok {
-					if b.CustomID == "templates-" {
-						b.CustomID = "templates-" + ToString(i*5+i2)
+					component = val
+				case *discordgo.SelectMenu:
+					if val.CustomID == "templates-" {
+						val.CustomID = "templates-" + ToString(i*5+i2)
 					}
-					component = b
-				} else {
+					component = val
+				default:
 					return nil, errors.New("invalid component passed to send message builder")
 				}
-				if isMenu && len(actionRow.Components) != 0 {
-					return nil, errors.New("a select menu cannot share an action row with any other components")
-				} else if len(actionRow.Components) == 1 {
-					_, currentComponentIsMenu := actionRow.Components[0].(*discordgo.SelectMenu)
-					if currentComponentIsMenu {
-						return nil, errors.New("a select menu cannot share an action row with any other components")
-					}
+				if component.Type() == discordgo.SelectMenuComponent && len(tempRow.Components) > 0 {
+					return nil, errors.New("a select menu cannot share an action row with other components")
 				}
-				actionRow.Components = append(actionRow.Components, component)
+				tempRow.Components = append(tempRow.Components, component)
+				if component.Type() == discordgo.SelectMenuComponent {
+					break // move on to next row
+				}
 			}
-			returnComponents = append(returnComponents, &actionRow)
+			returnComponents = append(returnComponents, &tempRow)
 		}
 	} else {
 		// user just slapped a bunch of components into a slice. we need to organize ourselves
@@ -682,36 +679,29 @@ func distributeComponents(components reflect.Value) (returnComponents []discordg
 		tempRow := discordgo.ActionsRow{}
 		for i := 0; i < components.Len() && i < maxRows*maxComponents; i++ {
 			var component discordgo.MessageComponent
-			m, isMenu := components.Index(i).Interface().(*discordgo.SelectMenu)
-			b, ok := components.Index(i).Interface().(*discordgo.Button)
-			if isMenu {
-				if m.CustomID == "templates-" {
-					m.CustomID = "templates-" + ToString(i)
+			switch val := v.Index(i).Interface().(type) {
+			case *discordgo.Button:
+				if val.CustomID == "templates-" {
+					val.CustomID = "templates-" + ToString(i)
 				}
-				component = m
-				logger.Println(*m)
-			} else if ok {
-				if b.CustomID == "templates-" {
-					b.CustomID = "templates-" + ToString(i)
+				component = val
+			case *discordgo.SelectMenu:
+				if val.CustomID == "templates-" {
+					val.CustomID = "templates-" + ToString(i)
 				}
-				component = b
-				logger.Println(*b)
-			} else {
+				component = val
+			default:
 				return nil, errors.New("invalid component passed to send message builder")
 			}
-			logger.Println(tempRow.Components)
-			logger.Println(len(tempRow.Components))
 			availableSpace := 5 - len(tempRow.Components)
-			logger.Println(availableSpace)
-			logger.Println(ok)
-			logger.Println(isMenu)
-			if ok && availableSpace > 0 || isMenu && availableSpace == 5 {
-				logger.Println("button")
+			if component.Type() == discordgo.ButtonComponent && availableSpace > 0 || component.Type() == discordgo.SelectMenuComponent && availableSpace == 5 {
 				tempRow.Components = append(tempRow.Components, component)
 			} else {
-				logger.Println("buttont")
 				returnComponents = append(returnComponents, tempRow)
 				tempRow.Components = []discordgo.MessageComponent{component}
+			}
+			if i == components.Len()-1 {
+				returnComponents = append(returnComponents, tempRow)
 			}
 		}
 	}
