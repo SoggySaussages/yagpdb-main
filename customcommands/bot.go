@@ -1136,7 +1136,7 @@ func ExecuteCustomCommandFromModal(cc *models.CustomCommand, gs *dstate.GuildSet
 	tmplCtx.Data["IsModal"] = true
 	cmdValues := []string{}
 	for i := 0; i < len(interaction.ModalSubmitData().Components); i++ {
-		row := interaction.ModalSubmitData().Components[i].(discordgo.ActionsRow)
+		row := interaction.ModalSubmitData().Components[i].(*discordgo.ActionsRow)
 		field := row.Components[0].(discordgo.TextInput)
 		cmdValues = append(cmdValues, field.Value)
 	}
