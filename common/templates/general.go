@@ -599,6 +599,7 @@ func CreateModal(values ...interface{}) (*discordgo.InteractionResponse, error) 
 			v, _ := indirect(reflect.ValueOf(val))
 			if v.Kind() == reflect.Slice {
 				const maxRows = 5 // Discord limitation
+				usedCustomIDs := []string{}
 				for i := 0; i < v.Len() && i < maxRows; i++ {
 					f, err := CreateComponent(discordgo.TextInputComponent, v.Index(i).Interface())
 					if err != nil {
@@ -611,6 +612,9 @@ func CreateModal(values ...interface{}) (*discordgo.InteractionResponse, error) 
 					}
 					if field.CustomID == "" {
 						field.CustomID = fmt.Sprintf("templates-text_field_%d", i)
+					}
+					if in(usedCustomIDs, field.CustomID) {
+						return nil, errors.New("duplicate custom ids used")
 					}
 					modal.Components = append(modal.Components, discordgo.ActionsRow{[]discordgo.MessageComponent{field}})
 				}
@@ -640,6 +644,7 @@ func CreateModal(values ...interface{}) (*discordgo.InteractionResponse, error) 
 func distributeComponents(components reflect.Value) (returnComponents []discordgo.MessageComponent, err error) {
 	const maxRows = 5       // Discord limitation
 	const maxComponents = 5 // (per action row) Discord limitation
+	usedCustomIDs := []string{}
 	v, _ := indirect(reflect.ValueOf(components.Index(0).Interface()))
 	if v.Kind() == reflect.Slice {
 		// slice within a slice. user is defining their own action row
@@ -653,12 +658,22 @@ func distributeComponents(components reflect.Value) (returnComponents []discordg
 					if val.CustomID == "templates-" {
 						val.CustomID = "templates-" + ToString(i*5+i2)
 					}
+					if in(usedCustomIDs, val.CustomID) {
+						err = errors.New("duplicate custom ids used")
+						return
+					}
 					component = val
+					usedCustomIDs = append(usedCustomIDs, val.CustomID)
 				case *discordgo.SelectMenu:
 					if val.CustomID == "templates-" {
 						val.CustomID = "templates-" + ToString(i*5+i2)
 					}
+					if in(usedCustomIDs, val.CustomID) {
+						err = errors.New("duplicate custom ids used")
+						return
+					}
 					component = val
+					usedCustomIDs = append(usedCustomIDs, val.CustomID)
 				default:
 					return nil, errors.New("invalid component passed to send message builder")
 				}
@@ -674,7 +689,6 @@ func distributeComponents(components reflect.Value) (returnComponents []discordg
 		}
 	} else {
 		// user just slapped a bunch of components into a slice. we need to organize ourselves
-		// i'm sure there's a better way to structure this entire branch
 		tempRow := discordgo.ActionsRow{}
 		for i := 0; i < components.Len() && i < maxRows*maxComponents; i++ {
 			var component discordgo.MessageComponent
@@ -683,12 +697,22 @@ func distributeComponents(components reflect.Value) (returnComponents []discordg
 				if val.CustomID == "templates-" {
 					val.CustomID = "templates-" + ToString(i)
 				}
+				if in(usedCustomIDs, val.CustomID) {
+					err = errors.New("duplicate custom ids used")
+					return
+				}
 				component = val
+				usedCustomIDs = append(usedCustomIDs, val.CustomID)
 			case *discordgo.SelectMenu:
 				if val.CustomID == "templates-" {
 					val.CustomID = "templates-" + ToString(i)
 				}
+				if in(usedCustomIDs, val.CustomID) {
+					err = errors.New("duplicate custom ids used")
+					return
+				}
 				component = val
+				usedCustomIDs = append(usedCustomIDs, val.CustomID)
 			default:
 				return nil, errors.New("invalid component passed to send message builder")
 			}
@@ -696,11 +720,11 @@ func distributeComponents(components reflect.Value) (returnComponents []discordg
 			if component.Type() == discordgo.ButtonComponent && availableSpace > 0 || component.Type() == discordgo.SelectMenuComponent && availableSpace == 5 {
 				tempRow.Components = append(tempRow.Components, component)
 			} else {
-				returnComponents = append(returnComponents, tempRow)
+				returnComponents = append(returnComponents, &tempRow)
 				tempRow.Components = []discordgo.MessageComponent{component}
 			}
 			if i == components.Len()-1 {
-				returnComponents = append(returnComponents, tempRow)
+				returnComponents = append(returnComponents, &tempRow)
 			}
 		}
 	}
