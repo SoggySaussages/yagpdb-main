@@ -2557,7 +2557,7 @@ func (c *Context) tmplParseSelectMenu(values ...interface{}) (*discordgo.SelectM
 		if menu.MenuType == discordgo.StringSelectMenu && len(menu.Options) < 1 || len(menu.Options) > 25 {
 			return nil, errors.New("invalid number of menu options, must have between 1 and 25")
 		}
-		if *menu.MinValues < 1 || *menu.MinValues > 25 {
+		if menu.MinValues != nil && *menu.MinValues < 1 || *menu.MinValues > 25 {
 			return nil, errors.New("invalid min values, must be between 1 and 25")
 		}
 		if menu.MaxValues > 25 {
