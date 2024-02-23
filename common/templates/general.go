@@ -590,7 +590,7 @@ func CreateModal(values ...interface{}) (*discordgo.InteractionResponse, error) 
 	}
 	logger.Info("button")
 
-	var modal *discordgo.InteractionResponseData
+	modal := &discordgo.InteractionResponseData{}
 
 	for key, val := range m {
 		switch key {
