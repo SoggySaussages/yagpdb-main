@@ -2489,13 +2489,18 @@ func (c *Context) tmplParseButton(values ...interface{}) (*discordgo.Button, err
 	b, err := CreateComponent(discordgo.ButtonComponent, convertedButton)
 	if err == nil {
 		button = b.(discordgo.Button)
-		if button.Style != discordgo.LinkButton {
-			button.CustomID = "templates-" + button.CustomID
-		}
-
 		// validation
-		if button.Style == discordgo.LinkButton && button.URL == "" {
-			return nil, errors.New("a link is required for a link button")
+		if button.Style == discordgo.LinkButton {
+			button.CustomID = ""
+			if button.URL == "" {
+				return nil, errors.New("a link is required for a link button")
+			}
+		} else {
+			button.CustomID = "templates-" + button.CustomID
+			button.URL = ""
+		}
+		if button.Label == "" && button.Emoji == nil {
+			return nil, errors.New("button must have a label or emoji")
 		}
 	}
 	return &button, err
