@@ -597,9 +597,11 @@ func CreateModal(values ...interface{}) (*discordgo.InteractionResponse, error) 
 		case "title":
 			logger.Info("button")
 			modal.Title = ToString(val)
+			logger.Info("button")
 		case "custom_id":
 			logger.Info("button")
 			modal.CustomID = "templates-" + ToString(val)
+			logger.Info("button")
 		case "fields":
 			logger.Info("button")
 			if val == nil {
