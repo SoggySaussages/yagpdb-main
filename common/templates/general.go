@@ -163,7 +163,6 @@ func CreateSlice(values ...interface{}) (Slice, error) {
 }
 
 func CreateComponent(expectedType discordgo.ComponentType, values ...interface{}) (discordgo.MessageComponent, error) {
-	logger.Info("button")
 	if len(values) < 1 && expectedType != discordgo.ActionsRowComponent {
 		return discordgo.ActionsRow{}, errors.New("no values passed to component builder")
 	}
@@ -183,13 +182,11 @@ func CreateComponent(expectedType discordgo.ComponentType, values ...interface{}
 		}
 		m = dict
 	}
-	logger.Info("button")
 
 	encoded, err := json.Marshal(m)
 	if err != nil {
 		return nil, err
 	}
-	logger.Info("button")
 
 	var component discordgo.MessageComponent
 	switch expectedType {
@@ -224,7 +221,6 @@ func CreateComponent(expectedType discordgo.ComponentType, values ...interface{}
 		err = json.Unmarshal(encoded, &comp)
 		component = comp
 	}
-	logger.Info("button")
 
 	if err != nil {
 		return nil, err
@@ -571,7 +567,6 @@ func CreateModal(values ...interface{}) (*discordgo.InteractionResponse, error) 
 	if len(values) < 1 {
 		return &discordgo.InteractionResponse{}, errors.New("no values passed to component builder")
 	}
-	logger.Info("button")
 
 	var m map[string]interface{}
 	switch t := values[0].(type) {
@@ -588,22 +583,16 @@ func CreateModal(values ...interface{}) (*discordgo.InteractionResponse, error) 
 		}
 		m = dict
 	}
-	logger.Info("button")
 
 	modal := &discordgo.InteractionResponseData{CustomID: "templates-"}
 
 	for key, val := range m {
 		switch key {
 		case "title":
-			logger.Info("button")
 			modal.Title = ToString(val)
-			logger.Info("button")
 		case "custom_id":
-			logger.Info("button")
 			modal.CustomID = modal.CustomID + ToString(val)
-			logger.Info("button")
 		case "fields":
-			logger.Info("button")
 			if val == nil {
 				continue
 			}
@@ -637,12 +626,10 @@ func CreateModal(values ...interface{}) (*discordgo.InteractionResponse, error) 
 				modal.Components = append(modal.Components, discordgo.ActionsRow{[]discordgo.MessageComponent{field}})
 			}
 		default:
-			logger.Info("button")
 			return nil, errors.New(`invalid key "` + key + `" passed to send message builder`)
 		}
 
 	}
-	logger.Info("button")
 
 	return &discordgo.InteractionResponse{
 		Type: discordgo.InteractionResponseModal,

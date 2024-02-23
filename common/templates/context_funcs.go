@@ -2503,12 +2503,10 @@ func (c *Context) tmplParseButton(values ...interface{}) (*discordgo.Button, err
 
 func (c *Context) tmplParseSelectMenu(values ...interface{}) (*discordgo.SelectMenu, error) {
 	var menu discordgo.SelectMenu
-	logger.Info("button")
 	messageSdict, err := StringKeyDictionary(values...)
 	if err != nil {
 		return nil, err
 	}
-	logger.Info("button")
 
 	menuType := discordgo.SelectMenuComponent
 
@@ -2516,25 +2514,19 @@ func (c *Context) tmplParseSelectMenu(values ...interface{}) (*discordgo.SelectM
 	for k, v := range messageSdict {
 		switch strings.ToLower(k) {
 		case "type":
-			logger.Info("button")
 			val, ok := v.(string)
 			if !ok {
 				return nil, errors.New("invalid select menu type")
 			}
 			switch strings.ToLower(val) {
 			case "string", "text":
-				logger.Info("button")
 			case "user":
-				logger.Info("button")
 				menuType = discordgo.UserSelectMenuComponent
 			case "role":
-				logger.Info("button")
 				menuType = discordgo.RoleSelectMenuComponent
 			case "mentionable":
-				logger.Info("button")
 				menuType = discordgo.MentionableSelectMenuComponent
 			case "channel":
-				logger.Info("button")
 				menuType = discordgo.ChannelSelectMenuComponent
 			default:
 				return nil, errors.New("invalid select menu type")
@@ -2543,32 +2535,25 @@ func (c *Context) tmplParseSelectMenu(values ...interface{}) (*discordgo.SelectM
 			convertedMenu[k] = v
 		}
 	}
-	logger.Info("button")
 
 	m, err := CreateComponent(menuType, convertedMenu)
-	logger.Info("button")
 	if err == nil {
-		logger.Info("button")
 		menu = m.(discordgo.SelectMenu)
 		menu.CustomID = "templates-" + menu.CustomID
-		logger.Info("button")
 
 		// validation
 		if menu.MenuType == discordgo.StringSelectMenu && len(menu.Options) < 1 || len(menu.Options) > 25 {
 			return nil, errors.New("invalid number of menu options, must have between 1 and 25")
 		}
-		logger.Info("button")
 		if menu.MinValues != nil {
 			if *menu.MinValues < 1 || *menu.MinValues > 25 {
 				return nil, errors.New("invalid min values, must be between 1 and 25")
 			}
 		}
-		logger.Info("button")
 		if menu.MaxValues > 25 {
 			return nil, errors.New("invalid max values, max 25")
 		}
 	}
-	logger.Info("button")
 	return &menu, err
 }
 
