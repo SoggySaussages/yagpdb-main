@@ -256,8 +256,8 @@ var cmdListCommands = &commands.YAGCommand{
 			}
 		}
 
-		// Every text-based custom command trigger has a numerical value less than 5, so this is quite safe to do
-		if cc.TriggerType < 5 {
+		// Every message content-based custom command trigger has a numerical value less than 5
+		if cc.TriggerType < 5 || cc.TriggerType == int(CommandTriggerComponent) || cc.TriggerType == int(CommandTriggerModal) {
 			var header string
 			if cc.TextTrigger == "" {
 				cc.TextTrigger = `​`
