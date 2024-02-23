@@ -720,11 +720,11 @@ func distributeComponents(components reflect.Value) (returnComponents []discordg
 			if component.Type() == discordgo.ButtonComponent && availableSpace > 0 || component.Type() == discordgo.SelectMenuComponent && availableSpace == 5 {
 				tempRow.Components = append(tempRow.Components, component)
 			} else {
-				returnComponents = append(returnComponents, &tempRow)
+				returnComponents = append(returnComponents, tempRow)
 				tempRow.Components = []discordgo.MessageComponent{component}
 			}
 			if i == components.Len()-1 {
-				returnComponents = append(returnComponents, &tempRow)
+				returnComponents = append(returnComponents, tempRow)
 			}
 		}
 	}
