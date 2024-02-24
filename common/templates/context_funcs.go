@@ -2593,9 +2593,7 @@ func (c *Context) tokenArg(interactionToken interface{}) (sendType int, token st
 		}
 	}
 
-	logger.Info("button")
 	if c.CurrentFrame.Interaction != nil && token == c.CurrentFrame.Interaction.Token && !c.CurrentFrame.Interaction.RespondedTo {
-		logger.Info("button")
 		sendType = sendMessageInteractionResponse
 	}
 	return
