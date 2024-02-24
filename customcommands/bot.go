@@ -1035,6 +1035,7 @@ func ExecuteCustomCommandFromMessage(gs *dstate.GuildSet, cmd *models.CustomComm
 
 // func ExecuteCustomCommand(cmd *models.CustomCommand, cmdArgs []string, stripped string, s *discordgo.Session, m *discordgo.MessageCreate) (resp string, tmplCtx *templates.Context, err error) {
 func ExecuteCustomCommand(cmd *models.CustomCommand, tmplCtx *templates.Context) error {
+	logger.Info("button")
 	defer func() {
 		if err := recover(); err != nil {
 			actualErr := ""
@@ -1047,12 +1048,14 @@ func ExecuteCustomCommand(cmd *models.CustomCommand, tmplCtx *templates.Context)
 			onExecPanic(cmd, errors.New(actualErr), tmplCtx, true)
 		}
 	}()
+	logger.Info("button")
 
 	tmplCtx.Name = "CC #" + strconv.Itoa(int(cmd.LocalID))
 	tmplCtx.Data["CCID"] = cmd.LocalID
 	tmplCtx.Data["CCRunCount"] = cmd.RunCount + 1
 	tmplCtx.Data["CCTrigger"] = cmd.TextTrigger
 
+	logger.Info("button")
 	csCop := tmplCtx.CurrentFrame.CS
 	f := logger.WithFields(logrus.Fields{
 		"trigger":      cmd.TextTrigger,
@@ -1061,6 +1064,7 @@ func ExecuteCustomCommand(cmd *models.CustomCommand, tmplCtx *templates.Context)
 		"channel_name": csCop.Name,
 	})
 
+	logger.Info("button")
 	// do not allow concurrent executions of the same custom command, to prevent most common kinds of abuse
 	lockKey := CCExecKey{
 		GuildID: cmd.GuildID,
