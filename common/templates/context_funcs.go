@@ -2308,6 +2308,7 @@ func (c *Context) tmplSendModal(modal interface{}) (interface{}, error) {
 }
 
 func (c *Context) tmplSendResponse(filterSpecialMentions bool, returnID bool) func(interactionToken interface{}, msg interface{}) interface{} {
+	logger.Info("button")
 	var repliedUser bool
 	parseMentions := []discordgo.AllowedMentionType{discordgo.AllowedMentionTypeUsers}
 	if !filterSpecialMentions {
@@ -2316,15 +2317,19 @@ func (c *Context) tmplSendResponse(filterSpecialMentions bool, returnID bool) fu
 	}
 
 	return func(interactionToken interface{}, msg interface{}) interface{} {
+		logger.Info("button")
 		if c.IncreaseCheckGenericAPICall() {
 			return ""
 		}
 
+		logger.Info("button")
 		sendMessageType, token := c.tokenArg(interactionToken)
 		if token == "" {
+			logger.Info("button")
 			return ""
 		}
 
+		logger.Info("button")
 		var m *discordgo.Message
 		msgSend := &discordgo.InteractionResponseData{
 			AllowedMentions: &discordgo.AllowedMentions{
@@ -2569,12 +2574,16 @@ func (c *Context) tmplParseSelectMenu(values ...interface{}) (*discordgo.SelectM
 func (c *Context) tokenArg(interactionToken interface{}) (sendType int, token string) {
 	sendType = sendMessageInteractionFollowup
 
+	logger.Info("button")
 	token, ok := interactionToken.(string)
 	if !ok {
+		logger.Info("button")
 		if interactionToken == nil && c.CurrentFrame.Interaction != nil {
+			logger.Info("button")
 			// no token provided, assume current interaction
 			token = c.CurrentFrame.Interaction.Token
 		} else {
+			logger.Info("button")
 			return
 		}
 	}
