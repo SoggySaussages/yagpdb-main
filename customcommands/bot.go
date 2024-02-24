@@ -659,39 +659,53 @@ func handleInteractionCreate(evt *eventsystem.EventData) {
 	case discordgo.InteractionMessageComponent:
 		logger.Info("button")
 		cMessage, err := common.BotSession.ChannelMessage(cState.ID, interaction.Message.ID)
+		logger.Info("button")
 		if err == nil {
+			logger.Info("button")
 			cMessage.GuildID = cState.GuildID
 			interaction.Message = cMessage
 		}
+		logger.Info("button")
 
 		cID := interaction.MessageComponentData().CustomID
+		logger.Info("button")
 
 		// continue only if this component was created by a cc
 		if strings.HasPrefix(cID, "templates-") {
+			logger.Info("button")
 			cID = strings.TrimPrefix(cID, "templates-")
 		} else {
 			logger.Info("button")
 			return
 		}
+		logger.Info("button")
 
 		triggeredCmds, err := findComponentOrModalTriggerCustomCommands(evt.Context(), cState, interaction.Member, cID, false)
+		logger.Info("button")
 		if err != nil {
 			logger.WithField("guild", evt.GS.ID).WithError(err).Error("failed finding component ccs")
 			logger.Info("button")
 			return
 		}
+		logger.Info("button")
 
 		if len(triggeredCmds) < 1 {
 			logger.Info("button")
 			return
 		}
+		logger.Info("button")
 
 		for _, matched := range triggeredCmds {
+			logger.Info("button")
 			err = ExecuteCustomCommandFromComponent(matched.CC, evt.GS, cState, matched.Stripped, &interaction)
+			logger.Info("button")
 			if err != nil {
+				logger.Info("button")
 				logger.WithField("guild", cState.GuildID).WithField("cc_id", matched.CC.LocalID).WithError(err).Error("Error executing custom command")
 			}
+			logger.Info("button")
 		}
+		logger.Info("button")
 	case discordgo.InteractionModalSubmit:
 		logger.Info("button")
 		cID := interaction.ModalSubmitData().CustomID
