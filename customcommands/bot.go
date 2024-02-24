@@ -627,37 +627,30 @@ func ExecuteCustomCommandFromReaction(cc *models.CustomCommand, gs *dstate.Guild
 }
 
 func handleInteractionCreate(evt *eventsystem.EventData) {
-	logger.Info("button")
 	i := evt.EvtInterface.(*discordgo.InteractionCreate).Interaction
 	interaction := templates.CustomCommandInteraction{&i, false}
-	logger.Info("button")
 
 	if interaction.GuildID == 0 {
 		// ignore dm interactions
 		return
 	}
-	logger.Info("button")
 
 	evt.GS = bot.State.GetGuild(interaction.GuildID)
 	evt.GuildFeatureFlags, _ = featureflags.RetryGetGuildFlags(evt.GS.ID)
-	logger.Info("button")
 
 	if !evt.HasFeatureFlag(featureFlagHasCommands) {
 		return
 	}
-	logger.Info("button")
 
 	cState := evt.GS.GetChannelOrThread(interaction.ChannelID)
 	if cState == nil {
 		return
 	}
-	logger.Info("button")
 
 	interaction.Member.GuildID = evt.GS.ID
 
 	switch interaction.Type {
 	case discordgo.InteractionMessageComponent:
-		logger.Info("button")
 		cMessage, err := common.BotSession.ChannelMessage(cState.ID, interaction.Message.ID)
 		if err == nil {
 			cMessage.GuildID = cState.GuildID
@@ -670,19 +663,16 @@ func handleInteractionCreate(evt *eventsystem.EventData) {
 		if strings.HasPrefix(cID, "templates-") {
 			cID = strings.TrimPrefix(cID, "templates-")
 		} else {
-			logger.Info("button")
 			return
 		}
 
 		triggeredCmds, err := findComponentOrModalTriggerCustomCommands(evt.Context(), cState, interaction.Member, cID, false)
 		if err != nil {
 			logger.WithField("guild", evt.GS.ID).WithError(err).Error("failed finding component ccs")
-			logger.Info("button")
 			return
 		}
 
 		if len(triggeredCmds) < 1 {
-			logger.Info("button")
 			return
 		}
 
@@ -693,26 +683,22 @@ func handleInteractionCreate(evt *eventsystem.EventData) {
 			}
 		}
 	case discordgo.InteractionModalSubmit:
-		logger.Info("button")
 		cID := interaction.ModalSubmitData().CustomID
 
 		// continue only if this modal was created by a cc
 		if strings.HasPrefix(cID, "templates-") {
 			cID = strings.TrimPrefix(cID, "templates-")
 		} else {
-			logger.Info("button")
 			return
 		}
 
 		triggeredCmds, err := findComponentOrModalTriggerCustomCommands(evt.Context(), cState, interaction.Member, cID, true)
 		if err != nil {
 			logger.WithField("guild", evt.GS.ID).WithError(err).Error("failed finding component ccs")
-			logger.Info("button")
 			return
 		}
 
 		if len(triggeredCmds) < 1 {
-			logger.Info("button")
 			return
 		}
 
@@ -914,24 +900,18 @@ func findReactionTriggerCustomCommands(ctx context.Context, cs *dstate.ChannelSt
 }
 
 func findComponentOrModalTriggerCustomCommands(ctx context.Context, cs *dstate.ChannelState, member *discordgo.Member, cID string, modal bool) (matches []*TriggeredCC, err error) {
-	logger.Info("button")
 	cmds, err := BotCachedGetCommandsWithMessageTriggers(cs.GuildID, ctx)
 	if err != nil {
-		logger.Info("button")
 		return nil, errors.WrapIf(err, "BotCachedGetCommandsWithComponentTriggers")
 	}
-	logger.Info("button")
 
 	var matched []*TriggeredCC
 	for _, cmd := range cmds {
-		logger.Info("button")
 		if cmd.Disabled || !CmdRunsInChannel(cmd, common.ChannelOrThreadParentID(cs)) {
 			continue
 		}
-		logger.Info("button")
 
 		if modal {
-			logger.Info("button")
 			if didMatch, stripped := CheckMatchModal(cmd, cID); didMatch {
 
 				matched = append(matched, &TriggeredCC{
@@ -940,7 +920,6 @@ func findComponentOrModalTriggerCustomCommands(ctx context.Context, cs *dstate.C
 				})
 			}
 		} else {
-			logger.Info("button")
 			if didMatch, stripped := CheckMatchComponent(cmd, cID); didMatch {
 
 				matched = append(matched, &TriggeredCC{
@@ -950,24 +929,18 @@ func findComponentOrModalTriggerCustomCommands(ctx context.Context, cs *dstate.C
 			}
 		}
 	}
-	logger.Info("button")
 
 	if len(matched) < 1 {
 		// no matches
-		logger.Info("button")
 		return matched, nil
 	}
-	logger.Info("button")
 
 	ms, err := bot.GetMember(cs.GuildID, member.User.ID)
 	if err != nil {
-		logger.Info("button")
 		return nil, errors.WithStackIf(err)
 	}
-	logger.Info("button")
 
 	if ms.User.Bot {
-		logger.Info("button")
 		return nil, nil
 	}
 
@@ -983,7 +956,6 @@ func findComponentOrModalTriggerCustomCommands(ctx context.Context, cs *dstate.C
 
 	sortTriggeredCCs(filtered)
 
-	logger.Info("button")
 	return filtered, nil
 }
 
@@ -1061,11 +1033,13 @@ func ExecuteCustomCommand(cmd *models.CustomCommand, tmplCtx *templates.Context)
 		"channel_name": csCop.Name,
 	})
 
+	logger.Info("button")
 	// do not allow concurrent executions of the same custom command, to prevent most common kinds of abuse
 	lockKey := CCExecKey{
 		GuildID: cmd.GuildID,
 		CCID:    cmd.LocalID,
 	}
+	logger.Info(fmt.Sprintf("%#v", lockKey))
 	lockHandle := CCExecLock.Lock(lockKey, time.Minute, time.Minute*10)
 	if lockHandle == -1 {
 		f.Warn("Exceeded max lock attempts for cc")
@@ -1112,11 +1086,9 @@ func ExecuteCustomCommand(cmd *models.CustomCommand, tmplCtx *templates.Context)
 }
 
 func ExecuteCustomCommandFromComponent(cc *models.CustomCommand, gs *dstate.GuildSet, cs *dstate.ChannelState, stripped string, interaction *templates.CustomCommandInteraction) error {
-	logger.Info("button")
 	ms := dstate.MemberStateFromMember(interaction.Member)
 	tmplCtx := templates.NewContext(gs, cs, ms)
 	tmplCtx.CurrentFrame.Interaction = interaction
-	logger.Info("button")
 
 	tmplCtx.Data["Interaction"] = interaction
 	tmplCtx.Data["InteractionData"] = interaction.MessageComponentData()
@@ -1141,26 +1113,21 @@ func ExecuteCustomCommandFromComponent(cc *models.CustomCommand, gs *dstate.Guil
 		}
 		tmplCtx.Data["CmdArgs"] = interaction.MessageComponentData().Values
 	}
-	logger.Info("button")
 
 	msg := interaction.Message
 	msg.Member = ms.DgoMember()
 	msg.Author = msg.Member.User
 	tmplCtx.Msg = msg
-	logger.Info("button")
 
 	tmplCtx.Data["Message"] = msg
 
-	logger.Info("button")
 	return ExecuteCustomCommand(cc, tmplCtx)
 }
 
 func ExecuteCustomCommandFromModal(cc *models.CustomCommand, gs *dstate.GuildSet, cs *dstate.ChannelState, stripped string, interaction *templates.CustomCommandInteraction) error {
-	logger.Info("button")
 	ms := dstate.MemberStateFromMember(interaction.Member)
 	tmplCtx := templates.NewContext(gs, cs, ms)
 	tmplCtx.CurrentFrame.Interaction = interaction
-	logger.Info("button")
 
 	tmplCtx.Data["Interaction"] = interaction
 	tmplCtx.Data["InteractionData"] = interaction.ModalSubmitData()
@@ -1176,7 +1143,6 @@ func ExecuteCustomCommandFromModal(cc *models.CustomCommand, gs *dstate.GuildSet
 		cmdValues = append(cmdValues, field.Value)
 	}
 	tmplCtx.Data["CmdArgs"] = cmdValues
-	logger.Info("button")
 
 	msg := interaction.Message
 	msg.Member = ms.DgoMember()
@@ -1184,7 +1150,6 @@ func ExecuteCustomCommandFromModal(cc *models.CustomCommand, gs *dstate.GuildSet
 	tmplCtx.Msg = msg
 
 	tmplCtx.Data["Message"] = msg
-	logger.Info("button")
 
 	return ExecuteCustomCommand(cc, tmplCtx)
 }
