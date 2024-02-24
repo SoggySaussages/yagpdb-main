@@ -2255,7 +2255,7 @@ func (c *Context) tmplEditResponse(filterSpecialMentions bool) func(interactionT
 		if editOriginal {
 			_, err = common.BotSession.EditOriginalInteractionResponse(common.BotApplication.ID, token, msgEdit)
 			if err == nil && token == c.CurrentFrame.Interaction.Token {
-				c.CurrentFrame.InteractionRespondedTo = true
+				c.CurrentFrame.Interaction.RespondedTo = true
 			}
 		} else {
 			_, err = common.BotSession.EditFollowupMessage(common.BotApplication.ID, token, mID, msgEdit)
@@ -2303,7 +2303,7 @@ func (c *Context) tmplSendModal(modal interface{}) (interface{}, error) {
 	if err != nil {
 		return "", err
 	}
-	c.CurrentFrame.InteractionRespondedTo = true
+	c.CurrentFrame.Interaction.RespondedTo = true
 	return "", nil
 }
 
@@ -2360,7 +2360,7 @@ func (c *Context) tmplSendResponse(filterSpecialMentions bool, returnID bool) fu
 			})
 			if err == nil {
 				if token == c.CurrentFrame.Interaction.Token {
-					c.CurrentFrame.InteractionRespondedTo = true
+					c.CurrentFrame.Interaction.RespondedTo = true
 				}
 				if returnID {
 					m, err = common.BotSession.GetOriginalInteractionResponse(common.BotApplication.ID, token)
@@ -2447,7 +2447,7 @@ func (c *Context) tmplUpdateMessage(filterSpecialMentions bool) func(msg interfa
 			return "", err
 		}
 
-		c.CurrentFrame.InteractionRespondedTo = true
+		c.CurrentFrame.Interaction.RespondedTo = true
 		return "", nil
 	}
 }
@@ -2579,7 +2579,7 @@ func (c *Context) tokenArg(interactionToken interface{}) (sendType int, token st
 		}
 	}
 
-	if c.CurrentFrame.Interaction != nil && token == c.CurrentFrame.Interaction.Token && !c.CurrentFrame.InteractionRespondedTo {
+	if c.CurrentFrame.Interaction != nil && token == c.CurrentFrame.Interaction.Token && !c.CurrentFrame.Interaction.RespondedTo {
 		sendType = sendMessageInteractionResponse
 	}
 	return

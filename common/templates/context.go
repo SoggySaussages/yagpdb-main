@@ -205,8 +205,12 @@ type ContextFrame struct {
 	parsedTemplate   *template.Template
 	SendResponseInDM bool
 
-	Interaction            *discordgo.Interaction
-	InteractionRespondedTo bool
+	Interaction *CustomCommandInteraction
+}
+
+type CustomCommandInteraction struct {
+	*discordgo.Interaction
+	RespondedTo bool
 }
 
 func NewContext(gs *dstate.GuildSet, cs *dstate.ChannelState, ms *dstate.MemberState) *Context {
@@ -469,7 +473,7 @@ func (c *Context) SendResponse(content string) (m *discordgo.Message, err error)
 
 	sendMessageType := sendMessageGuildChannel
 	if c.CurrentFrame.Interaction != nil {
-		if c.CurrentFrame.InteractionRespondedTo {
+		if c.CurrentFrame.Interaction.RespondedTo {
 			sendMessageType = sendMessageInteractionFollowup
 		} else {
 			sendMessageType = sendMessageInteractionResponse
@@ -537,7 +541,7 @@ func (c *Context) SendResponse(content string) (m *discordgo.Message, err error)
 			},
 		})
 		if err == nil {
-			c.CurrentFrame.InteractionRespondedTo = true
+			c.CurrentFrame.Interaction.RespondedTo = true
 			m, getErr = common.BotSession.GetOriginalInteractionResponse(common.BotApplication.ID, c.CurrentFrame.Interaction.Token)
 		}
 	case sendMessageInteractionFollowup:

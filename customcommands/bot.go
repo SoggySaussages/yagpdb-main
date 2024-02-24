@@ -627,8 +627,8 @@ func ExecuteCustomCommandFromReaction(cc *models.CustomCommand, gs *dstate.Guild
 }
 
 func handleInteractionCreate(evt *eventsystem.EventData) {
-	interaction := evt.EvtInterface.(*discordgo.InteractionCreate).Interaction
-	interactionType := interaction.Type
+	i := evt.EvtInterface.(*discordgo.InteractionCreate).Interaction
+	interaction := templates.CustomCommandInteraction{&i, false}
 
 	if interaction.GuildID == 0 {
 		// ignore dm interactions
@@ -649,7 +649,7 @@ func handleInteractionCreate(evt *eventsystem.EventData) {
 
 	interaction.Member.GuildID = evt.GS.ID
 
-	switch interactionType {
+	switch interaction.Type {
 	case discordgo.InteractionMessageComponent:
 		cMessage, err := common.BotSession.ChannelMessage(cState.ID, interaction.Message.ID)
 		if err == nil {
@@ -1083,7 +1083,7 @@ func ExecuteCustomCommand(cmd *models.CustomCommand, tmplCtx *templates.Context)
 	return nil
 }
 
-func ExecuteCustomCommandFromComponent(cc *models.CustomCommand, gs *dstate.GuildSet, cs *dstate.ChannelState, stripped string, interaction *discordgo.Interaction) error {
+func ExecuteCustomCommandFromComponent(cc *models.CustomCommand, gs *dstate.GuildSet, cs *dstate.ChannelState, stripped string, interaction *templates.CustomCommandInteraction) error {
 	ms := dstate.MemberStateFromMember(interaction.Member)
 	tmplCtx := templates.NewContext(gs, cs, ms)
 	tmplCtx.CurrentFrame.Interaction = interaction
@@ -1122,7 +1122,7 @@ func ExecuteCustomCommandFromComponent(cc *models.CustomCommand, gs *dstate.Guil
 	return ExecuteCustomCommand(cc, tmplCtx)
 }
 
-func ExecuteCustomCommandFromModal(cc *models.CustomCommand, gs *dstate.GuildSet, cs *dstate.ChannelState, stripped string, interaction *discordgo.Interaction) error {
+func ExecuteCustomCommandFromModal(cc *models.CustomCommand, gs *dstate.GuildSet, cs *dstate.ChannelState, stripped string, interaction *templates.CustomCommandInteraction) error {
 	ms := dstate.MemberStateFromMember(interaction.Member)
 	tmplCtx := templates.NewContext(gs, cs, ms)
 	tmplCtx.CurrentFrame.Interaction = interaction
