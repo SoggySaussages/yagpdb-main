@@ -2356,11 +2356,9 @@ func (c *Context) tmplSendResponse(filterSpecialMentions bool, returnID bool) fu
 		default:
 			msgSend.Content = ToString(msg)
 		}
-		logger.Info("button")
 
 		switch sendMessageType {
 		case sendMessageInteractionResponse:
-			logger.Info("button")
 			err = common.BotSession.CreateInteractionResponse(c.CurrentFrame.Interaction.ID, token, &discordgo.InteractionResponse{
 				Type: discordgo.InteractionResponseChannelMessageWithSource,
 				Data: msgSend,
@@ -2374,7 +2372,6 @@ func (c *Context) tmplSendResponse(filterSpecialMentions bool, returnID bool) fu
 				}
 			}
 		case sendMessageInteractionFollowup:
-			logger.Info("button")
 			m, err = common.BotSession.CreateFollowupMessage(common.BotApplication.ID, token, &discordgo.WebhookParams{
 				Content:         msgSend.Content,
 				Components:      msgSend.Components,
@@ -2383,13 +2380,11 @@ func (c *Context) tmplSendResponse(filterSpecialMentions bool, returnID bool) fu
 				Flags:           int64(msgSend.Flags),
 			})
 		}
-		logger.Info("button")
 
 		if err == nil && returnID {
 			return m.ID
 		}
 
-		logger.WithError(err)
 		return ""
 	}
 }
