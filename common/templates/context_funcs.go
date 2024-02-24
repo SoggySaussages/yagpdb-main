@@ -2481,6 +2481,10 @@ func (c *Context) tmplParseButton(values ...interface{}) (*discordgo.Button, err
 			default:
 				return nil, errors.New("invalid button style")
 			}
+		case "link":
+			// discord made a button style named "link" but it needs a "url"
+			// not a "link" field. this makes it a bit more user friendly
+			convertedButton["url"] = v
 		default:
 			convertedButton[k] = v
 		}
@@ -2493,7 +2497,7 @@ func (c *Context) tmplParseButton(values ...interface{}) (*discordgo.Button, err
 		if button.Style == discordgo.LinkButton {
 			button.CustomID = ""
 			if button.URL == "" {
-				return nil, errors.New("a link is required for a link button")
+				return nil, errors.New("a url field is required for a link button")
 			}
 		} else {
 			button.CustomID = "templates-" + button.CustomID
