@@ -163,9 +163,11 @@
                                                     value="{{.CC.TextTrigger}}">
                                             </div>
                                             {{checkbox "case_sensitive" "case_sensitive" "Case Sensitive?" .CC.TextTriggerCaseSensitive}}
-                                            {{$disabledClass := ""}}
-                                            {{if not .IsGuildPremium}}{{$disabledClass = "disabled"}}{{end}}
-                                            {{checkbox "trigger_on_edit" "trigger_on_edit" "Trigger on message edits too? (Premium Only!)" .CC.TriggerOnEdit $disabledClass}}
+                                            <div id="cc-message-trigger-details">
+                                                {{$disabledClass := ""}}
+                                                {{if not .IsGuildPremium}}{{$disabledClass = "disabled"}}{{end}}
+                                                {{checkbox "trigger_on_edit" "trigger_on_edit" "Trigger on message edits too? (Premium Only!)" .CC.TriggerOnEdit $disabledClass}}
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -494,6 +496,7 @@
             $("#cc-time-trigger-details").removeClass("hidden");
 
             $("#cc-text-trigger-details").addClass("hidden");
+            $("#cc-message-trigger-details").addClass("hidden");
             $("#cc-extra-settings").addClass("hidden");
             $("#cc-reaction-trigger-details").addClass("hidden")
 
@@ -512,6 +515,7 @@
 
             $("#cc-time-trigger-details").addClass("hidden");
             $("#cc-text-trigger-details").addClass("hidden");
+            $("#cc-message-trigger-details").addClass("hidden");
 
             $("#interval-cc-run-now").addClass("hidden")
 
@@ -528,7 +532,7 @@
             $("#customid-trigger-label").removeClass("hidden");
 
             $("#text-trigger-label").addClass("hidden");
-            $("#trigger-on-edit").addClass("hidden");
+            $("#cc-message-trigger-details").addClass("hidden");
             $("#cc-reaction-trigger-details").addClass("hidden");
             $("#cc-time-trigger-details").addClass("hidden");
 
@@ -546,7 +550,7 @@
             $("#cc-text-trigger-details").removeClass("hidden");
             $("#cc-extra-settings").removeClass("hidden");
             $("#text-trigger-label").removeClass("hidden");
-            $("#trigger-on-edit").removeClass("hidden");
+            $("#cc-message-trigger-details").removeClass("hidden");
 
             $("#customid-trigger-label").addClass("hidden");
             $("#cc-reaction-trigger-details").addClass("hidden");
@@ -564,6 +568,7 @@
             // No automatic trigger
 
             $("#cc-text-trigger-details").addClass("hidden");
+            $("#cc-message-trigger-details").addClass("hidden");
             $("#cc-extra-settings").addClass("hidden");
             $("#cc-reaction-trigger-details").addClass("hidden")
             $("#cc-time-trigger-details").addClass("hidden");
