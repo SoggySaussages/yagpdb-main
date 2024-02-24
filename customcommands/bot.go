@@ -345,8 +345,8 @@ func StringCommands(ccs []*models.CustomCommand, gMap map[int64]string) string {
 	out := ""
 
 	for _, cc := range ccs {
-		switch {
-		case cc.TriggerType >= 5:
+		switch cc.TriggerType {
+		case int(CommandTriggerReaction), int(CommandTriggerInterval), int(CommandTriggerNone):
 			if cc.Name.Valid {
 				out += fmt.Sprintf("`#%3d:` - Type: `%s` - Name: `%s` - Group: `%s` - Disabled: `%t`\n", cc.LocalID, CommandTriggerType(cc.TriggerType).String(), cc.Name.String, gMap[cc.GroupID.Int64], cc.Disabled)
 			} else {
