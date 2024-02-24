@@ -1033,13 +1033,11 @@ func ExecuteCustomCommand(cmd *models.CustomCommand, tmplCtx *templates.Context)
 		"channel_name": csCop.Name,
 	})
 
-	logger.Info("button")
 	// do not allow concurrent executions of the same custom command, to prevent most common kinds of abuse
 	lockKey := CCExecKey{
 		GuildID: cmd.GuildID,
 		CCID:    cmd.LocalID,
 	}
-	logger.Info(fmt.Sprintf("%#v", lockKey))
 	lockHandle := CCExecLock.Lock(lockKey, time.Minute, time.Minute*10)
 	if lockHandle == -1 {
 		f.Warn("Exceeded max lock attempts for cc")
