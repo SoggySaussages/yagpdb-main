@@ -692,6 +692,7 @@ func distributeComponents(components reflect.Value) (returnComponents []discordg
 		tempRow := discordgo.ActionsRow{Components: []discordgo.MessageComponent{}}
 		for i := 0; i < components.Len() && i < maxRows*maxComponents; i++ {
 			var component discordgo.MessageComponent
+			var isMenu bool
 			switch val := components.Index(i).Interface().(type) {
 			case *discordgo.Button:
 				if val.CustomID == "templates-" {
@@ -704,6 +705,7 @@ func distributeComponents(components reflect.Value) (returnComponents []discordg
 				component = val
 				usedCustomIDs = append(usedCustomIDs, val.CustomID)
 			case *discordgo.SelectMenu:
+				isMenu = true
 				if val.CustomID == "templates-" {
 					val.CustomID = "templates-" + ToString(i)
 				}
@@ -717,13 +719,16 @@ func distributeComponents(components reflect.Value) (returnComponents []discordg
 				return nil, errors.New("invalid component passed to send message builder")
 			}
 			availableSpace := 5 - len(tempRow.Components)
-			if component.Type() == discordgo.ButtonComponent && availableSpace > 0 || component.Type() == discordgo.SelectMenuComponent && availableSpace == 5 {
+			if !isMenu && availableSpace > 0 || isMenu && availableSpace == 5 {
 				tempRow.Components = append(tempRow.Components, component)
+				if isMenu {
+					returnComponents = append(returnComponents, tempRow)
+				}
 			} else {
 				returnComponents = append(returnComponents, tempRow)
 				tempRow.Components = []discordgo.MessageComponent{component}
 			}
-			if i == components.Len()-1 {
+			if i == components.Len()-1 && len(tempRow.Components) > 0 { // if we're at the end, append the last row
 				returnComponents = append(returnComponents, tempRow)
 			}
 		}
