@@ -739,14 +739,14 @@ func baseContextFuncs(c *Context) {
 	c.addContextFunc("sort", c.tmplSort)
 
 	// interaction functions
-	c.addContextFunc("editResponse", c.tmplEditResponse(true))
-	c.addContextFunc("editResponseNoEscape", c.tmplEditResponse(false))
+	c.addContextFunc("editResponse", c.tmplEditInteractionResponse(true))
+	c.addContextFunc("editResponseNoEscape", c.tmplEditInteractionResponse(false))
 	c.addContextFunc("ephemeralResponse", c.tmplEphemeralResponse)
 	c.addContextFunc("sendModal", c.tmplSendModal)
-	c.addContextFunc("sendResponse", c.tmplSendResponse(true, false))
-	c.addContextFunc("sendResponseNoEscape", c.tmplSendResponse(false, false))
-	c.addContextFunc("sendResponseNoEscapeRetID", c.tmplSendResponse(false, true))
-	c.addContextFunc("sendResponseRetID", c.tmplSendResponse(true, true))
+	c.addContextFunc("sendResponse", c.tmplSendInteractionResponse(true, false))
+	c.addContextFunc("sendResponseNoEscape", c.tmplSendInteractionResponse(false, false))
+	c.addContextFunc("sendResponseNoEscapeRetID", c.tmplSendInteractionResponse(false, true))
+	c.addContextFunc("sendResponseRetID", c.tmplSendInteractionResponse(true, true))
 	c.addContextFunc("updateMessage", c.tmplUpdateMessage(true))
 	c.addContextFunc("updateMessageNoEscape", c.tmplUpdateMessage(false))
 

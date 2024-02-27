@@ -2187,7 +2187,7 @@ func comparatorOf(v reflect.Value) (comparator, error) {
 	}
 }
 
-func (c *Context) tmplEditResponse(filterSpecialMentions bool) func(interactionToken, msgID, msg interface{}) (interface{}, error) {
+func (c *Context) tmplEditInteractionResponse(filterSpecialMentions bool) func(interactionToken, msgID, msg interface{}) (interface{}, error) {
 	parseMentions := []discordgo.AllowedMentionType{discordgo.AllowedMentionTypeUsers}
 	if !filterSpecialMentions {
 		parseMentions = append(parseMentions, discordgo.AllowedMentionTypeRoles, discordgo.AllowedMentionTypeEveryone)
@@ -2307,7 +2307,7 @@ func (c *Context) tmplSendModal(modal interface{}) (interface{}, error) {
 	return "", nil
 }
 
-func (c *Context) tmplSendResponse(filterSpecialMentions bool, returnID bool) func(interactionToken interface{}, msg interface{}) interface{} {
+func (c *Context) tmplSendInteractionResponse(filterSpecialMentions bool, returnID bool) func(interactionToken interface{}, msg interface{}) interface{} {
 	var repliedUser bool
 	parseMentions := []discordgo.AllowedMentionType{discordgo.AllowedMentionTypeUsers}
 	if !filterSpecialMentions {
