@@ -642,6 +642,10 @@ func CreateModal(values ...interface{}) (*discordgo.InteractionResponse, error) 
 }
 
 func distributeComponents(components reflect.Value) (returnComponents []discordgo.MessageComponent, err error) {
+	if components.Len() < 1 {
+		return
+	}
+
 	const maxRows = 5       // Discord limitation
 	const maxComponents = 5 // (per action row) Discord limitation
 	usedCustomIDs := []string{}
