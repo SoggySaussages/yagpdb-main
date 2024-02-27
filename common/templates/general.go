@@ -351,17 +351,15 @@ func CreateMessageSend(values ...interface{}) (*discordgo.MessageSend, error) {
 				}
 			} else {
 				var component discordgo.MessageComponent
-				m, isMenu := val.(*discordgo.SelectMenu)
-				b, ok := val.(*discordgo.Button)
-				if isMenu {
-					component = m
-				} else if ok {
-					component = b
-				} else {
+				switch comp := val.(type) {
+				case *discordgo.SelectMenu:
+					validateCustomID(&comp.CustomID, 0, nil)
+					component = comp
+				case *discordgo.Button:
+					validateCustomID(&comp.CustomID, 0, nil)
+					component = comp
+				default:
 					return nil, errors.New("invalid component passed to send message builder")
-				}
-				if err != nil {
-					return nil, err
 				}
 				msg.Components = append(msg.Components, discordgo.ActionsRow{[]discordgo.MessageComponent{component}})
 			}
@@ -460,17 +458,15 @@ func CreateMessageEdit(values ...interface{}) (*discordgo.MessageEdit, error) {
 				}
 			} else {
 				var component discordgo.MessageComponent
-				m, isMenu := val.(*discordgo.SelectMenu)
-				b, ok := val.(*discordgo.Button)
-				if isMenu {
-					component = m
-				} else if ok {
-					component = b
-				} else {
+				switch comp := val.(type) {
+				case *discordgo.SelectMenu:
+					validateCustomID(&comp.CustomID, 0, nil)
+					component = comp
+				case *discordgo.Button:
+					validateCustomID(&comp.CustomID, 0, nil)
+					component = comp
+				default:
 					return nil, errors.New("invalid component passed to send message builder")
-				}
-				if err != nil {
-					return nil, err
 				}
 				msg.Components = append(msg.Components, discordgo.ActionsRow{[]discordgo.MessageComponent{component}})
 			}
@@ -584,7 +580,7 @@ func CreateModal(values ...interface{}) (*discordgo.InteractionResponse, error) 
 		m = dict
 	}
 
-	modal := &discordgo.InteractionResponseData{CustomID: "templates-"}
+	modal := &discordgo.InteractionResponseData{CustomID: "templates-0"} // default cID if not set
 
 	for key, val := range m {
 		switch key {
@@ -610,11 +606,9 @@ func CreateModal(values ...interface{}) (*discordgo.InteractionResponse, error) 
 					if field.Style == 0 {
 						field.Style = discordgo.TextInputShort
 					}
-					if field.CustomID == "" {
-						field.CustomID = fmt.Sprintf("templates-text_field_%d", i)
-					}
-					if in(usedCustomIDs, field.CustomID) {
-						return nil, errors.New("duplicate custom ids used")
+					err = validateCustomID(&field.CustomID, i, &usedCustomIDs)
+					if err != nil {
+						return nil, err
 					}
 					modal.Components = append(modal.Components, discordgo.ActionsRow{[]discordgo.MessageComponent{field}})
 				}
@@ -626,6 +620,9 @@ func CreateModal(values ...interface{}) (*discordgo.InteractionResponse, error) 
 				field := f.(discordgo.TextInput)
 				if field.Style == 0 {
 					field.Style = discordgo.TextInputShort
+				}
+				if field.CustomID == "" {
+					field.CustomID = "templates-0"
 				}
 				modal.Components = append(modal.Components, discordgo.ActionsRow{[]discordgo.MessageComponent{field}})
 			}
@@ -653,28 +650,24 @@ func distributeComponents(components reflect.Value) (returnComponents []discordg
 	if v.Kind() == reflect.Slice {
 		// slice within a slice. user is defining their own action row
 		// layout; treat each slice as an action row
-		for i := 0; i < components.Len() && i < maxRows; i++ {
+		for rowIdx := 0; rowIdx < components.Len() && rowIdx < maxRows; rowIdx++ {
+			currentInputRow := reflect.ValueOf(components.Index(rowIdx).Interface())
 			tempRow := discordgo.ActionsRow{}
-			for i2 := 0; i2 < reflect.ValueOf(components.Index(i).Interface()).Len() && i2 < maxComponents; i2++ {
+			for compIdx := 0; compIdx < currentInputRow.Len() && compIdx < maxComponents; compIdx++ {
 				var component discordgo.MessageComponent
-				switch val := reflect.ValueOf(components.Index(i).Interface()).Index(i2).Interface().(type) {
+				index := rowIdx*5 + compIdx
+				switch val := currentInputRow.Index(compIdx).Interface().(type) {
 				case *discordgo.Button:
-					if val.CustomID == "templates-" {
-						val.CustomID = "templates-" + ToString(i*5+i2)
-					}
-					if in(usedCustomIDs, val.CustomID) {
-						err = errors.New("duplicate custom ids used")
-						return
+					err := validateCustomID(&val.CustomID, index, &usedCustomIDs)
+					if err != nil {
+						return nil, err
 					}
 					component = val
 					usedCustomIDs = append(usedCustomIDs, val.CustomID)
 				case *discordgo.SelectMenu:
-					if val.CustomID == "templates-" {
-						val.CustomID = "templates-" + ToString(i*5+i2)
-					}
-					if in(usedCustomIDs, val.CustomID) {
-						err = errors.New("duplicate custom ids used")
-						return
+					err := validateCustomID(&val.CustomID, index, &usedCustomIDs)
+					if err != nil {
+						return nil, err
 					}
 					component = val
 					usedCustomIDs = append(usedCustomIDs, val.CustomID)
@@ -700,23 +693,17 @@ func distributeComponents(components reflect.Value) (returnComponents []discordg
 
 			switch val := components.Index(i).Interface().(type) {
 			case *discordgo.Button:
-				if val.CustomID == "templates-" {
-					val.CustomID = "templates-" + ToString(i)
-				}
-				if in(usedCustomIDs, val.CustomID) {
-					err = errors.New("duplicate custom ids used")
-					return
+				err := validateCustomID(&val.CustomID, i, &usedCustomIDs)
+				if err != nil {
+					return nil, err
 				}
 				component = val
 				usedCustomIDs = append(usedCustomIDs, val.CustomID)
 			case *discordgo.SelectMenu:
 				isMenu = true
-				if val.CustomID == "templates-" {
-					val.CustomID = "templates-" + ToString(i)
-				}
-				if in(usedCustomIDs, val.CustomID) {
-					err = errors.New("duplicate custom ids used")
-					return
+				err := validateCustomID(&val.CustomID, i, &usedCustomIDs)
+				if err != nil {
+					return nil, err
 				}
 				component = val
 				usedCustomIDs = append(usedCustomIDs, val.CustomID)
@@ -742,6 +729,23 @@ func distributeComponents(components reflect.Value) (returnComponents []discordg
 		}
 	}
 	return
+}
+
+// validateCustomID sets a unique custom ID based on componentIndex if needed
+// and returns an error if id is already in used
+func validateCustomID(id *string, componentIndex int, used *[]string) error {
+	if *id == "templates-" || *id == "" {
+		*id = fmt.Sprint("templates-", componentIndex)
+	}
+
+	if used == nil {
+		return nil
+	}
+
+	if in(*used, *id) {
+		return errors.New("duplicate custom ids used")
+	}
+	return nil
 }
 
 // indirect is taken from 'text/template/exec.go'
