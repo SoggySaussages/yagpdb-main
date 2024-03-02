@@ -364,6 +364,9 @@ func CreateMessageSend(values ...interface{}) (*discordgo.MessageSend, error) {
 				msg.Components = append(msg.Components, discordgo.ActionsRow{[]discordgo.MessageComponent{component}})
 			}
 		case "ephemeral":
+			if val == nil || val == false {
+				continue
+			}
 			msg.Flags |= discordgo.MessageFlagsEphemeral
 		case "reply":
 			msgID := ToInt64(val)
