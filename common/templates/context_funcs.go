@@ -2562,6 +2562,13 @@ func (c *Context) tmplParseSelectMenu(values ...interface{}) (*discordgo.SelectM
 		if menu.MaxValues > 25 {
 			return nil, errors.New("invalid max values, max 25")
 		}
+		checked := []*string{}
+		for _, o := range menu.Options {
+			if in(checked, o.Value) {
+				return nil, errors.New("select menu options must have unique values")
+			}
+			checked = append(checked, &o.Value)
+		}
 	}
 	return &menu, err
 }
