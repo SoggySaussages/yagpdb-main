@@ -356,7 +356,11 @@ func CreateMessageSend(values ...interface{}) (*discordgo.MessageSend, error) {
 					validateCustomID(&comp.CustomID, 0, nil)
 					component = comp
 				case *discordgo.Button:
-					validateCustomID(&comp.CustomID, 0, nil)
+					if comp.Style != discordgo.LinkButton {
+						validateCustomID(&comp.CustomID, 0, nil)
+					} else {
+						comp.CustomID = ""
+					}
 					component = comp
 				default:
 					return nil, errors.New("invalid component passed to send message builder")
@@ -466,7 +470,11 @@ func CreateMessageEdit(values ...interface{}) (*discordgo.MessageEdit, error) {
 					validateCustomID(&comp.CustomID, 0, nil)
 					component = comp
 				case *discordgo.Button:
-					validateCustomID(&comp.CustomID, 0, nil)
+					if comp.Style != discordgo.LinkButton {
+						validateCustomID(&comp.CustomID, 0, nil)
+					} else {
+						comp.CustomID = ""
+					}
 					component = comp
 				default:
 					return nil, errors.New("invalid component passed to send message builder")
@@ -661,19 +669,23 @@ func distributeComponents(components reflect.Value) (returnComponents []discordg
 				index := rowIdx*5 + compIdx
 				switch val := currentInputRow.Index(compIdx).Interface().(type) {
 				case *discordgo.Button:
-					err := validateCustomID(&val.CustomID, index, &usedCustomIDs)
-					if err != nil {
-						return nil, err
+					if val.Style != discordgo.LinkButton {
+						err := validateCustomID(&val.CustomID, index, &usedCustomIDs)
+						if err != nil {
+							return nil, err
+						}
+						usedCustomIDs = append(usedCustomIDs, val.CustomID)
+					} else {
+						val.CustomID = ""
 					}
 					component = val
-					usedCustomIDs = append(usedCustomIDs, val.CustomID)
 				case *discordgo.SelectMenu:
 					err := validateCustomID(&val.CustomID, index, &usedCustomIDs)
 					if err != nil {
 						return nil, err
 					}
-					component = val
 					usedCustomIDs = append(usedCustomIDs, val.CustomID)
+					component = val
 				default:
 					return nil, errors.New("invalid component passed to send message builder")
 				}
@@ -696,20 +708,24 @@ func distributeComponents(components reflect.Value) (returnComponents []discordg
 
 			switch val := components.Index(i).Interface().(type) {
 			case *discordgo.Button:
-				err := validateCustomID(&val.CustomID, i, &usedCustomIDs)
-				if err != nil {
-					return nil, err
+				if val.Style != discordgo.LinkButton {
+					err := validateCustomID(&val.CustomID, i, &usedCustomIDs)
+					if err != nil {
+						return nil, err
+					}
+					usedCustomIDs = append(usedCustomIDs, val.CustomID)
+				} else {
+					val.CustomID = ""
 				}
 				component = val
-				usedCustomIDs = append(usedCustomIDs, val.CustomID)
 			case *discordgo.SelectMenu:
 				isMenu = true
 				err := validateCustomID(&val.CustomID, i, &usedCustomIDs)
 				if err != nil {
 					return nil, err
 				}
-				component = val
 				usedCustomIDs = append(usedCustomIDs, val.CustomID)
+				component = val
 			default:
 				return nil, errors.New("invalid component passed to send message builder")
 			}
@@ -721,6 +737,8 @@ func distributeComponents(components reflect.Value) (returnComponents []discordg
 				returnComponents = append(returnComponents, tempRow)
 				tempRow.Components = []discordgo.MessageComponent{component}
 			}
+
+			// if it's a menu, the row is full now, append and start a new one
 			if isMenu {
 				returnComponents = append(returnComponents, tempRow)
 				tempRow.Components = []discordgo.MessageComponent{}
@@ -737,6 +755,10 @@ func distributeComponents(components reflect.Value) (returnComponents []discordg
 // validateCustomID sets a unique custom ID based on componentIndex if needed
 // and returns an error if id is already in used
 func validateCustomID(id *string, componentIndex int, used *[]string) error {
+	if id == nil {
+		return nil
+	}
+
 	if *id == "templates-" || *id == "" {
 		*id = fmt.Sprint("templates-", componentIndex)
 	}
