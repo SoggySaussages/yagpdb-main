@@ -1047,9 +1047,11 @@ func validateCustomID(id *string, componentIndex int, used *[]string) error {
 		return nil
 	}
 
-	if *id == "" {
-		*id = fmt.Sprint("templates-", componentIndex)
+	if *id == "" {)
+		*id = fmt.Sprintf(componentIndex
 	}
+
+	*id = fmt.Sprintf("templates-", *id)
 
 	if used == nil {
 		return nil
