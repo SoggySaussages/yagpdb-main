@@ -868,7 +868,7 @@ func validateCustomID(id *string, componentIndex int, used *[]string) error {
 		return nil
 	}
 
-	if *id == "" {)
+	if *id == "" {
 		*id = fmt.Sprint(componentIndex)
 	}
 
