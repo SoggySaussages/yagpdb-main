@@ -48,6 +48,7 @@ type CustomCommand struct {
 	RunCount                  int               `boil:"run_count" json:"run_count" toml:"run_count" yaml:"run_count"`
 	ShowErrors                bool              `boil:"show_errors" json:"show_errors" toml:"show_errors" yaml:"show_errors"`
 	Disabled                  bool              `boil:"disabled" json:"disabled" toml:"disabled" yaml:"disabled"`
+	GitHubResponse            bool              `boil:"github_response" json:"github_response" toml:"github_response" yaml:"github_response"`
 	Name                      null.String       `boil:"name" json:"name,omitempty" toml:"name" yaml:"name,omitempty"`
 	TriggerOnEdit             bool              `boil:"trigger_on_edit" json:"trigger_on_edit" toml:"trigger_on_edit" yaml:"trigger_on_edit"`
 
@@ -79,6 +80,7 @@ var CustomCommandColumns = struct {
 	RunCount                  string
 	ShowErrors                string
 	Disabled                  string
+	GitHubResponse            string
 	Name                      string
 	TriggerOnEdit             string
 }{
@@ -105,6 +107,7 @@ var CustomCommandColumns = struct {
 	RunCount:                  "run_count",
 	ShowErrors:                "show_errors",
 	Disabled:                  "disabled",
+	GitHubResponse:            "github_response",
 	Name:                      "name",
 	TriggerOnEdit:             "trigger_on_edit",
 }
@@ -266,6 +269,7 @@ var CustomCommandWhere = struct {
 	RunCount                  whereHelperint
 	ShowErrors                whereHelperbool
 	Disabled                  whereHelperbool
+	GitHubResponse            whereHelperbool
 	Name                      whereHelpernull_String
 	TriggerOnEdit             whereHelperbool
 }{
@@ -292,6 +296,7 @@ var CustomCommandWhere = struct {
 	RunCount:                  whereHelperint{field: "\"custom_commands\".\"run_count\""},
 	ShowErrors:                whereHelperbool{field: "\"custom_commands\".\"show_errors\""},
 	Disabled:                  whereHelperbool{field: "\"custom_commands\".\"disabled\""},
+	GitHubResponse:            whereHelperbool{field: "\"custom_commands\".\"github_response\""},
 	Name:                      whereHelpernull_String{field: "\"custom_commands\".\"name\""},
 	TriggerOnEdit:             whereHelperbool{field: "\"custom_commands\".\"trigger_on_edit\""},
 }

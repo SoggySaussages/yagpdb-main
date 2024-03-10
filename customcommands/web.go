@@ -7,6 +7,7 @@ import (
 	"html/template"
 	"math"
 	"net/http"
+	"os/exec"
 	"strconv"
 	"strings"
 	"unicode/utf8"
@@ -43,6 +44,7 @@ var PageHTMLDatabase string
 type GroupForm struct {
 	ID                int64
 	Name              string  `valid:",100"`
+	GitHub            string  `valid:",100"`
 	WhitelistChannels []int64 `valid:"channel,true"`
 	BlacklistChannels []int64 `valid:"channel,true"`
 
@@ -235,6 +237,15 @@ func handleGetCommand(w http.ResponseWriter, r *http.Request) (web.TemplateData,
 	templateData["CC"] = cc
 	templateData["Commands"] = true
 	templateData["IsGuildPremium"] = premium.ContextPremium(r.Context())
+	templateData["GitHubFilepath"] = "&ltcc not in group&gt"
+	group, err := models.CustomCommandGroups(qm.Where("guild_id = ? AND id = ?", activeGuild.ID, cc.GroupID.Int64)).OneG(r.Context())
+	if err == nil {
+		if group.GitHub == "" {
+			templateData["GitHubFilepath"] = "&ltgithub not specified in group&gt"
+		} else {
+			templateData["GitHubFilepath"] = fmt.Sprintf("%s/%d/%d", group.GitHub, activeGuild.ID, cc.LocalID)
+		}
+	}
 
 	return serveGroupSelected(r, templateData, cc.GroupID.Int64, activeGuild.ID)
 }
@@ -596,6 +607,11 @@ func handleUpdateGroup(w http.ResponseWriter, r *http.Request) (web.TemplateData
 	model.WhitelistRoles = groupForm.WhitelistRoles
 	model.IgnoreRoles = groupForm.BlacklistRoles
 	model.Name = groupForm.Name
+	model.GitHub = groupForm.GitHub
+
+	cmd := exec.Command("git", "clone", model.GitHub, fmt.Sprintf("%d-%d", activeGuild.ID, model.ID))
+	cmd.Dir = "cc-github"
+	go cmd.Run()
 
 	_, err = model.UpdateG(ctx, boil.Infer())
 	if err == nil {

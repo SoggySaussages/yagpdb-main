@@ -278,6 +278,8 @@
                                     <br/>
                                     <label> Command Enabled?</label>
                                     {{checkbox "is_enabled" "is_enabled" "Enables or Disables the command" (not .CC.Disabled) }}
+                                    <label> Get response from <code>{{.GitHubFilepath}}</code>?</label>
+                                    {{checkbox "github_response" "github_response" "Prioritise response from GitHub" .CC.GitHubResponse }}
                                 </div>
                             </div>
                         </div>

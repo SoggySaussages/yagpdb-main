@@ -121,12 +121,13 @@ type CustomCommand struct {
 	TriggerTypeForm string             `json:"-" schema:"type"`
 	Trigger         string             `json:"trigger" schema:"trigger" valid:",0,1000"`
 	// TODO: Retire the legacy Response field.
-	Response      string   `json:"response,omitempty" schema:"response" valid:"template,10000"`
-	Responses     []string `json:"responses" schema:"responses" valid:"template,10000"`
-	CaseSensitive bool     `json:"case_sensitive" schema:"case_sensitive"`
-	ID            int64    `json:"id"`
-	Name          string   `json:"name" schema:"name" valid:",0,100"`
-	IsEnabled     bool     `json:"is_enabled" schema:"is_enabled"`
+	Response       string   `json:"response,omitempty" schema:"response" valid:"template,10000"`
+	Responses      []string `json:"responses" schema:"responses" valid:"template,10000"`
+	CaseSensitive  bool     `json:"case_sensitive" schema:"case_sensitive"`
+	ID             int64    `json:"id"`
+	Name           string   `json:"name" schema:"name" valid:",0,100"`
+	IsEnabled      bool     `json:"is_enabled" schema:"is_enabled"`
+	GitHubResponse bool     `json:"is_enabled" schema:"is_enabled"`
 
 	ContextChannel int64 `schema:"context_channel" valid:"channel,true"`
 
@@ -214,9 +215,10 @@ func (cc *CustomCommand) ToDBModel() *models.CustomCommand {
 
 		Responses: cc.Responses,
 
-		ShowErrors:    cc.ShowErrors,
-		Disabled:      !cc.IsEnabled,
-		TriggerOnEdit: cc.TriggerOnEdit,
+		ShowErrors:     cc.ShowErrors,
+		Disabled:       !cc.IsEnabled,
+		TriggerOnEdit:  cc.TriggerOnEdit,
+		GitHubResponse: cc.GitHubResponse,
 	}
 
 	if cc.TimeTriggerExcludingDays == nil {

@@ -5,6 +5,7 @@ import (
 	"context"
 	"fmt"
 	"math/rand"
+	"os"
 	"regexp"
 	"runtime/debug"
 	"sort"
@@ -74,6 +75,8 @@ func (p *Plugin) BotInit() {
 	pubsub.AddHandler("custom_commands_run_now", handleCustomCommandsRunNow, models.CustomCommand{})
 	scheduledevents2.RegisterHandler("cc_next_run", NextRunScheduledEvent{}, handleNextRunScheduledEVent)
 	scheduledevents2.RegisterHandler("cc_delayed_run", DelayedRunCCData{}, handleDelayedRunCC)
+
+	os.Mkdir("cc-github", os.ModeDir)
 }
 
 func handleCustomCommandsRunNow(event *pubsub.Event) {
@@ -1056,6 +1059,12 @@ func ExecuteCustomCommand(cmd *models.CustomCommand, tmplCtx *templates.Context)
 	f.Debug("Custom command triggered")
 
 	chanMsg := cmd.Responses[rand.Intn(len(cmd.Responses))]
+	if cmd.GitHubResponse {
+		file, err := os.ReadFile(fmt.Sprintf("cc-github/%d-%d/%d.yag", tmplCtx.GS.ID, cmd.GroupID.Int64, cmd.LocalID))
+		if err == nil {
+			chanMsg = string(file)
+		}
+	}
 	out, err := tmplCtx.Execute(chanMsg)
 
 	// trim whitespace for accurate character count
