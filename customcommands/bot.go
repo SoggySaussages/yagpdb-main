@@ -1060,7 +1060,7 @@ func ExecuteCustomCommand(cmd *models.CustomCommand, tmplCtx *templates.Context)
 
 	chanMsg := cmd.Responses[rand.Intn(len(cmd.Responses))]
 	if cmd.GitHubResponse {
-		file, err := os.ReadFile(fmt.Sprintf("cc-github/%d-%d/%d.yag", tmplCtx.GS.ID, cmd.GroupID.Int64, cmd.LocalID))
+		file, err := os.ReadFile(fmt.Sprintf("cc-github/%d-%d/%d/%d.yag", tmplCtx.GS.ID, cmd.GroupID.Int64, cmd.GuildID, cmd.LocalID))
 		if err == nil {
 			chanMsg = string(file)
 		}
