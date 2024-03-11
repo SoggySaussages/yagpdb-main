@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS custom_command_groups (
 	whitelist_channels BIGINT[]
 );
 `, `
-ALTER TABLE custom_command_groups ADD COLUMN IF NOT EXISTS github TEXT NOT NULL;
+ALTER TABLE custom_command_groups ADD COLUMN IF NOT EXISTS github TEXT NOT NULL DEFAULT '';
 `, `
 CREATE TABLE IF NOT EXISTS custom_commands (
 	local_id BIGINT NOT NULL,
