@@ -404,6 +404,7 @@ func handleUpdateCommand(w http.ResponseWriter, r *http.Request) (web.TemplateDa
 	templateData["CurrentGroupID"] = dbModel.GroupID.Int64
 
 	dbModel.GuildID = activeGuild.ID
+	dbModel.GitHubResponse = cmdEdit.GitHubResponse
 	dbModel.LocalID = cmdEdit.ID
 	dbModel.TriggerType = int(triggerTypeFromForm(cmdEdit.TriggerTypeForm))
 	// check low interval limits
