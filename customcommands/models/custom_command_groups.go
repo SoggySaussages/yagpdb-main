@@ -155,9 +155,9 @@ func (*customCommandGroupR) NewStruct() *customCommandGroupR {
 type customCommandGroupL struct{}
 
 var (
-	customCommandGroupAllColumns            = []string{"id", "guild_id", "name", "ignore_roles", "ignore_channels", "whitelist_roles", "whitelist_channels"}
+	customCommandGroupAllColumns            = []string{"id", "guild_id", "name", "ignore_roles", "ignore_channels", "whitelist_roles", "whitelist_channels", "github"}
 	customCommandGroupColumnsWithoutDefault = []string{"guild_id", "name", "ignore_roles", "ignore_channels", "whitelist_roles", "whitelist_channels"}
-	customCommandGroupColumnsWithDefault    = []string{"id"}
+	customCommandGroupColumnsWithDefault    = []string{"id", "github"}
 	customCommandGroupPrimaryKeyColumns     = []string{"id"}
 )
 

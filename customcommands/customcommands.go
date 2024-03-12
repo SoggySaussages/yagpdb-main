@@ -127,7 +127,7 @@ type CustomCommand struct {
 	ID             int64    `json:"id"`
 	Name           string   `json:"name" schema:"name" valid:",0,100"`
 	IsEnabled      bool     `json:"is_enabled" schema:"is_enabled"`
-	GitHubResponse bool     `json:"is_enabled" schema:"is_enabled"`
+	GithubResponse bool     `json:"github_response" schema:"github_response"`
 
 	ContextChannel int64 `schema:"context_channel" valid:"channel,true"`
 
@@ -218,7 +218,7 @@ func (cc *CustomCommand) ToDBModel() *models.CustomCommand {
 		ShowErrors:     cc.ShowErrors,
 		Disabled:       !cc.IsEnabled,
 		TriggerOnEdit:  cc.TriggerOnEdit,
-		GitHubResponse: cc.GitHubResponse,
+		GitHubResponse: cc.GithubResponse,
 	}
 
 	if cc.TimeTriggerExcludingDays == nil {

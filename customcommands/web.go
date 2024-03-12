@@ -7,6 +7,7 @@ import (
 	"html/template"
 	"math"
 	"net/http"
+	"os"
 	"os/exec"
 	"strconv"
 	"strings"
@@ -237,13 +238,13 @@ func handleGetCommand(w http.ResponseWriter, r *http.Request) (web.TemplateData,
 	templateData["CC"] = cc
 	templateData["Commands"] = true
 	templateData["IsGuildPremium"] = premium.ContextPremium(r.Context())
-	templateData["GitHubFilepath"] = "&ltcc not in group&gt"
+	templateData["GitHubFilepath"] = "<cc not in group>"
 	group, err := models.CustomCommandGroups(qm.Where("guild_id = ? AND id = ?", activeGuild.ID, cc.GroupID.Int64)).OneG(r.Context())
 	if err == nil {
 		if group.GitHub == "" {
-			templateData["GitHubFilepath"] = "&ltgithub not specified in group&gt"
+			templateData["GitHubFilepath"] = "<github not specified in group>"
 		} else {
-			templateData["GitHubFilepath"] = fmt.Sprintf("%s/%d/%d", group.GitHub, activeGuild.ID, cc.LocalID)
+			templateData["GitHubFilepath"] = fmt.Sprintf("%s/%d/%d.yag", group.GitHub, activeGuild.ID, cc.LocalID)
 		}
 	}
 
@@ -404,7 +405,6 @@ func handleUpdateCommand(w http.ResponseWriter, r *http.Request) (web.TemplateDa
 	templateData["CurrentGroupID"] = dbModel.GroupID.Int64
 
 	dbModel.GuildID = activeGuild.ID
-	dbModel.GitHubResponse = cmdEdit.GitHubResponse
 	dbModel.LocalID = cmdEdit.ID
 	dbModel.TriggerType = int(triggerTypeFromForm(cmdEdit.TriggerTypeForm))
 	// check low interval limits
@@ -610,6 +610,7 @@ func handleUpdateGroup(w http.ResponseWriter, r *http.Request) (web.TemplateData
 	model.Name = groupForm.Name
 	model.GitHub = groupForm.GitHub
 
+	delDir(fmt.Sprintf("cc-github/%d-%d", activeGuild.ID, model.ID))
 	cmd := exec.Command("git", "clone", model.GitHub, fmt.Sprintf("%d-%d", activeGuild.ID, model.ID))
 	cmd.Dir = "cc-github"
 	go cmd.Run()
@@ -621,6 +622,26 @@ func handleUpdateGroup(w http.ResponseWriter, r *http.Request) (web.TemplateData
 
 	pubsub.EvictCacheSet(cachedCommandsMessage, activeGuild.ID)
 	return templateData, err
+}
+
+func delDir(path string) {
+	dr, err := os.Open(path)
+	if err == nil {
+		defer dr.Close()
+		files, err := dr.Readdir(-1)
+		if err == nil {
+			for _, file := range files {
+				if file.IsDir() {
+					delDir(path + "/" + file.Name())
+				}
+				err = os.RemoveAll(path + "/" + file.Name())
+				if err != nil {
+					continue
+				}
+			}
+		}
+		os.Remove(path)
+	}
 }
 
 func handleDeleteGroup(w http.ResponseWriter, r *http.Request) (web.TemplateData, error) {
