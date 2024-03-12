@@ -613,7 +613,7 @@ func handleUpdateGroup(w http.ResponseWriter, r *http.Request) (web.TemplateData
 	delDir(fmt.Sprintf("cc-github/%d-%d", activeGuild.ID, model.ID))
 	cmd := exec.Command("git", "clone", model.GitHub, fmt.Sprintf("%d-%d", activeGuild.ID, model.ID))
 	cmd.Dir = "cc-github"
-	go cmd.Run()
+	go runCmdLogErr(cmd)
 
 	_, err = model.UpdateG(ctx, boil.Infer())
 	if err == nil {
@@ -642,6 +642,11 @@ func delDir(path string) {
 		}
 		os.Remove(path)
 	}
+}
+
+func runCmdLogErr(cmd *exec.Cmd) {
+	err := cmd.Run()
+	logger.Warn(err)
 }
 
 func handleDeleteGroup(w http.ResponseWriter, r *http.Request) (web.TemplateData, error) {

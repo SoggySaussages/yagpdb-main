@@ -1063,6 +1063,8 @@ func ExecuteCustomCommand(cmd *models.CustomCommand, tmplCtx *templates.Context)
 		file, err := os.ReadFile(fmt.Sprintf("cc-github/%d-%d/%d/%d.yag", tmplCtx.GS.ID, cmd.GroupID.Int64, cmd.GuildID, cmd.LocalID))
 		if err == nil {
 			chanMsg = string(file)
+		} else {
+			logger.Warn(err)
 		}
 	}
 	out, err := tmplCtx.Execute(chanMsg)

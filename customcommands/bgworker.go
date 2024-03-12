@@ -39,6 +39,6 @@ func (p *Plugin) pullDirectories() {
 	for _, f := range entries {
 		cmd := exec.Command("git", "pull")
 		cmd.Dir = "cc-github/" + f.Name()
-		cmd.Run()
+		go runCmdLogErr(cmd)
 	}
 }
