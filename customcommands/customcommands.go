@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"math"
+	"os/exec"
 	"sort"
 	"strings"
 	"unicode/utf8"
@@ -492,4 +493,15 @@ func convertEntries(result models.TemplatesUserDatabaseSlice) []*LightDBEntry {
 	}
 
 	return entries
+}
+
+func runCmdLogErr(cmd *exec.Cmd) {
+	out, err := cmd.CombinedOutput()
+	output := string(out)
+	if output != "Already up to date." {
+		logger.Info(output)
+	}
+	if err != nil {
+		logger.Error(err)
+	}
 }

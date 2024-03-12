@@ -41,4 +41,5 @@ func (p *Plugin) pullDirectories() {
 		cmd.Dir = "cc-github/" + f.Name()
 		go runCmdLogErr(cmd)
 	}
+	logger.Info("DONE pulling any recent CC GitHub changes")
 }

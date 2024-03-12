@@ -644,12 +644,6 @@ func delDir(path string) {
 	}
 }
 
-func runCmdLogErr(cmd *exec.Cmd) {
-	out, err := cmd.CombinedOutput()
-	logger.Info(string(out))
-	logger.Error(err)
-}
-
 func handleDeleteGroup(w http.ResponseWriter, r *http.Request) (web.TemplateData, error) {
 	ctx := r.Context()
 	activeGuild, templateData := web.GetBaseCPContextData(ctx)
