@@ -642,7 +642,7 @@ func handleUpdateGroup(w http.ResponseWriter, r *http.Request) (web.TemplateData
 func runSubDir(cmd *exec.Cmd, subDir string, guildID, modelID int64) {
 	ok := runCmdLogErr(cmd)
 	if ok {
-		cmd = exec.Command("cp", "-r", "temp/"+subDir, fmt.Sprintf("%d-%d", guildID, modelID))
+		cmd = exec.Command("cp", "-rv", "temp/"+subDir, fmt.Sprintf("%d-%d", guildID, modelID))
 		cmd.Dir = "cc-github"
 		runCmdLogErr(cmd)
 		delDir("cc-github/temp")
