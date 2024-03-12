@@ -632,7 +632,7 @@ func handleUpdateGroup(w http.ResponseWriter, r *http.Request) (web.TemplateData
 			cmd = exec.Command("cp", "-r", "temp/"+subDir, fmt.Sprintf("%d-%d", activeGuild.ID, model.ID))
 			cmd.Dir = "cc-github"
 			go runCmdLogErr(cmd)
-			delDir("temp")
+			delDir("cc-github/temp")
 		}
 	}
 
