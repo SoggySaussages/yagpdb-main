@@ -647,6 +647,8 @@ func delDir(path string) {
 func runCmdLogErr(cmd *exec.Cmd) {
 	err := cmd.Run()
 	logger.Warn(err)
+	logger.Info(cmd.Stdout)
+	logger.Warn(cmd.Stderr)
 }
 
 func handleDeleteGroup(w http.ResponseWriter, r *http.Request) (web.TemplateData, error) {
