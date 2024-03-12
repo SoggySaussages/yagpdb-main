@@ -554,7 +554,11 @@ func handleGitPull(w http.ResponseWriter, r *http.Request) (web.TemplateData, er
 	ctx := r.Context()
 	activeGuild, _ := web.GetBaseCPContextData(ctx)
 	cmd := ctx.Value(common.ContextKeyParsedForm).(*CustomCommand)
-	go cloneCCRepo(activeGuild.ID, cmd.GroupID, updateData["GitHub"].(string))
+	model, err := models.CustomCommandGroups(qm.Where("guild_id = ? AND id = ?", activeGuild.ID, cmd.GroupID)).OneG(ctx)
+	if err != nil {
+		return updateData, err
+	}
+	go cloneCCRepo(activeGuild.ID, cmd.GroupID, model.GitHub)
 	return updateData, err
 }
 
