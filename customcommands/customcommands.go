@@ -495,7 +495,8 @@ func convertEntries(result models.TemplatesUserDatabaseSlice) []*LightDBEntry {
 	return entries
 }
 
-func runCmdLogErr(cmd *exec.Cmd) {
+// returns false if there was an error
+func runCmdLogErr(cmd *exec.Cmd) bool {
 	out, err := cmd.CombinedOutput()
 	output := string(out)
 	if !strings.Contains(output, "Already up to date.") {
@@ -503,5 +504,7 @@ func runCmdLogErr(cmd *exec.Cmd) {
 	}
 	if err != nil {
 		logger.Error(err)
+		return false
 	}
+	return true
 }

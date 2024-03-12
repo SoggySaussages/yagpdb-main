@@ -611,9 +611,30 @@ func handleUpdateGroup(w http.ResponseWriter, r *http.Request) (web.TemplateData
 	model.GitHub = groupForm.GitHub
 
 	delDir(fmt.Sprintf("cc-github/%d-%d", activeGuild.ID, model.ID))
-	cmd := exec.Command("git", "clone", model.GitHub, fmt.Sprintf("%d-%d", activeGuild.ID, model.ID))
+	gitArgs := strings.Split(strings.Split(model.GitHub, "//")[1], "/")
+	gitArgs = append([]string{"https:/"}, gitArgs...)
+	repo := strings.Join(gitArgs, "/")
+	var subDir string
+	if len(gitArgs) > 4 && gitArgs[4] != "" {
+		repo = strings.Join(gitArgs[:4], "/")
+		subDir = strings.Join(gitArgs[4:], "/")
+	}
+	cmd := exec.Command("git", "clone", repo, fmt.Sprintf("%d-%d", activeGuild.ID, model.ID))
+	if subDir != "" {
+		cmd = exec.Command("git", "clone", repo, "temp")
+	}
 	cmd.Dir = "cc-github"
-	go runCmdLogErr(cmd)
+	if subDir == "" {
+		go runCmdLogErr(cmd)
+	} else {
+		ok := runCmdLogErr(cmd)
+		if ok {
+			cmd = exec.Command("cp", "-r", "temp/"+subDir, fmt.Sprintf("%d-%d", activeGuild.ID, model.ID))
+			cmd.Dir = "cc-github"
+			go runCmdLogErr(cmd)
+			delDir("temp")
+		}
+	}
 
 	_, err = model.UpdateG(ctx, boil.Infer())
 	if err == nil {
