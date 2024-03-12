@@ -627,13 +627,7 @@ func handleUpdateGroup(w http.ResponseWriter, r *http.Request) (web.TemplateData
 	if subDir == "" {
 		go runCmdLogErr(cmd)
 	} else {
-		ok := runCmdLogErr(cmd)
-		if ok {
-			cmd = exec.Command("cp", "-r", "temp/"+subDir, fmt.Sprintf("%d-%d", activeGuild.ID, model.ID))
-			cmd.Dir = "cc-github"
-			go runCmdLogErr(cmd)
-			delDir("cc-github/temp")
-		}
+		go runSubDir(cmd, subDir, activeGuild.ID, model.ID)
 	}
 
 	_, err = model.UpdateG(ctx, boil.Infer())
@@ -643,6 +637,16 @@ func handleUpdateGroup(w http.ResponseWriter, r *http.Request) (web.TemplateData
 
 	pubsub.EvictCacheSet(cachedCommandsMessage, activeGuild.ID)
 	return templateData, err
+}
+
+func runSubDir(cmd *exec.Cmd, subDir string, guildID, modelID int64) {
+	ok := runCmdLogErr(cmd)
+	if ok {
+		cmd = exec.Command("cp", "-r", "temp/"+subDir, fmt.Sprintf("%d-%d", guildID, modelID))
+		cmd.Dir = "cc-github"
+		runCmdLogErr(cmd)
+		delDir("cc-github/temp")
+	}
 }
 
 func delDir(path string) {
