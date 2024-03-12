@@ -500,6 +500,7 @@ func runCmdLogErr(cmd *exec.Cmd) bool {
 	out, err := cmd.CombinedOutput()
 	output := string(out)
 	if !strings.Contains(output, "Already up to date.") {
+		logger.Infof("running the command %s", cmd.String())
 		logger.Info(output)
 	}
 	if err != nil {

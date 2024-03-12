@@ -653,6 +653,7 @@ func delDir(path string) {
 	dr, err := os.Open(path)
 	if err == nil {
 		defer dr.Close()
+		logger.Infof("attempting to delete directory %s...", dr.Name())
 		files, err := dr.Readdir(-1)
 		if err == nil {
 			for _, file := range files {
@@ -665,7 +666,12 @@ func delDir(path string) {
 				}
 			}
 		}
-		os.Remove(path)
+		err = os.Remove(path)
+		if err != nil {
+			logger.WithError(err)
+		} else {
+			logger.Infof("completed deleting directory %s.", dr.Name())
+		}
 	}
 }
 
