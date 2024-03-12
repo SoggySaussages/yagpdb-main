@@ -77,6 +77,7 @@ func (p *Plugin) BotInit() {
 	scheduledevents2.RegisterHandler("cc_delayed_run", DelayedRunCCData{}, handleDelayedRunCC)
 
 	os.Mkdir("cc-github", os.ModeDir)
+	delDir("cc-github/temp")
 }
 
 func handleCustomCommandsRunNow(event *pubsub.Event) {
