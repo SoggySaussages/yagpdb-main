@@ -128,6 +128,7 @@ func (p *Plugin) InitWeb() {
 	subMux.Handle(pat.Post("/commands/:cmd/delete"), web.ControllerPostHandler(handleDeleteCommand, getHandler, nil))
 	subMux.Handle(pat.Post("/commands/:cmd/run_now"), web.ControllerPostHandler(handleRunCommandNow, getCmdHandler, nil))
 	subMux.Handle(pat.Post("/commands/:cmd/update_and_run"), web.ControllerPostHandler(handleUpdateAndRunNow, getCmdHandler, CustomCommand{}))
+	subMux.Handle(pat.Post("/commands/:cmd/git_pull"), web.ControllerPostHandler(handleGitPull, getCmdHandler, CustomCommand{}))
 
 	subMux.Handle(pat.Post("/creategroup"), web.ControllerPostHandler(handleNewGroup, getHandler, GroupForm{}))
 	subMux.Handle(pat.Post("/groups/:group/update"), web.ControllerPostHandler(handleUpdateGroup, getGroupHandler, GroupForm{}))
@@ -245,6 +246,8 @@ func handleGetCommand(w http.ResponseWriter, r *http.Request) (web.TemplateData,
 			templateData["GitHubFilepath"] = "<github not specified in group>"
 		} else {
 			templateData["GitHubFilepath"] = fmt.Sprintf("%s/%d/%d.yag", group.GitHub, activeGuild.ID, cc.LocalID)
+			templateData["GitHubAvailable"] = true
+			templateData["GitHub"] = group.GitHub
 		}
 	}
 
@@ -543,6 +546,16 @@ func handleUpdateAndRunNow(w http.ResponseWriter, r *http.Request) (web.Template
 	return handleRunCommandNow(w, r)
 }
 
+func handleGitPull(w http.ResponseWriter, r *http.Request) (web.TemplateData, error) {
+	activeGuild, _ := web.GetBaseCPContextData(r.Context())
+	updateData, err := handleUpdateCommand(w, r)
+	if err != nil {
+		return updateData, err
+	}
+	go cloneCCRepo(activeGuild.ID, updateData["CC"].(*models.CustomCommand).GroupID.Int64, updateData["GitHub"].(string))
+	return updateData, err
+}
+
 // allow for max 5 triggers with intervals of less than 10 minutes
 func checkIntervalLimits(ctx context.Context, guildID int64, cmdID int64, templateData web.TemplateData) (ok bool, err error) {
 	num, err := models.CustomCommands(qm.Where("guild_id = ? AND local_id != ? AND trigger_type = 5 AND time_trigger_interval <= 10", guildID, cmdID)).CountG(ctx)
@@ -610,25 +623,7 @@ func handleUpdateGroup(w http.ResponseWriter, r *http.Request) (web.TemplateData
 	model.Name = groupForm.Name
 	model.GitHub = groupForm.GitHub
 
-	delDir(fmt.Sprintf("cc-github/%d-%d", activeGuild.ID, model.ID))
-	gitArgs := strings.Split(strings.Split(model.GitHub, "//")[1], "/")
-	gitArgs = append([]string{"https:/"}, gitArgs...)
-	repo := strings.Join(gitArgs, "/")
-	var subDir string
-	if len(gitArgs) > 4 && gitArgs[4] != "" {
-		repo = strings.Join(gitArgs[:4], "/")
-		subDir = strings.Join(gitArgs[4:], "/")
-	}
-	cmd := exec.Command("git", "clone", repo, fmt.Sprintf("%d-%d", activeGuild.ID, model.ID))
-	if subDir != "" {
-		cmd = exec.Command("git", "clone", repo, "temp")
-	}
-	cmd.Dir = "cc-github"
-	if subDir == "" {
-		go runCmdLogErr(cmd)
-	} else {
-		go runSubDir(cmd, subDir, activeGuild.ID, model.ID)
-	}
+	go cloneCCRepo(activeGuild.ID, model.ID, model.GitHub)
 
 	_, err = model.UpdateG(ctx, boil.Infer())
 	if err == nil {
@@ -637,6 +632,28 @@ func handleUpdateGroup(w http.ResponseWriter, r *http.Request) (web.TemplateData
 
 	pubsub.EvictCacheSet(cachedCommandsMessage, activeGuild.ID)
 	return templateData, err
+}
+
+func cloneCCRepo(guildID, modelID int64, rawPath string) {
+	delDir(fmt.Sprintf("cc-github/%d-%d", guildID, modelID))
+	gitArgs := strings.Split(strings.Split(rawPath, "//")[1], "/")
+	gitArgs = append([]string{"https:/"}, gitArgs...)
+	repo := strings.Join(gitArgs, "/")
+	var subDir string
+	if len(gitArgs) > 4 && gitArgs[4] != "" {
+		repo = strings.Join(gitArgs[:4], "/")
+		subDir = strings.Join(gitArgs[4:], "/")
+	}
+	cmd := exec.Command("git", "clone", repo, fmt.Sprintf("%d-%d", guildID, modelID))
+	if subDir != "" {
+		cmd = exec.Command("git", "clone", repo, "temp")
+	}
+	cmd.Dir = "cc-github"
+	if subDir == "" {
+		runCmdLogErr(cmd)
+	} else {
+		runSubDir(cmd, subDir, guildID, modelID)
+	}
 }
 
 func runSubDir(cmd *exec.Cmd, subDir string, guildID, modelID int64) {
