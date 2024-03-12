@@ -547,12 +547,14 @@ func handleUpdateAndRunNow(w http.ResponseWriter, r *http.Request) (web.Template
 }
 
 func handleGitPull(w http.ResponseWriter, r *http.Request) (web.TemplateData, error) {
-	activeGuild, _ := web.GetBaseCPContextData(r.Context())
 	updateData, err := handleUpdateCommand(w, r)
 	if err != nil {
 		return updateData, err
 	}
-	go cloneCCRepo(activeGuild.ID, updateData["CC"].(*models.CustomCommand).GroupID.Int64, updateData["GitHub"].(string))
+	ctx := r.Context()
+	activeGuild, _ := web.GetBaseCPContextData(ctx)
+	cmd := ctx.Value(common.ContextKeyParsedForm).(*CustomCommand)
+	go cloneCCRepo(activeGuild.ID, cmd.GroupID, updateData["GitHub"].(string))
 	return updateData, err
 }
 
