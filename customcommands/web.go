@@ -10,6 +10,8 @@ import (
 	"io"
 	"math"
 	"net/http"
+	"os"
+	"os/exec"
 	"strconv"
 	"strings"
 	"time"
@@ -51,6 +53,7 @@ var PageHTMLPublicCmd string
 type GroupForm struct {
 	ID                int64
 	Name              string  `valid:",100"`
+	GitHub            string  `valid:",100"`
 	WhitelistChannels []int64 `valid:"channel,true"`
 	BlacklistChannels []int64 `valid:"channel,true"`
 
@@ -139,6 +142,7 @@ func (p *Plugin) InitWeb() {
 	subMux.Handle(pat.Post("/commands/:cmd/run_now"), web.ControllerPostHandler(handleRunCommandNow, getCmdHandler, nil))
 	subMux.Handle(pat.Post("/commands/:cmd/update_and_run"), web.ControllerPostHandler(handleUpdateAndRunNow, getCmdHandler, CustomCommand{}))
 	subMux.Handle(pat.Post("/commands/import/:cmd"), PublicCommandMW(newCommandHandler))
+	subMux.Handle(pat.Post("/commands/:cmd/git_pull"), web.ControllerPostHandler(handleGitPull, getCmdHandler, CustomCommand{}))
 
 	subMux.Handle(pat.Post("/creategroup"), web.ControllerPostHandler(handleNewGroup, getHandler, GroupForm{}))
 	subMux.Handle(pat.Post("/groups/:group/update"), web.ControllerPostHandler(handleUpdateGroup, getGroupHandler, GroupForm{}))
@@ -282,6 +286,17 @@ func handleGetCommand(w http.ResponseWriter, r *http.Request) (web.TemplateData,
 	templateData["IsGuildPremium"] = premium.ContextPremium(r.Context())
 	templateData["MaxCCLength"] = allowedCCLength
 	templateData["PublicLink"] = getPublicLink(cc)
+	templateData["GitHubFilepath"] = "<cc not in group>"
+	group, err := models.CustomCommandGroups(qm.Where("guild_id = ? AND id = ?", activeGuild.ID, cc.GroupID.Int64)).OneG(r.Context())
+	if err == nil {
+		if group.GitHub == "" {
+			templateData["GitHubFilepath"] = "<github not specified in group>"
+		} else {
+			templateData["GitHubFilepath"] = fmt.Sprintf("%s/%d/%d.yag", group.GitHub, activeGuild.ID, cc.LocalID)
+			templateData["GitHubAvailable"] = true
+			templateData["GitHub"] = group.GitHub
+		}
+	}
 
 	return serveGroupSelected(r, templateData, cc.GroupID.Int64, cc.GuildID)
 }
@@ -676,19 +691,35 @@ func handleUpdateAndRunNow(w http.ResponseWriter, r *http.Request) (web.Template
 	return handleRunCommandNow(w, r)
 }
 
+func handleGitPull(w http.ResponseWriter, r *http.Request) (web.TemplateData, error) {
+	updateData, err := handleUpdateCommand(w, r)
+	if err != nil {
+		return updateData, err
+	}
+	ctx := r.Context()
+	activeGuild, _ := web.GetBaseCPContextData(ctx)
+	cmd := ctx.Value(common.ContextKeyParsedForm).(*CustomCommand)
+	model, err := models.CustomCommandGroups(qm.Where("guild_id = ? AND id = ?", activeGuild.ID, cmd.GroupID)).OneG(ctx)
+	if err != nil {
+		return updateData, err
+	}
+	go cloneCCRepo(activeGuild.ID, cmd.GroupID, model.GitHub)
+	return updateData, err
+}
+
 // allow for max 5 triggers with intervals of less than 10 minutes
 func checkIntervalLimits(ctx context.Context, guildID int64, cmdID int64, templateData web.TemplateData) (ok bool, err error) {
-	//	num, err := models.CustomCommands(qm.Where("guild_id = ? AND local_id != ? AND trigger_type = 5 AND time_trigger_interval <= 10", guildID, cmdID)).CountG(ctx)
-	//	if err != nil {
-	//		return false, err
-	//	}
-	//
-	//	if num < 5 {
-	return true, nil
-	// }
-	//
-	// templateData.AddAlerts(web.ErrorAlert("You can have max 5 triggers on less than 10 minute intervals"))
-	// return false, nil
+	num, err := models.CustomCommands(qm.Where("guild_id = ? AND local_id != ? AND trigger_type = 5 AND time_trigger_interval <= 10", guildID, cmdID)).CountG(ctx)
+	if err != nil {
+		return false, err
+	}
+
+	if num < 5 {
+		return true, nil
+	}
+
+	templateData.AddAlerts(web.ErrorAlert("You can have max 5 triggers on less than 10 minute intervals"))
+	return false, nil
 }
 
 func handleNewGroup(w http.ResponseWriter, r *http.Request) (web.TemplateData, error) {
@@ -741,6 +772,9 @@ func handleUpdateGroup(w http.ResponseWriter, r *http.Request) (web.TemplateData
 	model.WhitelistRoles = groupForm.WhitelistRoles
 	model.IgnoreRoles = groupForm.BlacklistRoles
 	model.Name = groupForm.Name
+	model.GitHub = groupForm.GitHub
+
+	go cloneCCRepo(activeGuild.ID, model.ID, model.GitHub)
 
 	_, err = model.UpdateG(ctx, boil.Infer())
 	if err == nil {
@@ -749,6 +783,64 @@ func handleUpdateGroup(w http.ResponseWriter, r *http.Request) (web.TemplateData
 
 	pubsub.EvictCacheSet(cachedCommandsMessage, activeGuild.ID)
 	return templateData, err
+}
+
+func cloneCCRepo(guildID, modelID int64, rawPath string) {
+	delDir(fmt.Sprintf("cc-github/%d-%d", guildID, modelID))
+	gitArgs := strings.Split(strings.Split(rawPath, "//")[1], "/")
+	gitArgs = append([]string{"https:/"}, gitArgs...)
+	repo := strings.Join(gitArgs, "/")
+	var subDir string
+	if len(gitArgs) > 4 && gitArgs[4] != "" {
+		repo = strings.Join(gitArgs[:4], "/")
+		subDir = strings.Join(gitArgs[4:], "/")
+	}
+	cmd := exec.Command("git", "clone", repo, fmt.Sprintf("%d-%d", guildID, modelID))
+	if subDir != "" {
+		cmd = exec.Command("git", "clone", repo, "temp")
+	}
+	cmd.Dir = "cc-github"
+	if subDir == "" {
+		runCmdLogErr(cmd)
+	} else {
+		runSubDir(cmd, subDir, guildID, modelID)
+	}
+}
+
+func runSubDir(cmd *exec.Cmd, subDir string, guildID, modelID int64) {
+	ok := runCmdLogErr(cmd)
+	if ok {
+		cmd = exec.Command("cp", "-rv", "temp/"+subDir, fmt.Sprintf("%d-%d", guildID, modelID))
+		cmd.Dir = "cc-github"
+		runCmdLogErr(cmd)
+		delDir("cc-github/temp")
+	}
+}
+
+func delDir(path string) {
+	dr, err := os.Open(path)
+	if err == nil {
+		defer dr.Close()
+		logger.Infof("attempting to delete directory %s...", dr.Name())
+		files, err := dr.Readdir(-1)
+		if err == nil {
+			for _, file := range files {
+				if file.IsDir() {
+					delDir(path + "/" + file.Name())
+				}
+				err = os.RemoveAll(path + "/" + file.Name())
+				if err != nil {
+					continue
+				}
+			}
+		}
+		err = os.Remove(path)
+		if err != nil {
+			logger.WithError(err)
+		} else {
+			logger.Infof("completed deleting directory %s.", dr.Name())
+		}
+	}
 }
 
 func handleDeleteGroup(w http.ResponseWriter, r *http.Request) (web.TemplateData, error) {

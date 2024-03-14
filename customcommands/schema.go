@@ -14,6 +14,8 @@ CREATE TABLE IF NOT EXISTS custom_command_groups (
 	whitelist_channels BIGINT[]
 );
 `, `
+ALTER TABLE custom_command_groups ADD COLUMN IF NOT EXISTS github TEXT NOT NULL DEFAULT '';
+`, `
 CREATE TABLE IF NOT EXISTS custom_commands (
 	local_id BIGINT NOT NULL,
 	guild_id BIGINT NOT NULL,
@@ -66,6 +68,8 @@ ALTER TABLE custom_commands ADD COLUMN IF NOT EXISTS public_id TEXT NOT NULL DEF
 CREATE INDEX IF NOT EXISTS custom_commands_public_id_idx ON custom_commands(public_id);
 `, `
 ALTER TABLE custom_commands ADD COLUMN IF NOT EXISTS import_count INT NOT NULL DEFAULT 0;
+`, `
+ALTER TABLE custom_commands ADD COLUMN IF NOT EXISTS github_response BOOLEAN NOT NULL DEFAULT false;
 `, `
 CREATE TABLE IF NOT EXISTS templates_user_database (
 	id BIGSERIAL PRIMARY KEY,
