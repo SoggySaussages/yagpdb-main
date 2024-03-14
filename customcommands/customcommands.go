@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"math"
+	"os/exec"
 	"sort"
 	"strings"
 	"unicode/utf8"
@@ -115,12 +116,13 @@ type CustomCommand struct {
 	TriggerTypeForm string             `json:"-" schema:"type"`
 	Trigger         string             `json:"trigger" schema:"trigger" valid:",0,1000"`
 	// TODO: Retire the legacy Response field.
-	Response      string   `json:"response,omitempty" schema:"response" valid:"template,10000"`
-	Responses     []string `json:"responses" schema:"responses" valid:"template,10000"`
-	CaseSensitive bool     `json:"case_sensitive" schema:"case_sensitive"`
-	ID            int64    `json:"id"`
-	Name          string   `json:"name" schema:"name" valid:",0,100"`
-	IsEnabled     bool     `json:"is_enabled" schema:"is_enabled"`
+	Response       string   `json:"response,omitempty" schema:"response" valid:"template,10000"`
+	Responses      []string `json:"responses" schema:"responses" valid:"template,10000"`
+	CaseSensitive  bool     `json:"case_sensitive" schema:"case_sensitive"`
+	ID             int64    `json:"id"`
+	Name           string   `json:"name" schema:"name" valid:",0,100"`
+	IsEnabled      bool     `json:"is_enabled" schema:"is_enabled"`
+	GithubResponse bool     `json:"github_response" schema:"github_response"`
 
 	ContextChannel int64 `schema:"context_channel" valid:"channel,true"`
 
@@ -208,9 +210,10 @@ func (cc *CustomCommand) ToDBModel() *models.CustomCommand {
 
 		Responses: cc.Responses,
 
-		ShowErrors:    cc.ShowErrors,
-		Disabled:      !cc.IsEnabled,
-		TriggerOnEdit: cc.TriggerOnEdit,
+		ShowErrors:     cc.ShowErrors,
+		Disabled:       !cc.IsEnabled,
+		TriggerOnEdit:  cc.TriggerOnEdit,
+		GitHubResponse: cc.GithubResponse,
 	}
 
 	if cc.TimeTriggerExcludingDays == nil {
@@ -484,4 +487,19 @@ func convertEntries(result models.TemplatesUserDatabaseSlice) []*LightDBEntry {
 	}
 
 	return entries
+}
+
+// returns false if there was an error
+func runCmdLogErr(cmd *exec.Cmd) bool {
+	out, err := cmd.CombinedOutput()
+	output := string(out)
+	if !strings.Contains(output, "Already up to date.") {
+		logger.Infof("running the command %s", cmd.String())
+		logger.Info(output)
+	}
+	if err != nil {
+		logger.Error(err)
+		return false
+	}
+	return true
 }

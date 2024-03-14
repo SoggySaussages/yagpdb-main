@@ -265,6 +265,12 @@
                                     <br/>
                                     <label> Command Enabled?</label>
                                     {{checkbox "is_enabled" "is_enabled" "Enables or Disables the command" (not .CC.Disabled) }}
+                                    <label> Get response from <code>{{.GitHubFilepath}}</code>?</label>
+                                    {{checkbox "github_response" "github_response" "Prioritise response from GitHub" .CC.GitHubResponse }}
+                                    {{$disabledClass := ""}}
+                                    {{if not .GitHubAvailable}}{{$disabledClass = "disabled"}}{{end}}
+                                    <button type="submit" class="btn btn-secondary btn-block {{$disabledClass}}" title="This will update this custom command from GitHub immediately (mandatory if using a subdirectory in group GitHub)"
+                                        formaction="/manage/{{$guild}}/customcommands/commands/{{.CC.LocalID}}/git_pull">Git Pull</button>
                                 </div>
                             </div>
                         </div>
