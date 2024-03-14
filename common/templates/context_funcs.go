@@ -2277,35 +2277,26 @@ func (c *Context) tmplEphemeralResponse() string {
 }
 
 func (c *Context) tmplGetResponse(interactionToken, msgID interface{}) (message *discordgo.Message, err error) {
-	logger.Info(common.RandomNoun())
 	if c.IncreaseCheckGenericAPICall() {
 		return nil, ErrTooManyAPICalls
 	}
-	logger.Info(common.RandomNoun())
 
 	_, token := c.tokenArg(interactionToken)
 	if token == "" {
 		return nil, errors.New("invalid interaction token")
 	}
-	logger.Info(common.RandomNoun())
 
 	var getOriginal bool
 	mID := ToInt64(msgID)
 	if mID == 0 {
 		getOriginal = true
 	}
-	logger.Info(common.RandomNoun())
 
 	if getOriginal {
-		logger.Info(common.RandomNoun())
 		message, err = common.BotSession.GetOriginalInteractionResponse(common.BotApplication.ID, token)
-		logger.Info(common.RandomNoun())
 	} else {
-		logger.Info(common.RandomNoun())
 		message, err = common.BotSession.WebhookMessage(common.BotApplication.ID, token, mID)
-		logger.Info(common.RandomNoun())
 	}
-	logger.Info(common.RandomNoun())
 
 	return
 }
@@ -2419,46 +2410,33 @@ func (c *Context) tmplSendInteractionResponse(filterSpecialMentions bool, return
 }
 
 func (c *Context) tmplUpdateMessage(filterSpecialMentions bool) func(msg interface{}) (interface{}, error) {
-	logger.Info(common.RandomNoun())
 	parseMentions := []discordgo.AllowedMentionType{discordgo.AllowedMentionTypeUsers}
 	if !filterSpecialMentions {
 		parseMentions = append(parseMentions, discordgo.AllowedMentionTypeRoles, discordgo.AllowedMentionTypeEveryone)
 	}
-	logger.Info(common.RandomNoun())
 	return func(msg interface{}) (interface{}, error) {
-		logger.Info(common.RandomNoun())
 		if c.IncreaseCheckGenericAPICall() {
 			return "", ErrTooManyAPICalls
 		}
-		logger.Info(common.RandomNoun())
 
 		msgEdit := &discordgo.InteractionResponseData{
 			AllowedMentions: &discordgo.AllowedMentions{Parse: parseMentions},
 		}
 		var err error
-		logger.Info(common.RandomNoun())
 
 		switch typedMsg := msg.(type) {
 
 		case *discordgo.MessageEmbed:
-			logger.Info(common.RandomNoun())
 			msgEdit.Embeds = []*discordgo.MessageEmbed{typedMsg}
-			logger.Info(common.RandomNoun())
 		case []*discordgo.MessageEmbed:
-			logger.Info(common.RandomNoun())
 			msgEdit.Embeds = typedMsg
-			logger.Info(common.RandomNoun())
 		case *discordgo.MessageEdit:
-			logger.Info(common.RandomNoun())
 			embeds := make([]*discordgo.MessageEmbed, 0, len(typedMsg.Embeds))
-			logger.Info(common.RandomNoun())
 			//If there are no Embeds and string are explicitly set as null, give an error message.
 			if typedMsg.Content != nil && strings.TrimSpace(*typedMsg.Content) == "" {
-				logger.Info(common.RandomNoun())
 				if len(typedMsg.Embeds) == 0 {
 					return "", errors.New("both content and embed cannot be null")
 				}
-				logger.Info(common.RandomNoun())
 
 				//only keep valid embeds
 				for _, e := range typedMsg.Embeds {
@@ -2466,38 +2444,29 @@ func (c *Context) tmplUpdateMessage(filterSpecialMentions bool) func(msg interfa
 						embeds = append(typedMsg.Embeds, e)
 					}
 				}
-				logger.Info(common.RandomNoun())
 				if len(embeds) == 0 {
 					return "", errors.New("both content and embed cannot be null")
 				}
-				logger.Info(common.RandomNoun())
 			}
-			logger.Info(common.RandomNoun())
 			msgEdit.Content = ToString(*typedMsg.Content)
 			msgEdit.Embeds = typedMsg.Embeds
 			msgEdit.Components = typedMsg.Components
 			msgEdit.AllowedMentions = &typedMsg.AllowedMentions
-			logger.Info(common.RandomNoun())
 		default:
-			logger.Info(common.RandomNoun())
 			temp := fmt.Sprint(msg)
 			msgEdit.Content = temp
-			logger.Info(common.RandomNoun())
 		}
 
-		logger.Info(common.RandomNoun())
 		if !filterSpecialMentions {
 			msgEdit.AllowedMentions = &discordgo.AllowedMentions{
 				Parse: []discordgo.AllowedMentionType{discordgo.AllowedMentionTypeUsers, discordgo.AllowedMentionTypeRoles, discordgo.AllowedMentionTypeEveryone},
 			}
 		}
-		logger.Info(common.RandomNoun())
 
 		err = common.BotSession.CreateInteractionResponse(c.CurrentFrame.Interaction.ID, c.CurrentFrame.Interaction.Token, &discordgo.InteractionResponse{
 			Type: discordgo.InteractionResponseUpdateMessage,
 			Data: msgEdit,
 		})
-		logger.Info(common.RandomNoun())
 
 		if err != nil {
 			return "", err
