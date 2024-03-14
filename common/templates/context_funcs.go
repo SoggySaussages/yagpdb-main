@@ -2236,9 +2236,10 @@ func (c *Context) tmplEditInteractionResponse(filterSpecialMentions bool) func(i
 				if len(embeds) == 0 && len(typedMsg.Components) == 0 {
 					return "", errors.New("both content and embed cannot be null")
 				}
-				*typedMsg.Content = ""
 			}
-			msgEdit.Content = *typedMsg.Content
+			if typedMsg.Content != nil {
+				msgEdit.Content = *typedMsg.Content
+			}
 			msgEdit.Embeds = typedMsg.Embeds
 			msgEdit.Components = typedMsg.Components
 			msgEdit.AllowedMentions = &typedMsg.AllowedMentions
@@ -2468,9 +2469,10 @@ func (c *Context) tmplUpdateMessage(filterSpecialMentions bool) func(msg interfa
 				if len(embeds) == 0 && len(typedMsg.Components) == 0 {
 					return "", errors.New("both content and embed cannot be null")
 				}
-				*typedMsg.Content = ""
 			}
-			msgEdit.Content = *typedMsg.Content
+			if typedMsg.Content != nil {
+				msgEdit.Content = *typedMsg.Content
+			}
 			msgEdit.Embeds = typedMsg.Embeds
 			msgEdit.Components = typedMsg.Components
 			msgEdit.AllowedMentions = &typedMsg.AllowedMentions
