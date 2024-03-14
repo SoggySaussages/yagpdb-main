@@ -2443,17 +2443,11 @@ func (c *Context) tmplUpdateMessage(filterSpecialMentions bool) func(msg interfa
 		switch typedMsg := msg.(type) {
 
 		case *discordgo.MessageEmbed:
-			logger.Debug("button")
 			msgEdit.Embeds = []*discordgo.MessageEmbed{typedMsg}
-			logger.Debug("button")
 		case []*discordgo.MessageEmbed:
-			logger.Debug("button")
 			msgEdit.Embeds = typedMsg
-			logger.Debug("button")
 		case *discordgo.MessageEdit:
-			logger.Debug("button")
 			embeds := make([]*discordgo.MessageEmbed, 0, len(typedMsg.Embeds))
-			logger.Debug("button")
 			//If there are no Embeds and string are explicitly set as null, give an error message.
 			if typedMsg.Content != nil && strings.TrimSpace(*typedMsg.Content) == "" {
 				if len(typedMsg.Embeds) == 0 && len(typedMsg.Components) == 0 {
@@ -2476,12 +2470,9 @@ func (c *Context) tmplUpdateMessage(filterSpecialMentions bool) func(msg interfa
 			msgEdit.Embeds = typedMsg.Embeds
 			msgEdit.Components = typedMsg.Components
 			msgEdit.AllowedMentions = &typedMsg.AllowedMentions
-			logger.Debug("button")
 		default:
-			logger.Debug("button")
 			temp := fmt.Sprint(msg)
 			msgEdit.Content = temp
-			logger.Debug("button")
 		}
 
 		logger.Debug("button")
