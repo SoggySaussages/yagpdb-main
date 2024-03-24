@@ -329,12 +329,15 @@ func (c *Context) tmplSendMessage(filterSpecialMentions bool, returnID bool) fun
 			return ""
 		}
 
+		sendType := sendMessageGuildChannel
 		cid := c.ChannelArg(channel)
 		if cid == 0 {
 			return ""
 		}
 
-		isDM := cid != c.ChannelArgNoDM(channel)
+		if cid != c.ChannelArgNoDM(channel) {
+			sendType = sendMessageDM
+		}
 
 		var m *discordgo.Message
 		msgSend := &discordgo.MessageSend{
@@ -349,6 +352,7 @@ func (c *Context) tmplSendMessage(filterSpecialMentions bool, returnID bool) fun
 		case *discordgo.MessageEmbed:
 			msgSend.Embeds = []*discordgo.MessageEmbed{typedMsg}
 		case []*discordgo.MessageEmbed:
+			msgSend.Embeds = typedMsg
 		case *discordgo.MessageSend:
 			msgSend = typedMsg
 			if !filterSpecialMentions {
@@ -361,7 +365,7 @@ func (c *Context) tmplSendMessage(filterSpecialMentions bool, returnID bool) fun
 			msgSend.Content = ToString(msg)
 		}
 
-		if isDM {
+		if sendType == sendMessageDM {
 			msgSend.Components = []discordgo.MessageComponent{
 				discordgo.ActionsRow{
 					Components: []discordgo.MessageComponent{
@@ -435,6 +439,7 @@ func (c *Context) tmplEditMessage(filterSpecialMentions bool) func(channel inter
 			}
 			msgEdit.Content = typedMsg.Content
 			msgEdit.Embeds = typedMsg.Embeds
+			msgEdit.Components = typedMsg.Components
 			msgEdit.AllowedMentions = typedMsg.AllowedMentions
 		default:
 			temp := fmt.Sprint(msg)
