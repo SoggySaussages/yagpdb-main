@@ -435,7 +435,7 @@
                                     formaction="/manage/{{$guild}}/customcommands/commands/{{.CC.LocalID}}/delete">Delete</button>
                             </div>
                         </div>
-                        <div class="row mt-4" id="interval-cc-run-now public-hidden">
+                        <div class="row mt-4 public-hidden" id="interval-cc-run-now">
                             <div class="col">
                                 <button type="submit" class="btn btn-secondary btn-block" title="This will trigger this custom command immediately"
                                     formaction="/manage/{{$guild}}/customcommands/commands/{{.CC.LocalID}}/update_and_run">Run now</button>
@@ -521,6 +521,8 @@
     </section>
 </div>
 
+<script src="/static/vendorr/highlightjs/highlight.pack.js"></script>
+<script src="/static/vendorr/highlightjs/line-numbers.js"></script>
 <script src="/static/vendorr/tln/tln.min.js"></script>
 <link rel="stylesheet" href="/static/vendorr/tln/tln.min.css">
 <style>
