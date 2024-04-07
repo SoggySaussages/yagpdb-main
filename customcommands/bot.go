@@ -262,7 +262,35 @@ var cmdListCommands = &commands.YAGCommand{
 			}
 		}
 
-		ccIDWithLink := fmt.Sprintf("[%[1]d](%[2]s/customcommands/commands/%[1]d/)", cc.LocalID, web.ManageServerURL(data.GuildData))
+		ccIDMaybeWithLink := strconv.FormatInt(cc.LocalID, 10)
+
+		// Add public link to the CC if it is public
+		if cc.Public {
+			ccIDMaybeWithLink = fmt.Sprintf("[%[1]d](%[2]s/public/%[3]d/customcommands/commands/%[1]d/)", cc.LocalID, web.BaseURL(), data.GuildData.GS.ID)
+		}
+
+		// Add link to the cc on dashboard if member has read access
+		var member *discordgo.Member
+		if data.TriggerType == dcmd.TriggerTypeSlashCommands {
+			member = data.SlashCommandTriggerData.Interaction.Member
+		} else {
+			member = data.TraditionalTriggerData.Message.Member
+		}
+		roles := member.Roles
+		perms, _ := data.GuildData.GS.GetMemberPermissions(data.ChannelID, data.Author.ID, roles)
+
+		gWithConnected := &common.GuildWithConnected{
+			UserGuild: &discordgo.UserGuild{
+				ID:          data.GuildData.GS.ID,
+				Owner:       data.Author.ID == data.GuildData.GS.OwnerID,
+				Permissions: perms,
+			},
+			Connected: true,
+		}
+
+		if hasRead, _ := web.GetUserAccessLevel(data.Author.ID, gWithConnected, common.GetCoreServerConfCached(data.GuildData.GS.ID), web.StaticRoleProvider(roles)); hasRead {
+			ccIDMaybeWithLink = fmt.Sprintf("[%[1]d](%[2]s/customcommands/commands/%[1]d/)", cc.LocalID, web.ManageServerURL(data.GuildData))
+		}
 
 		// Every message content-based custom command trigger has a numerical value less than 5
 		if cc.TriggerType < 5 || cc.TriggerType == int(CommandTriggerComponent) || cc.TriggerType == int(CommandTriggerModal) {
@@ -271,11 +299,11 @@ var cmdListCommands = &commands.YAGCommand{
 				cc.TextTrigger = `​`
 			}
 			if cc.Name.Valid {
-				header = fmt.Sprintf("#%s - Trigger: `%s` - Type: `%s` - Name: `%s` - Case sensitive trigger: `%t` - Group: `%s` - Disabled: `%t` - onEdit: `%t`",
-					ccIDWithLink, cc.TextTrigger, CommandTriggerType(cc.TriggerType), cc.Name.String, cc.TextTriggerCaseSensitive, groupMap[cc.GroupID.Int64], cc.Disabled, cc.TriggerOnEdit)
+				header = fmt.Sprintf("#%s - Trigger: `%s` - Type: `%s` - Name: `%s` - Case sensitive trigger: `%t` - Group: `%s` - Disabled: `%t` - onEdit: `%t` Public: `%t`",
+					ccIDMaybeWithLink, cc.TextTrigger, CommandTriggerType(cc.TriggerType), cc.Name.String, cc.TextTriggerCaseSensitive, groupMap[cc.GroupID.Int64], cc.Disabled, cc.TriggerOnEdit, cc.Public)
 			} else {
-				header = fmt.Sprintf("#%s - Trigger: `%s` - Type: `%s` - Case sensitive trigger: `%t` - Group: `%s` - Disabled: `%t` - onEdit: `%t`",
-					ccIDWithLink, cc.TextTrigger, CommandTriggerType(cc.TriggerType), cc.TextTriggerCaseSensitive, groupMap[cc.GroupID.Int64], cc.Disabled, cc.TriggerOnEdit)
+				header = fmt.Sprintf("#%s - Trigger: `%s` - Type: `%s` - Case sensitive trigger: `%t` - Group: `%s` - Disabled: `%t` - onEdit: `%t` Public: `%t`",
+					ccIDMaybeWithLink, cc.TextTrigger, CommandTriggerType(cc.TriggerType), cc.TextTriggerCaseSensitive, groupMap[cc.GroupID.Int64], cc.Disabled, cc.TriggerOnEdit, cc.Public)
 			}
 
 			if ccFile != nil {
@@ -291,9 +319,9 @@ var cmdListCommands = &commands.YAGCommand{
 		if ccFile != nil {
 			var header string
 			if cc.Name.Valid {
-				header = fmt.Sprintf("#%s - Type: `%s` - Name: `%s` - Group: `%s` - Disabled: `%t`", ccIDWithLink, CommandTriggerType(cc.TriggerType), cc.Name.String, groupMap[cc.GroupID.Int64], cc.Disabled)
+				header = fmt.Sprintf("#%s - Type: `%s` - Name: `%s` - Group: `%s` - Disabled: `%t` Public: `%t`", ccIDMaybeWithLink, CommandTriggerType(cc.TriggerType), cc.Name.String, groupMap[cc.GroupID.Int64], cc.Disabled, cc.Public)
 			} else {
-				header = fmt.Sprintf("#%s - Type: `%s` - Group: `%s` - Disabled: `%t`", ccIDWithLink, CommandTriggerType(cc.TriggerType), groupMap[cc.GroupID.Int64], cc.Disabled)
+				header = fmt.Sprintf("#%s - Type: `%s` - Group: `%s` - Disabled: `%t` Public: `%t`", ccIDMaybeWithLink, CommandTriggerType(cc.TriggerType), groupMap[cc.GroupID.Int64], cc.Disabled, cc.Public)
 			}
 
 			msg.Content = header
@@ -304,12 +332,12 @@ var cmdListCommands = &commands.YAGCommand{
 		}
 
 		if cc.Name.Valid {
-			msg.Content = fmt.Sprintf("#%s - Type: `%s` - Name: `%s` - Group: `%s` - Disabled: `%t`\n```%s\n%s\n```",
-				ccIDWithLink, CommandTriggerType(cc.TriggerType), cc.Name.String, groupMap[cc.GroupID.Int64], cc.Disabled,
+			msg.Content = fmt.Sprintf("#%s - Type: `%s` - Name: `%s` - Group: `%s` - Disabled: `%t` Public: `%t`\n```%s\n%s\n```",
+				ccIDMaybeWithLink, CommandTriggerType(cc.TriggerType), cc.Name.String, groupMap[cc.GroupID.Int64], cc.Disabled, cc.Public,
 				highlight, strings.Join(cc.Responses, "```\n```"))
 		} else {
-			msg.Content = fmt.Sprintf("#%s - Type: `%s` - Group: `%s` - Disabled: `%t`\n```%s\n%s\n```",
-				ccIDWithLink, CommandTriggerType(cc.TriggerType), groupMap[cc.GroupID.Int64], cc.Disabled,
+			msg.Content = fmt.Sprintf("#%s - Type: `%s` - Group: `%s` - Disabled: `%t` Public: `%t`\n```%s\n%s\n```",
+				ccIDMaybeWithLink, CommandTriggerType(cc.TriggerType), groupMap[cc.GroupID.Int64], cc.Disabled, cc.Public,
 				highlight, strings.Join(cc.Responses, "```\n```"))
 		}
 		return msg, nil
@@ -350,18 +378,18 @@ func StringCommands(ccs []*models.CustomCommand, gMap map[int64]string) string {
 		switch cc.TriggerType {
 		case int(CommandTriggerReaction), int(CommandTriggerInterval), int(CommandTriggerNone):
 			if cc.Name.Valid {
-				out += fmt.Sprintf("`#%3d:` - Type: `%s` - Name: `%s` - Group: `%s` - Disabled: `%t`\n", cc.LocalID, CommandTriggerType(cc.TriggerType).String(), cc.Name.String, gMap[cc.GroupID.Int64], cc.Disabled)
+				out += fmt.Sprintf("`#%3d:` - Type: `%s` - Name: `%s` - Group: `%s` - Disabled: `%t` - Public: `%t`\n", cc.LocalID, CommandTriggerType(cc.TriggerType).String(), cc.Name.String, gMap[cc.GroupID.Int64], cc.Disabled, cc.Public)
 			} else {
-				out += fmt.Sprintf("`#%3d:` - Type: `%s` - Group: `%s` - Disabled: `%t`\n", cc.LocalID, CommandTriggerType(cc.TriggerType).String(), gMap[cc.GroupID.Int64], cc.Disabled)
+				out += fmt.Sprintf("`#%3d:` - Type: `%s` - Group: `%s` - Disabled: `%t` - Public: `%t`\n", cc.LocalID, CommandTriggerType(cc.TriggerType).String(), gMap[cc.GroupID.Int64], cc.Disabled, cc.Public)
 			}
 		default:
 			if cc.TextTrigger == "" {
 				cc.TextTrigger = `​`
 			}
 			if cc.Name.Valid {
-				out += fmt.Sprintf("`#%3d:` - Trigger: `%s` - Type: `%s`  - Name: `%s` - Group: `%s` - Disabled: `%t` - onEdit: `%t`\n", cc.LocalID, cc.TextTrigger, CommandTriggerType(cc.TriggerType).String(), cc.Name.String, gMap[cc.GroupID.Int64], cc.Disabled, cc.TriggerOnEdit)
+				out += fmt.Sprintf("`#%3d:` - Trigger: `%s` - Type: `%s`  - Name: `%s` - Group: `%s` - Disabled: `%t` - onEdit: `%t` - Public: `%t`\n", cc.LocalID, cc.TextTrigger, CommandTriggerType(cc.TriggerType).String(), cc.Name.String, gMap[cc.GroupID.Int64], cc.Disabled, cc.TriggerOnEdit, cc.Public)
 			} else {
-				out += fmt.Sprintf("`#%3d:` - Trigger: `%s` - Type: `%s` - Group: `%s` - Disabled: `%t` - onEdit: `%t`\n", cc.LocalID, cc.TextTrigger, CommandTriggerType(cc.TriggerType).String(), gMap[cc.GroupID.Int64], cc.Disabled, cc.TriggerOnEdit)
+				out += fmt.Sprintf("`#%3d:` - Trigger: `%s` - Type: `%s` - Group: `%s` - Disabled: `%t` - onEdit: `%t` - Public: `%t`\n", cc.LocalID, cc.TextTrigger, CommandTriggerType(cc.TriggerType).String(), gMap[cc.GroupID.Int64], cc.Disabled, cc.TriggerOnEdit, cc.Public)
 			}
 		}
 	}

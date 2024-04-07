@@ -133,6 +133,9 @@ func (p *Plugin) InitWeb() {
 	subMux.Handle(pat.Post("/creategroup"), web.ControllerPostHandler(handleNewGroup, getHandler, GroupForm{}))
 	subMux.Handle(pat.Post("/groups/:group/update"), web.ControllerPostHandler(handleUpdateGroup, getGroupHandler, GroupForm{}))
 	subMux.Handle(pat.Post("/groups/:group/delete"), web.ControllerPostHandler(handleDeleteGroup, getHandler, nil))
+
+	web.ServerPublicMux.Handle(pat.Get("/customcommands/commands/:id"), PublicCommandMW(getCmdHandler))
+	web.ServerPublicMux.Handle(pat.Get("/customcommands/commands/:id/"), PublicCommandMW(getCmdHandler))
 }
 
 func handleGetDatabase(w http.ResponseWriter, r *http.Request) (web.TemplateData, error) {
@@ -250,6 +253,7 @@ func handleGetCommand(w http.ResponseWriter, r *http.Request) (web.TemplateData,
 			templateData["GitHub"] = group.GitHub
 		}
 	}
+	templateData["PublicLink"] = fmt.Sprintf("%s/public/%d/customcommands/commands/%d", web.BaseURL(), activeGuild.ID, cc.LocalID)
 
 	return serveGroupSelected(r, templateData, cc.GroupID.Int64, activeGuild.ID)
 }
@@ -812,4 +816,38 @@ func updateTemplateWithCountData(count int, templateData web.TemplateData, ctx c
 		additionalMessage = fmt.Sprintf("(You may increase the limit upto %d with YAGPDB premium)", MaxCommandsPremium)
 	}
 	templateData["AdditionalMessage"] = additionalMessage
+}
+
+func PublicCommandMW(inner http.Handler) http.Handler {
+	mw := func(w http.ResponseWriter, r *http.Request) {
+		defer func() { inner.ServeHTTP(w, r) }()
+
+		ctx := r.Context()
+		activeGuild, templateData := web.GetBaseCPContextData(ctx)
+		cc := templateData["CC"].(*models.CustomCommand)
+
+		if read, _ := web.IsAdminRequest(ctx, r); read {
+			http.Redirect(w, r, fmt.Sprintf("/manage/%d/customcommands/commands/%d/", activeGuild.ID, cc.LocalID), http.StatusSeeOther)
+		} else {
+			templateData["PublicView"] = true
+			if !cc.Public {
+				templateData["CC"] = &models.CustomCommand{
+					GuildID: activeGuild.ID,
+					LocalID: cc.LocalID,
+
+					Disabled:   false,
+					ShowErrors: true,
+
+					TimeTriggerExcludingDays:  []int64{},
+					TimeTriggerExcludingHours: []int64{},
+
+					Responses: []string{"Edit this to change the output of the custom command {{.CCID}}!"},
+				}
+				templateData = templateData.AddAlerts(web.ErrorAlert("This command has not been made public by a server admin."))
+			}
+		}
+		r = r.WithContext(context.WithValue(ctx, common.ContextKeyTemplateData, templateData))
+	}
+
+	return http.HandlerFunc(mw)
 }
