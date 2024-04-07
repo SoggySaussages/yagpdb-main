@@ -304,7 +304,7 @@
                                             class="cc-length-counter">x</span>/10000)</label>
                                     <!-- Use .btn-add for simplicity and let the page loader adjust. -->
                                     {{range $i, $r := .CC.Responses}}
-                                    <button id="copy-response-{{$i}}-button" class="btn btn-secondary btn-block">Copy Response</button>
+                                    <button id="copy-response-{{$i}}-button" class="btn btn-quaternary">Copy Text</button>
                                     <script>
                                         document.getElementById("copy-response-{{$i}}-button").addEventListener("click", function() {
                                             copyField("response-{{$i}}", "copy-response-{{$i}}-button");
@@ -513,7 +513,7 @@
                     </p>
                     <br>
                     <input type="text" id="public-link" class="form-control" name="Public Link" value="{{.PublicLink}}" readonly>
-                    <button id="copy-link-button" class="btn btn-secondary btn-block">Copy Link</button>
+                    <button id="copy-link-button" class="btn btn-quaternary">Copy Text</button>
                     <script>
                         document.getElementById("copy-link-button").addEventListener("click", function() {
                             copyField("public-link", "copy-link-button");
@@ -780,7 +780,7 @@
                             var button = document.getElementById(buttonID);
                             button.innerHTML = "Copied";
                             button.disabled = true;
-                            setTimeout(() => { button.innerHTML = "Copy Link"; }, 3000);
+                            setTimeout(() => { button.innerHTML = "Copy Text"; }, 3000);
                             setTimeout(() => { button.disabled = false; }, 3000);
                         };
 
