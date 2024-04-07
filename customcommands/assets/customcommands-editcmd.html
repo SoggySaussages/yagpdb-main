@@ -772,11 +772,11 @@
         if ({{.PublicAccess}}) {
             var hideElements = document.getElementsByClassName("public-hidden");
             for (var i = 0, len = hideElements.length; i < len; i++) {
-                hideElements[i].addClass("hidden");
+                hideElements[i].hidden = true;
             };
             var disableElements = document.getElementsByClassName("public-disabled");
             for (var i = 0, len = disableElements.length; i < len; i++) {
-                disableElements[i].addClass("disabled");
+                disableElements[i].disabled = true;
             };
         };
 
