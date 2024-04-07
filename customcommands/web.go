@@ -820,30 +820,31 @@ func updateTemplateWithCountData(count int, templateData web.TemplateData, ctx c
 
 func PublicCommandMW(inner http.Handler) http.Handler {
 	mw := func(w http.ResponseWriter, r *http.Request) {
-		defer func() { inner.ServeHTTP(w, r) }()
-
 		ctx := r.Context()
 		activeGuild, templateData := web.GetBaseCPContextData(ctx)
-		cc := templateData["CC"].(*models.CustomCommand)
+		ccID, err := strconv.ParseInt(pat.Param(r, "cmd"), 10, 64)
+		if err != nil {
+			logger.Error(errors.WithStackIf(err))
+			return
+		}
+
+		cc, err := models.CustomCommands(
+			models.CustomCommandWhere.GuildID.EQ(activeGuild.ID),
+			models.CustomCommandWhere.LocalID.EQ(ccID)).OneG(r.Context())
+		if err != nil {
+			logger.Error(errors.WithStackIf(err))
+			return
+		}
 
 		if read, _ := web.IsAdminRequest(ctx, r); read {
 			http.Redirect(w, r, fmt.Sprintf("/manage/%d/customcommands/commands/%d/", activeGuild.ID, cc.LocalID), http.StatusSeeOther)
 		} else {
 			templateData["PublicAccess"] = true
 			if !cc.Public {
-				templateData["CC"] = &models.CustomCommand{
-					GuildID: activeGuild.ID,
-					LocalID: cc.LocalID,
-
-					Disabled:   false,
-					ShowErrors: true,
-
-					TimeTriggerExcludingDays:  []int64{},
-					TimeTriggerExcludingHours: []int64{},
-
-					Responses: []string{"Edit this to change the output of the custom command {{.CCID}}!"},
-				}
 				templateData = templateData.AddAlerts(web.ErrorAlert("This command has not been made public by a server admin."))
+				http.Redirect(w, r, "/?err=noaccess", http.StatusTemporaryRedirect)
+			} else {
+				defer func() { inner.ServeHTTP(w, r) }()
 			}
 		}
 		r = r.WithContext(context.WithValue(ctx, common.ContextKeyTemplateData, templateData))
