@@ -303,19 +303,40 @@
                                     <label for="responses">Response (<span
                                             class="cc-length-counter">x</span>/10000)</label>
                                     <!-- Use .btn-add for simplicity and let the page loader adjust. -->
-                                    {{range .CC.Responses}}
+                                    {{range $i, $r := .CC.Responses}}
                                     <div class="entry input-group  input-group-sm">
                                         {{if not $publicAccess}}
                                         <textarea class="form-control response-text-area tab-textbox cc-editor" name="responses"
                                             placeholder="Command body here" rows="5"
-                                            oninput="onCCChanged(this)">{{.}}</textarea>
+                                            oninput="onCCChanged(this)">{{$r}}</textarea>
                                         <span class="input-group-append">
                                             <button class="btn btn-success btn-add btn-circle" type="button">
                                                 <i class="fas fa-plus"></i>
                                             </button>
                                         </span>
                                         {{else}}
-                                        <pre class="m-0"><div class="code gotmplmd">{{.}}</div></pre>
+                                        <button id="copy-response-{{$i}}-button" class="btn btn-secondary btn-block">Copy Response</button>
+                                        <pre class="m-0"><div id="response-{{$i}}" class="code
+                                        gotmplmd">{{$r}}</div></pre>
+                                        <script>
+                                            document.getElementById("copy-response-{{$i}}-button").addEventListener("click", function() {
+                                                copyField("response-{{$i}}", "copy-response-{{$i}}-button");
+                                            }, false);
+                                        
+                                            function copyField(fieldID, buttonID) {
+                                                var copyText = document.getElementById(fieldID);
+                                                copyText.select();
+                                                copyText.setSelectionRange(0, 99999); // For mobile devices
+                                            
+                                                navigator.clipboard.writeText(copyText.value);
+                                            
+                                                var button = document.getElementById(buttonID);
+                                                button.innerHTML = "Copied";
+                                                button.disabled = true;
+                                                setTimeout(() => { button.innerHTML = "Copy Link"; }, 3000);
+                                                setTimeout(() => { button.removeClass("disabled"); }, 3000);
+                                            };
+                                        </script>
                                         {{end}}
                                     </div>
                                     {{else}}
@@ -505,9 +526,27 @@
                     <p class="help-block">To share custom command #<code>{{.CC.LocalID}}</code>, copy the link below.
                     </p>
                     <br>
-                    <input type="text" id="public-link" name="Public Link" value="{{.PublicLink}}" readonly>
-                    <button id="copy-link-button" class="btn btn-secondary btn-block" value="Copy Link"
-                        onclick="copyShareLink()">
+                    <input type="text" id="public-link" class="form-control" name="Public Link" value="{{.PublicLink}}" readonly>
+                    <button id="copy-link-button" class="btn btn-secondary btn-block">Copy Link</button>
+                    <script>
+                        document.getElementById("copy-link-button").addEventListener("click", function() {
+                            copyField("public-link", "copy-link-button");
+                        }, false);
+                    
+                        function copyField(fieldID, buttonID) {
+                            var copyText = document.getElementById(fieldID);
+                            copyText.select();
+                            copyText.setSelectionRange(0, 99999); // For mobile devices
+                        
+                            navigator.clipboard.writeText(copyText.value);
+                        
+                            var button = document.getElementById(buttonID);
+                            button.innerHTML = "Copied";
+                            button.disabled = true;
+                            setTimeout(() => { button.innerHTML = "Copy Link"; }, 3000);
+                            setTimeout(() => { button.removeClass("disabled"); }, 3000);
+                        };
+                    </script>
                 </div>
             </div>
         </div>
@@ -758,19 +797,6 @@
         }
       } 
     });
-
-    function copyShareLink() {
-        var copyText = document.getElementById("public-link");
-        copyText.select();
-        copyText.setSelectionRange(0, 99999); // For mobile devices
-
-        navigator.clipboard.writeText(copyText.value);
-
-        $("#copy-link-button").value("Copied");
-        $("#copy-link-button").addClass("disabled");
-        setTimeout(() => { $("#copy-link-button").value("Copy Link"); }, 3000);
-        setTimeout(() => { $("#copy-link-button").removeClass("disabled"); }, 3000);
-    };
 
     function publicAccessClasses() {
         if ({{.PublicAccess}}) {

@@ -851,7 +851,6 @@ func PublicCommandMW(inner http.Handler) http.Handler {
 
 				defer func() { inner.ServeHTTP(w, r) }()
 			} else {
-				templateData = templateData.AddAlerts(web.ErrorAlert("This command has not been made public by a server admin."))
 				http.Redirect(w, r, "/?err=noaccess", http.StatusTemporaryRedirect)
 			}
 		}
