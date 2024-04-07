@@ -648,6 +648,7 @@
         handleRestrictionChange($("#require-role-mode").prop("checked"), $("#command-roles"), "require-no-roles-warning", requireNoRolesWarning);
         handleRestrictionChange($("#require-channel-mode").prop("checked"), $("#command-channels"), "require-no-channels-warning", requireNoChannelsWarning);
         triggerTypeChanged();
+        publicAccessClasses();
     })
 
     $("#trigger").keyup(function() {
@@ -767,70 +768,72 @@
         setTimeout(() => { $("#copy-link-button").removeClass("disabled"); }, 3000);
     };
 
-    if ({{.PublicAccess}}) {
-        var hideElements = document.getElementsByClassName("public-hidden");
-        for (var i = 0, len = hideElements.length; i < len; i++) {
-            hideElements[i].addClass("hidden");
+    function publicAccessClasses() {
+        if ({{.PublicAccess}}) {
+            var hideElements = document.getElementsByClassName("public-hidden");
+            for (var i = 0, len = hideElements.length; i < len; i++) {
+                hideElements[i].addClass("hidden");
+            };
+            var disableElements = document.getElementsByClassName("public-disabled");
+            for (var i = 0, len = disableElements.length; i < len; i++) {
+                disableElements[i].addClass("disabled");
+            };
         };
-        var disableElements = document.getElementsByClassName("public-disabled");
-        for (var i = 0, len = disableElements.length; i < len; i++) {
-            disableElements[i].addClass("disabled");
-        };
+
+        // Register the custom language for readonly mode
+        // its based off markdown with custom stuff in tags
+        hljs.registerLanguage("gotmplmd", function (hljs) {
+            var KEYWORDS = {
+                keyword:
+                    'for range if else template end',
+                literal:
+                    'true false nil',
+                "built-in":
+                    'gt lt len index{{.HLJSBuiltins}}'
+            };
+
+            return {
+                aliases: ['gomd'],
+                case_insensitive: true,
+                subLanguage: 'markdown',
+                contains: [
+                    hljs.COMMENT(/\{\{\s?\/\*/, /\*\/\s?\}\}/),
+                    {
+                        // open block statement
+                        className: 'template-tag',
+                        begin: /\{\{/, end: /\}\}/,
+                        keywords: KEYWORDS,
+                        contains: [
+                            {
+                                className: 'string',
+                                variants: [
+                                    hljs.QUOTE_STRING_MODE,
+                                    { begin: '\'', end: '[^\\\\]\'' },
+                                    { begin: '`', end: '`' },
+                                ]
+                            },
+                            {
+                                className: 'number',
+                                variants: [
+                                    { begin: hljs.C_NUMBER_RE + '[i]', relevance: 1 },
+                                    hljs.C_NUMBER_MODE
+                                ]
+                            },
+                            {
+                                className: 'name',
+                                begin: /(\.|\$)\w+/,
+                            }
+                        ],
+                    },
+                ]
+            };
+        })
+
+        document.querySelectorAll('div.code').forEach((block) => {
+            hljs.highlightBlock(block);
+            hljs.lineNumbersBlock(block);
+        });
     };
-
-    // Register the custom language for readonly mode
-    // its based off markdown with custom stuff in tags
-    hljs.registerLanguage("gotmplmd", function (hljs) {
-        var KEYWORDS = {
-            keyword:
-                'for range if else template end',
-            literal:
-                'true false nil',
-            "built-in":
-                'gt lt len index{{.HLJSBuiltins}}'
-        };
-
-        return {
-            aliases: ['gomd'],
-            case_insensitive: true,
-            subLanguage: 'markdown',
-            contains: [
-                hljs.COMMENT(/\{\{\s?\/\*/, /\*\/\s?\}\}/),
-                {
-                    // open block statement
-                    className: 'template-tag',
-                    begin: /\{\{/, end: /\}\}/,
-                    keywords: KEYWORDS,
-                    contains: [
-                        {
-                            className: 'string',
-                            variants: [
-                                hljs.QUOTE_STRING_MODE,
-                                { begin: '\'', end: '[^\\\\]\'' },
-                                { begin: '`', end: '`' },
-                            ]
-                        },
-                        {
-                            className: 'number',
-                            variants: [
-                                { begin: hljs.C_NUMBER_RE + '[i]', relevance: 1 },
-                                hljs.C_NUMBER_MODE
-                            ]
-                        },
-                        {
-                            className: 'name',
-                            begin: /(\.|\$)\w+/,
-                        }
-                    ],
-                },
-            ]
-        };
-    })
-
-    document.querySelectorAll('div.code').forEach((block) => {
-        hljs.highlightBlock(block);
-        hljs.lineNumbersBlock(block);
-    });
 </script>
 
 
