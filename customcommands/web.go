@@ -839,12 +839,12 @@ func PublicCommandMW(inner http.Handler) http.Handler {
 		if read, _ := web.IsAdminRequest(ctx, r); read {
 			http.Redirect(w, r, fmt.Sprintf("/manage/%d/customcommands/commands/%d/", activeGuild.ID, cc.LocalID), http.StatusSeeOther)
 		} else {
-			templateData["PublicAccess"] = true
-			if !cc.Public {
+			if cc.Public {
+				templateData["PublicAccess"] = true
+				defer func() { inner.ServeHTTP(w, r) }()
+			} else {
 				templateData = templateData.AddAlerts(web.ErrorAlert("This command has not been made public by a server admin."))
 				http.Redirect(w, r, "/?err=noaccess", http.StatusTemporaryRedirect)
-			} else {
-				defer func() { inner.ServeHTTP(w, r) }()
 			}
 		}
 		r = r.WithContext(context.WithValue(ctx, common.ContextKeyTemplateData, templateData))
