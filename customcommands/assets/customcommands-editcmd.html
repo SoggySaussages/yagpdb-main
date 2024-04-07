@@ -16,15 +16,13 @@
 <div class="row">
     <div class="col">
         {{$publicAccess := .PublicAccess}}
-        {{$publicHidden := ""}}
         {{$publicDisabled := ""}}
         {{if $publicAccess}}
-            {{$publicHidden = ` hidden=""`}}
-            {{$publicDisabled = ` disabled=""`}}
+            {{$publicDisabled = "disabled"}}
         {{end}}
         <!-- Nav tabs -->
         <div class="tabs">
-            <ul class="nav nav-tabs"{{$publicHidden}}>
+            <ul class="nav nav-tabs public-hidden">
                 <li class="nav-item {{if and (not .CurrentCommandGroup)}}active{{end}}">
                     <a data-partial-load="true" class="nav-link show {{if not .CurrentCommandGroup}}active{{end}}"
                         href="/manage/{{.ActiveGuild.ID}}/customcommands/">Ungrouped</a>
@@ -81,8 +79,8 @@
                                     <div class="col">
                                         <div class="form-group">
                                             <label>Trigger type</label>
-                                            <select class="form-control" id="trigger-type-dropdown" name="type"
-                                                onchange="triggerTypeChanged(this)"{{$publicDisabled}}>
+                                            <select class="form-control public-disabled" id="trigger-type-dropdown" name="type"
+                                                onchange="triggerTypeChanged(this)">
 
                                                 <option value="none" {{if eq .CC.TriggerType 10}}selected{{end}}>None
                                                 </option>
@@ -166,8 +164,8 @@
                                                 <div class="input-group-prepend" id="command-trigger-prepended-prefix">
                                                     <div class="input-group-text">{{.CommandPrefix}}</div>
                                                 </div>
-                                                <input id="trigger" type="text" class="form-control" name="trigger" placeholder="fun"
-                                                    value="{{.CC.TextTrigger}}"{{$publicDisabled}}>
+                                                <input id="trigger" type="text" class="form-control public-disabled" name="trigger" placeholder="fun"
+                                                    value="{{.CC.TextTrigger}}">
                                             </div>
                                             {{checkbox "case_sensitive" "case_sensitive" "Case Sensitive?"
                                             .CC.TextTriggerCaseSensitive $publicDisabled}}
@@ -184,25 +182,25 @@
                                 <div class="row">
                                     <div class="col-sm-12">
                                         <div class="form-check">
-                                            <input class="form-check-input" type="radio" name="reaction_trigger_mode"
+                                            <input class="form-check-input public-disabled" type="radio" name="reaction_trigger_mode"
                                                 id="reaction-mode-both-{{.CC.LocalID}}" value="0"
-                                                {{if eq .CC.ReactionTriggerMode 0}}checked{{end}}{{$publicDisabled}}>
+                                                {{if eq .CC.ReactionTriggerMode 0}}checked{{end}}>
                                             <label class="form-check-label" for="reaction-mode-both-{{.CC.LocalID}}">
                                                 Added + Removed reactions
                                             </label>
                                         </div>
                                         <div class="form-check">
-                                            <input class="form-check-input" type="radio" name="reaction_trigger_mode"
+                                            <input class="form-check-input public-disabled" type="radio" name="reaction_trigger_mode"
                                                 id="reaction-mode-added-{{.CC.LocalID}}" value="1"
-                                                {{if eq .CC.ReactionTriggerMode 1}}checked{{end}}{{$publicDisabled}}>
+                                                {{if eq .CC.ReactionTriggerMode 1}}checked{{end}}>
                                             <label class="form-check-label" for="reaction-mode-added-{{.CC.LocalID}}">
                                                 Added reactions only
                                             </label>
                                         </div>
                                         <div class="form-check">
-                                            <input class="form-check-input" type="radio" name="reaction_trigger_mode"
+                                            <input class="form-check-input public-disabled" type="radio" name="reaction_trigger_mode"
                                                 id="reaction-mode-removed-{{.CC.LocalID}}" value="2"
-                                                {{if eq .CC.ReactionTriggerMode 2}}checked{{end}}{{$publicDisabled}}>
+                                                {{if eq .CC.ReactionTriggerMode 2}}checked{{end}}>
                                             <label class="form-check-label" for="reaction-mode-removed-{{.CC.LocalID}}">
                                                 Removed reactions only
                                             </label>
@@ -215,14 +213,14 @@
                                     <div class="col-sm-4">
                                         <div class="form-group">
                                             <label>Interval</label>
-                                            <input type="number" min="0" class="form-control" name="time_trigger_interval"
-                                                placeholder="" value="{{call $dot.GetCCInterval .CC}}"{{$publicDisabled}}>
+                                            <input type="number" min="0" class="form-control public-disabled" name="time_trigger_interval"
+                                                placeholder="" value="{{call $dot.GetCCInterval .CC}}">
                                         </div>
                                     </div>
                                     <div class="col-sm-8">
                                         <div class="form-group">
                                             <label>Channel</label>
-                                            <select id="time-trigger-channel" name="context_channel" class="form-control"{{$publicDisabled}}>
+                                            <select id="time-trigger-channel" name="context_channel" class="form-control public-disabled">
                                                 {{textChannelOptions $g.Channels .CC.ContextChannel true "None"}}
                                             </select>
                                         </div>
@@ -232,8 +230,8 @@
                                     <div class="col-sm-6">
                                         <div class="form-group">
                                             <label for="trigger">Excluding hours (UTC)</label><br>
-                                            <select name="time_trigger_excluding_hours" class="multiselect form-control"
-                                                multiple="multiple" data-plugin-multiselect{{$publicDisabled}}>
+                                            <select name="time_trigger_excluding_hours" class="multiselect form-control public-disabled"
+                                                multiple="multiple" data-plugin-multiselect>
                                                 {{$selectedExclHours := .CC.TimeTriggerExcludingHours}}
                                                 {{range seq 0 24}}<option value="{{.}}"
                                                     {{if in $selectedExclHours .}}selected{{end}}>{{.}}</option>
@@ -244,8 +242,8 @@
                                     <div class="col-sm-6">
                                         <div class="form-group">
                                             <label for="trigger">Excluding weekdays (UTC)</label><br>
-                                            <select name="time_trigger_excluding_days" class="multiselect form-control"
-                                                multiple="multiple" data-plugin-multiselect{{$publicDisabled}}>
+                                            <select name="time_trigger_excluding_days" class="multiselect form-control public-disabled"
+                                                multiple="multiple" data-plugin-multiselect>
                                                 <option value="1"
                                                     {{if in .CC.TimeTriggerExcludingDays 1}}selected{{end}}>
                                                     Monday</option>
@@ -277,22 +275,21 @@
                             <div class="col-sm-4">
                                 <div class="form-group">
                                     <label>Name (<span id="name-length">{{len .CC.Name.String}}</span>/100) </label>
-                                    <input type="text" class="form-control" id="name" name="name" placeholder="Enter a name" value="{{if .CC.Name.Valid}}{{.CC.Name.String}}{{end}}"{{$publicDisabled}}>
+                                    <input type="text" class="form-control public-disabled" id="name" name="name" placeholder="Enter a name" value="{{if .CC.Name.Valid}}{{.CC.Name.String}}{{end}}">
                                     <p>An optional name that can be used to identify the command.</p>
                                 </div>
                             </div>
-                             <div class="col-sm-4">
+                             <div class="col-sm-4 public-hidden">
                                 <div class="form-group">
                                     <br/>
                                     <label> Command Enabled?</label>
-                                    {{checkbox "is_enabled" "is_enabled" "Enables or Disables the command" (not .CC.Disabled) $publicDisabled}}
-                                    <br/>
+                                    {{checkbox "is_enabled" "is_enabled" "Enables or Disables the command" (not .CC.Disabled)}}
                                     <label> Public?</label>
-                                    {{checkbox "public" "public" "Allows non-members to view the CC with a link" .CC.Public $publicHidden}}
+                                    {{checkbox "public" "public" "Allows non-members to view the CC with a link" .CC.Public}}
                                     <a class="mb-1 mt-1 mr-1 modal-basic btn btn-info btn-md"
                                         href="#cc-share-modal">Share this Command</a>
                                     <label> Get response from <code>{{.GitHubFilepath}}</code>?</label>
-                                    {{checkbox "github_response" "github_response" "Prioritise response from GitHub" .CC.GitHubResponse $publicHidden}}
+                                    {{checkbox "github_response" "github_response" "Prioritise response from GitHub" .CC.GitHubResponse}}
                                     {{$disabledClass := ""}}
                                     {{if not .GitHubAvailable}}{{$disabledClass = "disabled"}}{{end}}
                                     <button type="submit" class="btn btn-secondary btn-block {{$disabledClass}}" title="This will update this custom command from GitHub immediately (mandatory if using a subdirectory in group GitHub)"
@@ -337,12 +334,12 @@
                                         {{end}}
                                     </div>
                                     {{end}}
-                                    <a class="mb-1 mt-1 mr-1 modal-basic btn btn-info btn-sm"
-                                        href="#cc-help-modal">Info{{$publicHidden}}</a>
+                                    <a class="mb-1 mt-1 mr-1 modal-basic btn btn-info btn-sm public-hidden"
+                                        href="#cc-help-modal">Info</a>
                                 </div>
                             </div>
                         </div>
-                        <div class="row"{{$publicHidden}}>
+                        <div class="row public-hidden">
                             <div class="col-sm-6">
                                 <div class="form-group">
                                     <label>Custom command group</label>
@@ -425,7 +422,7 @@
                             </div>
                         </div>
 
-                        <div class="row mt-4"{{$publicHidden}}>
+                        <div class="row mt-4 public-hidden">
                             <div class="col">
                                 <button type="submit" class="btn btn-success btn-block"
                                     formaction="/manage/{{$guild}}/customcommands/commands/{{.CC.LocalID}}/update"
@@ -438,13 +435,13 @@
                                     formaction="/manage/{{$guild}}/customcommands/commands/{{.CC.LocalID}}/delete">Delete</button>
                             </div>
                         </div>
-                        <div class="row mt-4" id="interval-cc-run-now"{{$publicHidden}}>
+                        <div class="row mt-4" id="interval-cc-run-now public-hidden">
                             <div class="col">
                                 <button type="submit" class="btn btn-secondary btn-block" title="This will trigger this custom command immediately"
                                     formaction="/manage/{{$guild}}/customcommands/commands/{{.CC.LocalID}}/update_and_run">Run now</button>
                             </div>
                         </div>
-                        <p class="help-block"{{$publicHidden}}>Tip: Alt + Shift + S also saves the custom command </p>
+                        <p class="help-block public-hidden">Tip: Alt + Shift + S also saves the custom command </p>
                     </form>
                 </div>
             </div>
@@ -768,6 +765,17 @@
         $("#copy-link-button").addClass("disabled");
         setTimeout(() => { $("#copy-link-button").value("Copy Link"); }, 3000);
         setTimeout(() => { $("#copy-link-button").removeClass("disabled"); }, 3000);
+    }
+
+    if ({{.PublicAccess}}) {
+        var hideElements = document.getElementsByClassName("public-hidden");
+        for (var i = 0, len = hideElements.length; i < len; i++) {
+            hideElements[i].addClass("hidden")
+        }
+        var disableElements = document.getElementsByClassName("public-disabled");
+        for (var i = 0, len = disableElements.length; i < len; i++) {
+            disableElements[i].addClass("disabled")
+        }
     }
 
     // Register the custom language for readonly mode
