@@ -134,8 +134,8 @@ func (p *Plugin) InitWeb() {
 	subMux.Handle(pat.Post("/groups/:group/update"), web.ControllerPostHandler(handleUpdateGroup, getGroupHandler, GroupForm{}))
 	subMux.Handle(pat.Post("/groups/:group/delete"), web.ControllerPostHandler(handleDeleteGroup, getHandler, nil))
 
-	web.ServerPublicMux.Handle(pat.Get("/customcommands/commands/:id"), PublicCommandMW(getCmdHandler))
-	web.ServerPublicMux.Handle(pat.Get("/customcommands/commands/:id/"), PublicCommandMW(getCmdHandler))
+	web.ServerPublicMux.Handle(pat.Get("/customcommands/commands/:cmd"), PublicCommandMW(getCmdHandler))
+	web.ServerPublicMux.Handle(pat.Get("/customcommands/commands/:cmd/"), PublicCommandMW(getCmdHandler))
 }
 
 func handleGetDatabase(w http.ResponseWriter, r *http.Request) (web.TemplateData, error) {
@@ -841,6 +841,14 @@ func PublicCommandMW(inner http.Handler) http.Handler {
 		} else {
 			if cc.Public {
 				templateData["PublicAccess"] = true
+
+				strTriggerTypes := map[int]string{}
+				for k, v := range triggerStrings {
+					strTriggerTypes[int(k)] = v
+				}
+				templateData["CCTriggerTypes"] = strTriggerTypes
+				templateData["CommandPrefix"], _ = prfx.GetCommandPrefixRedis(activeGuild.ID)
+
 				defer func() { inner.ServeHTTP(w, r) }()
 			} else {
 				templateData = templateData.AddAlerts(web.ErrorAlert("This command has not been made public by a server admin."))
