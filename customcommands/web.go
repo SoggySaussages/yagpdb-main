@@ -829,7 +829,7 @@ func PublicCommandMW(inner http.Handler) http.Handler {
 		if read, _ := web.IsAdminRequest(ctx, r); read {
 			http.Redirect(w, r, fmt.Sprintf("/manage/%d/customcommands/commands/%d/", activeGuild.ID, cc.LocalID), http.StatusSeeOther)
 		} else {
-			templateData["PublicView"] = true
+			templateData["PublicA"] = true
 			if !cc.Public {
 				templateData["CC"] = &models.CustomCommand{
 					GuildID: activeGuild.ID,

@@ -15,9 +15,10 @@
 <!-- Nav -->
 <div class="row">
     <div class="col">
+        {{$publicAccess := .PublicAccess}}
         {{$publicHidden := ""}}
         {{$publicDisabled := ""}}
-        {{if .PublicView}}
+        {{if $publicAccess}}
             {{$publicHidden := "hidden"}}
             {{$publicDisabled := "disabled"}}
         {{end}}
@@ -172,7 +173,7 @@
                                             .CC.TextTriggerCaseSensitive $publicDisabled}}
                                             <div id="cc-message-trigger-details">
                                                 {{$disabledClass := ""}}
-                                                {{if or (not .IsGuildPremium) .PublicAccess}}{{$disabledClass = "disabled"}}{{end}}
+                                                {{if or (not .IsGuildPremium) $publicAccess}}{{$disabledClass = "disabled"}}{{end}}
                                                 {{checkbox "trigger_on_edit" "trigger_on_edit" "Trigger on message edits too? (Premium Only!)" .CC.TriggerOnEdit $disabledClass}}
                                             </div>
                                         </div>
@@ -307,7 +308,7 @@
                                     <!-- Use .btn-add for simplicity and let the page loader adjust. -->
                                     {{range .CC.Responses}}
                                     <div class="entry input-group  input-group-sm">
-                                        {{if not .PublicAccess}}
+                                        {{if not $publicAccess}}
                                         <textarea class="form-control response-text-area tab-textbox cc-editor" name="responses"
                                             placeholder="Command body here" rows="5"
                                             oninput="onCCChanged(this)">{{.}}</textarea>
@@ -322,7 +323,7 @@
                                     </div>
                                     {{else}}
                                     <div class="entry input-group  input-group-sm">
-                                        {{if not .PublicAccess}}
+                                        {{if not $publicAccess}}
                                         <textarea class="form-control response-text-area tab-textbox cc-editor" name="responses"
                                             placeholder="Command body here" rows="5"
                                             oninput="onCCChanged(this)"></textarea>
