@@ -50,7 +50,6 @@ type CustomCommand struct {
 	Disabled                  bool              `boil:"disabled" json:"disabled" toml:"disabled" yaml:"disabled"`
 	TriggerOnEdit             bool              `boil:"trigger_on_edit" json:"trigger_on_edit" toml:"trigger_on_edit" yaml:"trigger_on_edit"`
 	Name                      null.String       `boil:"name" json:"name,omitempty" toml:"name" yaml:"name,omitempty"`
-	GithubResponse            bool              `boil:"github_response" json:"github_response" toml:"github_response" yaml:"github_response"`
 	Public                    bool              `boil:"public" json:"public" toml:"public" yaml:"public"`
 	PublicID                  string            `boil:"public_id" json:"public_id" toml:"public_id" yaml:"public_id"`
 	ImportCount               int               `boil:"import_count" json:"import_count" toml:"import_count" yaml:"import_count"`
@@ -85,7 +84,6 @@ var CustomCommandColumns = struct {
 	Disabled                  string
 	TriggerOnEdit             string
 	Name                      string
-	GithubResponse            string
 	Public                    string
 	PublicID                  string
 	ImportCount               string
@@ -115,7 +113,6 @@ var CustomCommandColumns = struct {
 	Disabled:                  "disabled",
 	TriggerOnEdit:             "trigger_on_edit",
 	Name:                      "name",
-	GithubResponse:            "github_response",
 	Public:                    "public",
 	PublicID:                  "public_id",
 	ImportCount:               "import_count",
@@ -280,7 +277,6 @@ var CustomCommandWhere = struct {
 	Disabled                  whereHelperbool
 	TriggerOnEdit             whereHelperbool
 	Name                      whereHelpernull_String
-	GithubResponse            whereHelperbool
 	Public                    whereHelperbool
 	PublicID                  whereHelperstring
 	ImportCount               whereHelperint
@@ -310,7 +306,6 @@ var CustomCommandWhere = struct {
 	Disabled:                  whereHelperbool{field: "\"custom_commands\".\"disabled\""},
 	TriggerOnEdit:             whereHelperbool{field: "\"custom_commands\".\"trigger_on_edit\""},
 	Name:                      whereHelpernull_String{field: "\"custom_commands\".\"name\""},
-	GithubResponse:            whereHelperbool{field: "\"custom_commands\".\"github_response\""},
 	Public:                    whereHelperbool{field: "\"custom_commands\".\"public\""},
 	PublicID:                  whereHelperstring{field: "\"custom_commands\".\"public_id\""},
 	ImportCount:               whereHelperint{field: "\"custom_commands\".\"import_count\""},
@@ -337,9 +332,9 @@ func (*customCommandR) NewStruct() *customCommandR {
 type customCommandL struct{}
 
 var (
-	customCommandAllColumns            = []string{"local_id", "guild_id", "group_id", "trigger_type", "text_trigger", "text_trigger_case_sensitive", "time_trigger_interval", "time_trigger_excluding_days", "time_trigger_excluding_hours", "last_run", "next_run", "responses", "channels", "channels_whitelist_mode", "roles", "roles_whitelist_mode", "context_channel", "reaction_trigger_mode", "last_error", "last_error_time", "run_count", "show_errors", "disabled", "trigger_on_edit", "name", "github_response", "public", "public_id", "import_count"}
+	customCommandAllColumns            = []string{"local_id", "guild_id", "group_id", "trigger_type", "text_trigger", "text_trigger_case_sensitive", "time_trigger_interval", "time_trigger_excluding_days", "time_trigger_excluding_hours", "last_run", "next_run", "responses", "channels", "channels_whitelist_mode", "roles", "roles_whitelist_mode", "context_channel", "reaction_trigger_mode", "last_error", "last_error_time", "run_count", "show_errors", "disabled", "trigger_on_edit", "name", "public", "public_id", "import_count"}
 	customCommandColumnsWithoutDefault = []string{"local_id", "guild_id", "group_id", "trigger_type", "text_trigger", "text_trigger_case_sensitive", "time_trigger_interval", "time_trigger_excluding_days", "time_trigger_excluding_hours", "last_run", "next_run", "responses", "channels", "channels_whitelist_mode", "roles", "roles_whitelist_mode", "last_error_time", "name"}
-	customCommandColumnsWithDefault    = []string{"context_channel", "reaction_trigger_mode", "last_error", "run_count", "show_errors", "disabled", "trigger_on_edit", "github_response", "public", "public_id", "import_count"}
+	customCommandColumnsWithDefault    = []string{"context_channel", "reaction_trigger_mode", "last_error", "run_count", "show_errors", "disabled", "trigger_on_edit", "public", "public_id", "import_count"}
 	customCommandPrimaryKeyColumns     = []string{"guild_id", "local_id"}
 )
 
