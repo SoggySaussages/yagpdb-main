@@ -65,6 +65,8 @@ ALTER TABLE custom_commands ADD COLUMN IF NOT EXISTS public_id TEXT NOT NULL DEF
 `, `
 CREATE INDEX IF NOT EXISTS custom_commands_public_id_idx ON custom_commands(public_id);
 `, `
+ALTER TABLE custom_commands ADD COLUMN IF NOT EXISTS import_count INT NOT NULL DEFAULT 0;
+`, `
 CREATE TABLE IF NOT EXISTS templates_user_database (
 	id BIGSERIAL PRIMARY KEY,
 
