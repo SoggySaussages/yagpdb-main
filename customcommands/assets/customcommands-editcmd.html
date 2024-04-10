@@ -54,6 +54,9 @@
 
 
                     {{$guild := .ActiveGuild.ID}}
+                    {{if .PublicAccess}}
+                        {{$guild = 0}}
+                    {{end}}
                     {{$g := .ActiveGuild}}
                     {{$dot := .}}
                     <form class="form-horizontal" method="post"
@@ -205,14 +208,16 @@
                                                 placeholder="" value="{{call $dot.GetCCInterval .CC}}">
                                         </div>
                                     </div>
-                                    <div class="col-sm-8">
+                                    {{if not .PublicAccess}}
+                                    <div class="col-sm-8 public-hidden">
                                         <div class="form-group">
                                             <label>Channel</label>
-                                            <select id="time-trigger-channel" name="context_channel" class="form-control public-disabled">
+                                            <select id="time-trigger-channel" name="context_channel" class="form-control">
                                                 {{textChannelOptions $g.Channels .CC.ContextChannel true "None"}}
                                             </select>
                                         </div>
                                     </div>
+                                    {{end}}
                                 </div>
                                 <div class="row">
                                     <div class="col-sm-6">
@@ -267,6 +272,7 @@
                                     <p>An optional name that can be used to identify the command.</p>
                                 </div>
                             </div>
+                            {{if not .PublicAccess}}
                              <div class="col-sm-4 public-hidden">
                                 <div class="form-group">
                                     <br/>
@@ -278,6 +284,8 @@
                                         href="#cc-share-modal">Share this Command</a>
                                 </div>
                             </div>
+                            </div>
+                            {{end}}
                         </div>
                         <div class="row mb-2">
                             <div class="col-lg-12">
@@ -328,6 +336,7 @@
                                 </div>
                             </div>
                         </div>
+                        {{if not .PublicAccess}}
                         <div class="row public-hidden">
                             <div class="col-sm-6">
                                 <div class="form-group">
@@ -410,6 +419,7 @@
                                 </select>
                             </div>
                         </div>
+                        {{end}}
 
                         <div class="row mt-4 public-hidden">
                             <div class="col">
