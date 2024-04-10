@@ -31,6 +31,7 @@ type CustomCommandGroup struct {
 	IgnoreChannels    types.Int64Array `boil:"ignore_channels" json:"ignore_channels,omitempty" toml:"ignore_channels" yaml:"ignore_channels,omitempty"`
 	WhitelistRoles    types.Int64Array `boil:"whitelist_roles" json:"whitelist_roles,omitempty" toml:"whitelist_roles" yaml:"whitelist_roles,omitempty"`
 	WhitelistChannels types.Int64Array `boil:"whitelist_channels" json:"whitelist_channels,omitempty" toml:"whitelist_channels" yaml:"whitelist_channels,omitempty"`
+	Github            string           `boil:"github" json:"github" toml:"github" yaml:"github"`
 
 	R *customCommandGroupR `boil:"-" json:"-" toml:"-" yaml:"-"`
 	L customCommandGroupL  `boil:"-" json:"-" toml:"-" yaml:"-"`
@@ -44,6 +45,7 @@ var CustomCommandGroupColumns = struct {
 	IgnoreChannels    string
 	WhitelistRoles    string
 	WhitelistChannels string
+	Github            string
 }{
 	ID:                "id",
 	GuildID:           "guild_id",
@@ -52,6 +54,7 @@ var CustomCommandGroupColumns = struct {
 	IgnoreChannels:    "ignore_channels",
 	WhitelistRoles:    "whitelist_roles",
 	WhitelistChannels: "whitelist_channels",
+	Github:            "github",
 }
 
 // Generated where
@@ -119,6 +122,7 @@ var CustomCommandGroupWhere = struct {
 	IgnoreChannels    whereHelpertypes_Int64Array
 	WhitelistRoles    whereHelpertypes_Int64Array
 	WhitelistChannels whereHelpertypes_Int64Array
+	Github            whereHelperstring
 }{
 	ID:                whereHelperint64{field: "\"custom_command_groups\".\"id\""},
 	GuildID:           whereHelperint64{field: "\"custom_command_groups\".\"guild_id\""},
@@ -127,6 +131,7 @@ var CustomCommandGroupWhere = struct {
 	IgnoreChannels:    whereHelpertypes_Int64Array{field: "\"custom_command_groups\".\"ignore_channels\""},
 	WhitelistRoles:    whereHelpertypes_Int64Array{field: "\"custom_command_groups\".\"whitelist_roles\""},
 	WhitelistChannels: whereHelpertypes_Int64Array{field: "\"custom_command_groups\".\"whitelist_channels\""},
+	Github:            whereHelperstring{field: "\"custom_command_groups\".\"github\""},
 }
 
 // CustomCommandGroupRels is where relationship names are stored.
@@ -150,9 +155,9 @@ func (*customCommandGroupR) NewStruct() *customCommandGroupR {
 type customCommandGroupL struct{}
 
 var (
-	customCommandGroupAllColumns            = []string{"id", "guild_id", "name", "ignore_roles", "ignore_channels", "whitelist_roles", "whitelist_channels"}
+	customCommandGroupAllColumns            = []string{"id", "guild_id", "name", "ignore_roles", "ignore_channels", "whitelist_roles", "whitelist_channels", "github"}
 	customCommandGroupColumnsWithoutDefault = []string{"guild_id", "name", "ignore_roles", "ignore_channels", "whitelist_roles", "whitelist_channels"}
-	customCommandGroupColumnsWithDefault    = []string{"id"}
+	customCommandGroupColumnsWithDefault    = []string{"id", "github"}
 	customCommandGroupPrimaryKeyColumns     = []string{"id"}
 )
 
