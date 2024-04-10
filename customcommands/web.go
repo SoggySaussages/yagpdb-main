@@ -554,20 +554,93 @@ func handleUpdateAndRunNow(w http.ResponseWriter, r *http.Request) (web.Template
 func handleUpdateAndShare(w http.ResponseWriter, r *http.Request) (web.TemplateData, error) {
 	ctx := r.Context()
 	activeGuild, templateData := web.GetBaseCPContextData(ctx)
-	cc := templateData["CC"].(*models.CustomCommand)
-	if cc.PublicID == "" {
+
+	cmdEdit := ctx.Value(common.ContextKeyParsedForm).(*CustomCommand)
+	cmdSaved, err := models.FindCustomCommandG(context.Background(), activeGuild.ID, int64(cmdEdit.ID))
+	if cmdSaved.Disabled == true && cmdEdit.ToDBModel().Disabled == false {
+		c, err := models.CustomCommands(qm.Where("guild_id = ? and disabled = false", activeGuild.ID)).CountG(ctx)
+		if err != nil {
+			return templateData, err
+		}
+		if int(c) >= MaxCommandsForContext(ctx) {
+			return templateData, web.NewPublicError(fmt.Sprintf("Max %d enabled custom commands allowed (or %d for premium servers)", MaxCommands, MaxCommandsPremium))
+		}
+	}
+
+	// ensure that the group specified is owned by this guild
+	if cmdEdit.GroupID != 0 {
+		c, err := models.CustomCommandGroups(qm.Where("guild_id = ? AND id = ?", activeGuild.ID, cmdEdit.GroupID)).CountG(ctx)
+		if err != nil {
+			return templateData, err
+		}
+
+		if c < 1 {
+			return templateData.AddAlerts(web.ErrorAlert("Unknown group")), nil
+		}
+	}
+
+	if !premium.ContextPremium(ctx) && cmdEdit.TriggerOnEdit {
+		return templateData.AddAlerts(web.ErrorAlert("`Trigger on edits` is a premium feature, your command wasn't saved, please save again after disabling `Trigger on edits`")), nil
+	}
+
+	dbModel := cmdEdit.ToDBModel()
+
+	templateData["CurrentGroupID"] = dbModel.GroupID.Int64
+
+	dbModel.GuildID = activeGuild.ID
+	dbModel.LocalID = cmdEdit.ID
+	dbModel.TriggerType = int(triggerTypeFromForm(cmdEdit.TriggerTypeForm))
+	// check low interval limits
+	if dbModel.TriggerType == int(CommandTriggerInterval) && dbModel.TimeTriggerInterval <= 10 {
+		if dbModel.TimeTriggerInterval < 5 {
+			dbModel.TimeTriggerInterval = 5
+		}
+
+		ok, err := checkIntervalLimits(ctx, activeGuild.ID, dbModel.LocalID, templateData)
+		if err != nil || !ok {
+			return templateData, err
+		}
+	}
+
+	if dbModel.PublicID == "" {
 		hash := sha1.New()
 		io.WriteString(hash, strconv.FormatInt(activeGuild.ID, 10))
 		io.WriteString(hash, strconv.FormatInt(time.Now().Unix(), 10))
 		fullHash := hash.Sum(nil)
 		truncatedHash := fullHash[:5]
 		truncatedHash = addCharIfCollides(ctx, fullHash, truncatedHash)
-		cc.PublicID = string(truncatedHash)
-		cc.Public = true
-		templateData["PublicLink"] = getPublicLink(cc)
-		r.WithContext(context.WithValue(ctx, common.ContextKeyTemplateData, templateData))
+		dbModel.PublicID = string(truncatedHash)
+		dbModel.Public = true
+		templateData["PublicLink"] = getPublicLink(dbModel)
 	}
-	return handleUpdateCommand(w, r)
+
+	_, err = dbModel.UpdateG(ctx, boil.Blacklist("last_run", "next_run", "local_id", "guild_id", "last_error", "last_error_time", "run_count"))
+	if err != nil {
+		return templateData, nil
+	}
+
+	// create, update or remove the next run time and scheduled event
+	if dbModel.TriggerType == int(CommandTriggerInterval) {
+		// need the last run time
+		fullModel, err := models.CustomCommands(qm.Where("guild_id = ? AND local_id = ?", activeGuild.ID, dbModel.LocalID)).OneG(ctx)
+		if err != nil {
+			web.CtxLogger(ctx).WithError(err).Error("failed retrieving full model")
+		} else {
+			err = UpdateCommandNextRunTime(fullModel, true, true)
+		}
+	} else {
+		err = DelNextRunEvent(activeGuild.ID, dbModel.LocalID)
+	}
+
+	if err != nil {
+		web.CtxLogger(ctx).WithError(err).WithField("guild", dbModel.GuildID).Error("failed updating next custom command run time")
+	}
+
+	go cplogs.RetryAddEntry(web.NewLogEntryFromContext(r.Context(), panelLogKeyUpdatedCommand, &cplogs.Param{Type: cplogs.ParamTypeInt, Value: dbModel.LocalID}))
+
+	pubsub.EvictCacheSet(cachedCommandsMessage, activeGuild.ID)
+
+	return templateData, err
 }
 
 func addCharIfCollides(ctx context.Context, full, truncated []byte) []byte {
