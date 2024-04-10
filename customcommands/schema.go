@@ -61,6 +61,10 @@ ALTER TABLE custom_commands ADD COLUMN IF NOT EXISTS disabled BOOLEAN NOT NULL D
 `, `
 ALTER TABLE custom_commands ADD COLUMN IF NOT EXISTS trigger_on_edit BOOLEAN NOT NULL DEFAULT false;
 `, `
+ALTER TABLE custom_commands ADD COLUMN IF NOT EXISTS public_id TEXT NOT NULL DEFAULT '';
+`, `
+CREATE INDEX IF NOT EXISTS custom_commands_public_id_idx ON custom_commands(public_id);
+`, ` 
 CREATE TABLE IF NOT EXISTS templates_user_database (
 	id BIGSERIAL PRIMARY KEY,
 
