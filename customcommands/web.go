@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/sha1"
 	_ "embed"
+	"encoding/base64"
 	"fmt"
 	"html/template"
 	"io"
@@ -136,7 +137,7 @@ func (p *Plugin) InitWeb() {
 
 	// shortlink-specific mux
 	shortlinkSubMux := goji.SubMux()
-	web.CPMux.Handle(pat.New("/cc/*"), shortlinkSubMux)
+	web.RootMux.Handle(pat.New("/cc/*"), shortlinkSubMux)
 
 	shortlinkSubMux.Handle(pat.Get("/:cmd"), PublicCommandMW(getCmdHandler))
 	shortlinkSubMux.Handle(pat.Get("/:cmd/"), PublicCommandMW(getCmdHandler))
@@ -427,7 +428,7 @@ func handleUpdateCommand(w http.ResponseWriter, r *http.Request) (web.TemplateDa
 		}
 	}
 
-	_, err = dbModel.UpdateG(ctx, boil.Blacklist("last_run", "next_run", "local_id", "guild_id", "last_error", "last_error_time", "run_count"))
+	_, err = dbModel.UpdateG(ctx, boil.Blacklist("last_run", "next_run", "local_id", "guild_id", "last_error", "last_error_time", "run_count", "public_id", "import_count"))
 	if err != nil {
 		return templateData, nil
 	}
@@ -602,21 +603,24 @@ func handleUpdateAndShare(w http.ResponseWriter, r *http.Request) (web.TemplateD
 		}
 	}
 
+	blacklistColumns := []string{"last_run", "next_run", "local_id", "guild_id", "last_error", "last_error_time", "run_count", "import_count"}
 	if cmdSaved.PublicID == "" {
 		hash := sha1.New()
 		io.WriteString(hash, strconv.FormatInt(activeGuild.ID, 10))
 		io.WriteString(hash, strconv.FormatInt(time.Now().Unix(), 10))
-		fullHash := hash.Sum(nil)
+		fullHash := base64.URLEncoding.EncodeToString(hash.Sum(nil))
 		truncatedHash := fullHash[:5]
 		truncatedHash = addCharIfCollides(ctx, fullHash, truncatedHash)
-		dbModel.PublicID = string(truncatedHash)
+		dbModel.PublicID = truncatedHash
 		dbModel.Public = true
 		templateData["PublicLink"] = getPublicLink(dbModel)
+	} else {
+		blacklistColumns = append(blacklistColumns, "public_id")
 	}
 
-	_, err = dbModel.UpdateG(ctx, boil.Blacklist("last_run", "next_run", "local_id", "guild_id", "last_error", "last_error_time", "run_count", "import_count"))
+	_, err = dbModel.UpdateG(ctx, boil.Blacklist(blacklistColumns...))
 	if err != nil {
-		logger.Error(err)
+		logger.Error(errors.WithStackIf(err))
 		return templateData, nil
 	}
 
@@ -644,7 +648,7 @@ func handleUpdateAndShare(w http.ResponseWriter, r *http.Request) (web.TemplateD
 	return templateData, err
 }
 
-func addCharIfCollides(ctx context.Context, full, truncated []byte) []byte {
+func addCharIfCollides(ctx context.Context, full, truncated string) string {
 	_, err := models.CustomCommands(
 		models.CustomCommandWhere.PublicID.EQ(string(truncated))).OneG(ctx)
 	if err == nil { // found a cc, need to try a different public id
@@ -845,15 +849,9 @@ func PublicCommandMW(inner http.Handler) http.Handler {
 	mw := func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		activeGuild, templateData := web.GetBaseCPContextData(ctx)
-		publicID, err := strconv.ParseInt(pat.Param(r, "cmd"), 10, 64)
-		if err != nil {
-			logger.Error(errors.WithStackIf(err))
-			http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
-			return
-		}
-
+		publicID := pat.Param(r, "cmd")
 		cc, err := models.CustomCommands(
-			models.CustomCommandWhere.LocalID.EQ(publicID)).OneG(r.Context())
+			models.CustomCommandWhere.PublicID.EQ(publicID)).OneG(r.Context())
 		if err != nil {
 			logger.Error(errors.WithStackIf(err))
 			http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
@@ -873,6 +871,7 @@ func PublicCommandMW(inner http.Handler) http.Handler {
 				templateData["CCTriggerTypes"] = strTriggerTypes
 				templateData["CommandPrefix"], _ = prfx.GetCommandPrefixRedis(activeGuild.ID)
 
+				// retrieve the cc's page
 				defer func() { inner.ServeHTTP(w, r) }()
 			} else {
 				http.Redirect(w, r, "/?err=noaccess", http.StatusTemporaryRedirect)
