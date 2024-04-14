@@ -609,8 +609,10 @@ func handleUpdateAndShare(w http.ResponseWriter, r *http.Request) (web.TemplateD
 		io.WriteString(hash, strconv.FormatInt(activeGuild.ID, 10))
 		io.WriteString(hash, strconv.FormatInt(time.Now().Unix(), 10))
 		fullHash := base64.URLEncoding.EncodeToString(hash.Sum(nil))
-		truncatedHash := fullHash[:5]
-		truncatedHash = addCharIfCollides(ctx, fullHash, truncatedHash)
+
+		// baseIDLenth is the minimum length for a public ID
+		const baseIDLength = 5
+		truncatedHash := addCharIfCollides(ctx, fullHash, baseIDLength)
 		dbModel.PublicID = truncatedHash
 		dbModel.Public = true
 		templateData["PublicLink"] = getPublicLink(dbModel)
@@ -648,12 +650,15 @@ func handleUpdateAndShare(w http.ResponseWriter, r *http.Request) (web.TemplateD
 	return templateData, err
 }
 
-func addCharIfCollides(ctx context.Context, full, truncated string) string {
+// checks the ID truncated at length characters, and returns this truncated
+// string if it doesn't already exist. If it does exist, the function runs
+// recursively, adding 1 to length and returns the result
+func addCharIfCollides(ctx context.Context, full string, length int) string {
+	truncated := full[:length]
 	_, err := models.CustomCommands(
 		models.CustomCommandWhere.PublicID.EQ(string(truncated))).OneG(ctx)
 	if err == nil { // found a cc, need to try a different public id
-		truncated = full[:len(truncated)+1]
-		return addCharIfCollides(ctx, full, truncated)
+		return addCharIfCollides(ctx, full, length+1)
 	}
 	return truncated
 }
