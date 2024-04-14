@@ -277,7 +277,7 @@ func handleGetCommand(w http.ResponseWriter, r *http.Request) (web.TemplateData,
 	templateData["IsGuildPremium"] = premium.ContextPremium(r.Context())
 	templateData["PublicLink"] = getPublicLink(cc)
 
-	return serveGroupSelected(r, templateData, cc.GroupID.Int64, activeGuild.ID)
+	return serveGroupSelected(r, templateData, cc.GroupID.Int64, cc.GuildID)
 }
 
 func getPublicLink(cc *models.CustomCommand) string {
