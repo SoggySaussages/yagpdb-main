@@ -139,6 +139,21 @@ func (p *Plugin) InitWeb() {
 	shortlinkSubMux := goji.SubMux()
 	web.RootMux.Handle(pat.New("/cc/*"), shortlinkSubMux)
 
+	shortlinkSubMux.Use(func(inner http.Handler) http.Handler {
+		h := func(w http.ResponseWriter, r *http.Request) {
+			g, templateData := web.GetBaseCPContextData(r.Context())
+			strTriggerTypes := map[int]string{}
+			for k, v := range triggerStrings {
+				strTriggerTypes[int(k)] = v
+			}
+			templateData["CCTriggerTypes"] = strTriggerTypes
+			templateData["CommandPrefix"], _ = prfx.GetCommandPrefixRedis(g.ID)
+
+			inner.ServeHTTP(w, r)
+		}
+		return http.HandlerFunc(h)
+	})
+
 	shortlinkSubMux.Handle(pat.Get("/:cmd"), PublicCommandMW(getCmdHandler))
 	shortlinkSubMux.Handle(pat.Get("/:cmd/"), PublicCommandMW(getCmdHandler))
 }
@@ -232,16 +247,25 @@ func handleCommands(w http.ResponseWriter, r *http.Request) (web.TemplateData, e
 func handleGetCommand(w http.ResponseWriter, r *http.Request) (web.TemplateData, error) {
 	activeGuild, templateData := web.GetBaseCPContextData(r.Context())
 
-	ccID, err := strconv.ParseInt(pat.Param(r, "cmd"), 10, 64)
-	if err != nil {
-		return templateData, errors.WithStackIf(err)
-	}
-
-	cc, err := models.CustomCommands(
-		models.CustomCommandWhere.GuildID.EQ(activeGuild.ID),
-		models.CustomCommandWhere.LocalID.EQ(ccID)).OneG(r.Context())
-	if err != nil {
-		return templateData, errors.WithStackIf(err)
+	var cc *models.CustomCommand
+	var err error
+	cmdParam := pat.Param(r, "cmd")
+	ccID, parseIntErr := strconv.ParseInt(cmdParam, 10, 64)
+	if parseIntErr == nil {
+		cc, err = models.CustomCommands(
+			models.CustomCommandWhere.GuildID.EQ(activeGuild.ID),
+			models.CustomCommandWhere.LocalID.EQ(ccID)).OneG(r.Context())
+		if err != nil {
+			return templateData, errors.WithStackIf(err)
+		}
+	} else {
+		// interpret as public ID instead
+		cc, err = models.CustomCommands(
+			models.CustomCommandWhere.PublicID.EQ(cmdParam)).OneG(r.Context())
+		if err != nil {
+			// throw original parseInt error if still not found
+			return templateData, errors.WithStackIf(parseIntErr)
+		}
 	}
 
 	templateData["CC"] = cc
@@ -868,14 +892,6 @@ func PublicCommandMW(inner http.Handler) http.Handler {
 		} else {
 			if cc.Public {
 				templateData["PublicAccess"] = true
-
-				strTriggerTypes := map[int]string{}
-				for k, v := range triggerStrings {
-					strTriggerTypes[int(k)] = v
-				}
-				templateData["CCTriggerTypes"] = strTriggerTypes
-				templateData["CommandPrefix"], _ = prfx.GetCommandPrefixRedis(cc.GuildID)
-
 				// retrieve the cc's page
 				defer func() { inner.ServeHTTP(w, r) }()
 			} else {
