@@ -250,8 +250,12 @@ func handleGetCommand(w http.ResponseWriter, r *http.Request) (web.TemplateData,
 	var cc *models.CustomCommand
 	var err error
 	cmdParam := pat.Param(r, "cmd")
-	ccID, parseIntErr := strconv.ParseInt(cmdParam, 10, 64)
-	if parseIntErr == nil {
+	// when accessed via control panel, activeGuild != nil
+	if activeGuild != nil {
+		ccID, err := strconv.ParseInt(cmdParam, 10, 64)
+		if err != nil {
+			return templateData, errors.WithStackIf(err)
+		}
 		cc, err = models.CustomCommands(
 			models.CustomCommandWhere.GuildID.EQ(activeGuild.ID),
 			models.CustomCommandWhere.LocalID.EQ(ccID)).OneG(r.Context())
@@ -259,12 +263,12 @@ func handleGetCommand(w http.ResponseWriter, r *http.Request) (web.TemplateData,
 			return templateData, errors.WithStackIf(err)
 		}
 	} else {
-		// interpret as public ID instead
+		// accessed via shortlink, interpret as public ID instead
 		cc, err = models.CustomCommands(
 			models.CustomCommandWhere.PublicID.EQ(cmdParam)).OneG(r.Context())
 		if err != nil {
-			// throw original parseInt error if still not found
-			return templateData, errors.WithStackIf(parseIntErr)
+			templateData.AddAlerts(web.ErrorAlert("Command couldn't be found via shortlink"))
+			return templateData, errors.WithStackIf(err)
 		}
 	}
 
