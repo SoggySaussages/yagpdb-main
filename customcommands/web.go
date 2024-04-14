@@ -141,13 +141,13 @@ func (p *Plugin) InitWeb() {
 
 	shortlinkSubMux.Use(func(inner http.Handler) http.Handler {
 		h := func(w http.ResponseWriter, r *http.Request) {
-			g, templateData := web.GetBaseCPContextData(r.Context())
+			_, templateData := web.GetBaseCPContextData(r.Context())
 			strTriggerTypes := map[int]string{}
 			for k, v := range triggerStrings {
 				strTriggerTypes[int(k)] = v
 			}
 			templateData["CCTriggerTypes"] = strTriggerTypes
-			templateData["CommandPrefix"], _ = prfx.GetCommandPrefixRedis(g.ID)
+			templateData["CommandPrefix"] = prfx.DefaultCommandPrefix()
 
 			inner.ServeHTTP(w, r)
 		}
