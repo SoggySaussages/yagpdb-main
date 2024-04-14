@@ -848,7 +848,7 @@ func updateTemplateWithCountData(count int, templateData web.TemplateData, ctx c
 func PublicCommandMW(inner http.Handler) http.Handler {
 	mw := func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
-		activeGuild, templateData := web.GetBaseCPContextData(ctx)
+		_, templateData := web.GetBaseCPContextData(ctx)
 		publicID := pat.Param(r, "cmd")
 		cc, err := models.CustomCommands(
 			models.CustomCommandWhere.PublicID.EQ(publicID)).OneG(r.Context())
@@ -859,7 +859,7 @@ func PublicCommandMW(inner http.Handler) http.Handler {
 		}
 
 		if read, _ := web.IsAdminRequest(ctx, r); read {
-			http.Redirect(w, r, fmt.Sprintf("/manage/%d/customcommands/commands/%d/", activeGuild.ID, cc.LocalID), http.StatusSeeOther)
+			http.Redirect(w, r, fmt.Sprintf("/manage/%d/customcommands/commands/%d/", cc.GuildID, cc.LocalID), http.StatusSeeOther)
 		} else {
 			if cc.Public {
 				templateData["PublicAccess"] = true
@@ -869,7 +869,7 @@ func PublicCommandMW(inner http.Handler) http.Handler {
 					strTriggerTypes[int(k)] = v
 				}
 				templateData["CCTriggerTypes"] = strTriggerTypes
-				templateData["CommandPrefix"], _ = prfx.GetCommandPrefixRedis(activeGuild.ID)
+				templateData["CommandPrefix"], _ = prfx.GetCommandPrefixRedis(cc.GuildID)
 
 				// retrieve the cc's page
 				defer func() { inner.ServeHTTP(w, r) }()
