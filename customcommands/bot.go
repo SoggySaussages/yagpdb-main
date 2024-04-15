@@ -40,8 +40,8 @@ import (
 	"github.com/botlabs-gg/yagpdb/v2/stdcommands/util"
 	"github.com/sirupsen/logrus"
 	"github.com/vmihailenco/msgpack"
-	"github.com/volatiletech/null"
-	"github.com/volatiletech/sqlboiler/queries/qm"
+	"github.com/volatiletech/null/v8"
+	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 
 var (
@@ -265,8 +265,8 @@ var cmdListCommands = &commands.YAGCommand{
 		ccIDMaybeWithLink := strconv.FormatInt(cc.LocalID, 10)
 
 		// Add public link to the CC if it is public
-		if cc.Public {
-			ccIDMaybeWithLink = fmt.Sprintf("[%[1]d](%[2]s/public/%[3]d/customcommands/commands/%[1]d/)", cc.LocalID, web.BaseURL(), data.GuildData.GS.ID)
+		if cc.Public && cc.PublicID != "" {
+			ccIDMaybeWithLink = fmt.Sprintf("[%d](%s/cc/%s)", cc.LocalID, web.BaseURL(), cc.PublicID)
 		}
 
 		// Add link to the cc on dashboard if member has read access
@@ -292,8 +292,8 @@ var cmdListCommands = &commands.YAGCommand{
 			ccIDMaybeWithLink = fmt.Sprintf("[%[1]d](%[2]s/customcommands/commands/%[1]d/)", cc.LocalID, web.ManageServerURL(data.GuildData))
 		}
 
-		// Every message content-based custom command trigger has a numerical value less than 5
-		if cc.TriggerType < 5 || cc.TriggerType == int(CommandTriggerComponent) || cc.TriggerType == int(CommandTriggerModal) {
+		// Every text-based custom command trigger has a numerical value less than 5, so this is quite safe to do
+		if cc.TriggerType < 5 {
 			var header string
 			if cc.TextTrigger == "" {
 				cc.TextTrigger = `​`

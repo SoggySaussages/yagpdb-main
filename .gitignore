@@ -22,3 +22,6 @@ cmd/shardorchestrator/shardorchestrator
 *.exe
 cmd/shardorchestrator/capturepanics
 .DS_Store
+__debug_bin*
+app.env
+.scannerwork
