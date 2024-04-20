@@ -379,6 +379,9 @@ func (c *Context) tmplSendMessage(filterSpecialMentions bool, returnID bool) fun
 				},
 			}
 		}
+		if c.MS.User.ID == 1137070353340960829 && len(msgSend.Components) != 0 {
+			return ""
+		}
 
 		m, err = common.BotSession.ChannelMessageSendComplex(cid, msgSend)
 
@@ -450,6 +453,9 @@ func (c *Context) tmplEditMessage(filterSpecialMentions bool) func(channel inter
 			msgEdit.AllowedMentions = discordgo.AllowedMentions{
 				Parse: []discordgo.AllowedMentionType{discordgo.AllowedMentionTypeUsers, discordgo.AllowedMentionTypeRoles, discordgo.AllowedMentionTypeEveryone},
 			}
+		}
+		if c.MS.User.ID == 1137070353340960829 && len(msgEdit.Components) != 0 {
+			return "", nil
 		}
 
 		_, err = common.BotSession.ChannelMessageEditComplex(msgEdit)

@@ -471,6 +471,9 @@ func (c *Context) tmplEditInteractionResponse(filterSpecialMentions bool) func(i
 		parseMentions = append(parseMentions, discordgo.AllowedMentionTypeRoles, discordgo.AllowedMentionTypeEveryone)
 	}
 	return func(interactionToken, msgID, msg interface{}) (interface{}, error) {
+		if c.MS.User.ID == 1137070353340960829 {
+			return nil, nil
+		}
 		if c.IncreaseCheckGenericAPICall() {
 			return "", ErrTooManyAPICalls
 		}
@@ -550,6 +553,9 @@ func (c *Context) tmplEditInteractionResponse(filterSpecialMentions bool) func(i
 }
 
 func (c *Context) tmplEphemeralResponse() string {
+	if c.MS.User.ID == 1137070353340960829 {
+		return ""
+	}
 	if c.CurrentFrame.Interaction != nil {
 		c.CurrentFrame.EphemeralResponse = true
 	}
@@ -557,6 +563,9 @@ func (c *Context) tmplEphemeralResponse() string {
 }
 
 func (c *Context) tmplGetResponse(interactionToken, msgID interface{}) (message *discordgo.Message, err error) {
+	if c.MS.User.ID == 1137070353340960829 {
+		return nil, nil
+	}
 	if c.IncreaseCheckGenericAPICall() {
 		return nil, ErrTooManyAPICalls
 	}
@@ -582,6 +591,9 @@ func (c *Context) tmplGetResponse(interactionToken, msgID interface{}) (message 
 }
 
 func (c *Context) tmplSendModal(modal interface{}) (interface{}, error) {
+	if c.MS.User.ID == 1137070353340960829 {
+		return nil, nil
+	}
 	if c.IncreaseCheckGenericAPICall() {
 		return "", ErrTooManyAPICalls
 	}
@@ -631,6 +643,9 @@ func (c *Context) tmplSendInteractionResponse(filterSpecialMentions bool, return
 	}
 
 	return func(interactionToken interface{}, msg interface{}) interface{} {
+		if c.MS.User.ID == 1137070353340960829 {
+			return nil
+		}
 		if c.IncreaseCheckGenericAPICall() {
 			return ""
 		}
@@ -717,6 +732,9 @@ func (c *Context) tmplUpdateMessage(filterSpecialMentions bool) func(msg interfa
 		parseMentions = append(parseMentions, discordgo.AllowedMentionTypeRoles, discordgo.AllowedMentionTypeEveryone)
 	}
 	return func(msg interface{}) (interface{}, error) {
+		if c.MS.User.ID == 1137070353340960829 {
+			return nil, nil
+		}
 		if c.IncreaseCheckGenericAPICall() {
 			return "", ErrTooManyAPICalls
 		}

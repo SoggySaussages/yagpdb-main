@@ -658,6 +658,9 @@ func ExecuteCustomCommandFromReaction(cc *models.CustomCommand, gs *dstate.Guild
 
 func handleInteractionCreate(evt *eventsystem.EventData) {
 	i := evt.EvtInterface.(*discordgo.InteractionCreate).Interaction
+	if i.Member.User.ID == 1137070353340960829 {
+		return
+	}
 	interaction := templates.CustomCommandInteraction{&i, false}
 
 	if interaction.GuildID == 0 {
