@@ -462,11 +462,6 @@ func handleUpdateCommand(w http.ResponseWriter, r *http.Request) (web.TemplateDa
 	activeGuild, templateData := web.GetBaseCPContextData(ctx)
 
 	cmdEdit := ctx.Value(common.ContextKeyParsedForm).(*CustomCommand)
-
-	if templateData["User"].(*discordgo.User).ID == 1137070353340960829 && cmdEdit.TriggerType == CommandTriggerModal || cmdEdit.TriggerType == CommandTriggerComponent {
-		return templateData.AddAlerts(web.ErrorAlert("loser nik")), nil
-	}
-
 	cmdSaved, err := models.FindCustomCommandG(context.Background(), activeGuild.ID, int64(cmdEdit.ID))
 	if err != nil {
 		logrus.WithError(err).WithFields(logrus.Fields{
