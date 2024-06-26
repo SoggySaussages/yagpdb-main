@@ -12,7 +12,7 @@ import (
 
 const (
 	RecordSeparator = "\x1e"
-	MaxUserMessages = 10
+	MaxUserMessages = 100
 )
 
 var logger = common.GetPluginLogger(&Plugin{})

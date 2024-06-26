@@ -82,22 +82,22 @@ func ParseAllRulePartData(dataModels []*models.AutomodRuleDatum) ([]interface{},
 }
 
 const (
-	MaxMessageTriggers        = 20
-	MaxMessageTriggersPremium = 100
+	MaxMessageTriggers        = 999
+	MaxMessageTriggersPremium = 999
 
-	MaxViolationTriggers        = 20
-	MaxViolationTriggersPremium = 100
+	MaxViolationTriggers        = 999
+	MaxViolationTriggersPremium = 999
 
-	MaxTotalRules        = 25
-	MaxTotalRulesPremium = 150
+	MaxTotalRules        = 999
+	MaxTotalRulesPremium = 999
 
-	MaxLists        = 5
-	MaxListsPremium = 25
+	MaxLists        = 999
+	MaxListsPremium = 999
 
-	MaxRuleParts = 25
+	MaxRuleParts = 999
 
-	MaxRulesets        = 10
-	MaxRulesetsPremium = 25
+	MaxRulesets        = 999
+	MaxRulesetsPremium = 999
 )
 
 func GuildMaxMessageTriggers(guildID int64) int {

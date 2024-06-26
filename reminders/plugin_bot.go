@@ -52,10 +52,10 @@ var cmds = []*commands.YAGCommand{
 		SlashCommandEnabled: true,
 		DefaultEnabled:      true,
 		RunFunc: func(parsed *dcmd.Data) (interface{}, error) {
-			currentReminders, _ := GetUserReminders(parsed.Author.ID)
-			if len(currentReminders) >= 25 {
-				return "You can have a maximum of 25 active reminders, list all your reminders with the `reminders` command in DM, doing it in a server will only show reminders set in the server", nil
-			}
+			//	currentReminders, _ := GetUserReminders(parsed.Author.ID)
+			//	if len(currentReminders) >= 25 {
+			//		return "You can have a maximum of 25 active reminders, list all your reminders with the `reminders` command in DM, doing it in a server will only show reminders set in the server", nil
+			//	}
 
 			if parsed.Author.Bot {
 				return nil, errors.New("cannot create reminder for Bots, you're most likely trying to use `execAdmin` to create a reminder, use `exec` instead")
@@ -67,9 +67,9 @@ var cmds = []*commands.YAGCommand{
 			when := time.Now().Add(fromNow)
 			tUnix := fmt.Sprint(when.Unix())
 
-			if when.After(time.Now().Add(time.Hour * 24 * 366)) {
-				return "Can be max 365 days from now...", nil
-			}
+			//	if when.After(time.Now().Add(time.Hour * 24 * 366)) {
+			//		return "Can be max 365 days from now...", nil
+			//	}
 
 			id := parsed.ChannelID
 			if c := parsed.Switch("channel"); c.Value != nil {
