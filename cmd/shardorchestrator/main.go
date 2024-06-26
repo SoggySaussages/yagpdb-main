@@ -8,14 +8,14 @@ import (
 	"strings"
 	"time"
 
-	"github.com/botlabs-gg/yagpdb/v2/common"
-	"github.com/botlabs-gg/yagpdb/v2/lib/dshardorchestrator"
-	"github.com/botlabs-gg/yagpdb/v2/lib/dshardorchestrator/orchestrator"
-	"github.com/botlabs-gg/yagpdb/v2/lib/dshardorchestrator/orchestrator/rest"
+	"github.com/botlabs-gg/sgpdb/v2/common"
+	"github.com/botlabs-gg/sgpdb/v2/lib/dshardorchestrator"
+	"github.com/botlabs-gg/sgpdb/v2/lib/dshardorchestrator/orchestrator"
+	"github.com/botlabs-gg/sgpdb/v2/lib/dshardorchestrator/orchestrator/rest"
 	"github.com/mediocregopher/radix/v3"
 	"github.com/sirupsen/logrus"
 
-	_ "github.com/botlabs-gg/yagpdb/v2/bot" // register the custom orchestrator events
+	_ "github.com/botlabs-gg/sgpdb/v2/bot" // register the custom orchestrator events
 )
 
 var ()
@@ -30,11 +30,11 @@ func main() {
 	activeShards := ReadActiveShards()
 	totalShards := common.ConfTotalShards.GetInt()
 	if totalShards < 1 {
-		panic("YAGPDB_SHARDING_TOTAL_SHARDS needs to be set to a resonable number of total shards")
+		panic("SGPDB_SHARDING_TOTAL_SHARDS needs to be set to a resonable number of total shards")
 	}
 
 	if len(activeShards) < 1 {
-		panic("YAGPDB_SHARDING_ACTIVE_SHARDS is not set, needs to be set to the shards that should be active on this host, ex: '1-49,60-99'")
+		panic("SGPDB_SHARDING_ACTIVE_SHARDS is not set, needs to be set to the shards that should be active on this host, ex: '1-49,60-99'")
 	}
 
 	logrus.Info("Running shards (", len(activeShards), "): ", activeShards)
@@ -45,9 +45,9 @@ func main() {
 	orch.ResponsibleForShards = activeShards
 	orch.NodeLauncher = &orchestrator.StdNodeLauncher{
 		LaunchCmdName: "./capturepanics",
-		LaunchArgs:    []string{"./yagpdb", "-bot", "-syslog"},
+		LaunchArgs:    []string{"./sgpdb", "-bot", "-syslog"},
 
-		VersionCmdName: "./yagpdb",
+		VersionCmdName: "./sgpdb",
 		VersionArgs:    []string{"-version"},
 	}
 	orch.Logger = &dshardorchestrator.StdLogger{
@@ -81,7 +81,7 @@ func main() {
 
 	go UpdateRedisNodes(orch)
 
-	restAPIAddr := os.Getenv("YAGPDB_BOTREST_LISTEN_ADDRESS")
+	restAPIAddr := os.Getenv("SGPDB_BOTREST_LISTEN_ADDRESS")
 	if restAPIAddr == "" {
 		restAPIAddr = "127.0.0.1"
 	}

@@ -6,11 +6,11 @@ import (
 	"time"
 
 	"emperror.dev/errors"
-	"github.com/botlabs-gg/yagpdb/v2/common"
-	"github.com/botlabs-gg/yagpdb/v2/common/backgroundworkers"
-	"github.com/botlabs-gg/yagpdb/v2/common/config"
-	"github.com/botlabs-gg/yagpdb/v2/premium"
-	"github.com/botlabs-gg/yagpdb/v2/serverstats/messagestatscollector"
+	"github.com/botlabs-gg/sgpdb/v2/common"
+	"github.com/botlabs-gg/sgpdb/v2/common/backgroundworkers"
+	"github.com/botlabs-gg/sgpdb/v2/common/config"
+	"github.com/botlabs-gg/sgpdb/v2/premium"
+	"github.com/botlabs-gg/sgpdb/v2/serverstats/messagestatscollector"
 	"github.com/mediocregopher/radix/v3"
 )
 
@@ -19,8 +19,8 @@ const (
 )
 
 var (
-	confDisableCompression    = config.RegisterOption("yagpdb.serverstats.disable_compression", "Disables compression of serverstats", false)
-	confDisableNewCompression = config.RegisterOption("yagpdb.serverstats.disable_new_compression", "Disables compression of serverstats", false)
+	confDisableCompression    = config.RegisterOption("sgpdb.serverstats.disable_compression", "Disables compression of serverstats", false)
+	confDisableNewCompression = config.RegisterOption("sgpdb.serverstats.disable_new_compression", "Disables compression of serverstats", false)
 )
 
 var _ backgroundworkers.BackgroundWorkerPlugin = (*Plugin)(nil)

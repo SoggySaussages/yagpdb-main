@@ -11,19 +11,18 @@ networks:
 
 services:
   app:
-    # We don't provide an official image, but there is a community-made image you can try:
-    #  - teyker/yagpdb (https://hub.docker.com/r/teyker/yagpdb)
-    #
-    # Note that we do not take responsibility for anything that happens as a result of using
-    # the image above.
-    image: PUT_YOUR_OWN_IMAGE_HERE
+    build:
+      # We change context so that we can copy the local repo in during
+      # development
+      context: ../
+      dockerfile: sgpdb_docker/Dockerfile
     restart: unless-stopped
     command:
-      # - "/app/yagpdb"
+      # - "/app/sgpdb"
       - "-all"
       - "-pa"
       - "-exthttps=false"
-      - "-https=true"
+      - "-https=false"
     depends_on:
       - redis
       - db

@@ -11,18 +11,18 @@ import (
 	"time"
 
 	"emperror.dev/errors"
-	"github.com/botlabs-gg/yagpdb/v2/analytics"
-	"github.com/botlabs-gg/yagpdb/v2/bot"
-	"github.com/botlabs-gg/yagpdb/v2/bot/eventsystem"
-	"github.com/botlabs-gg/yagpdb/v2/common"
-	"github.com/botlabs-gg/yagpdb/v2/common/config"
-	"github.com/botlabs-gg/yagpdb/v2/lib/dcmd"
-	"github.com/botlabs-gg/yagpdb/v2/lib/discordgo"
-	"github.com/botlabs-gg/yagpdb/v2/lib/dstate"
-	"github.com/botlabs-gg/yagpdb/v2/lib/jarowinkler"
-	"github.com/botlabs-gg/yagpdb/v2/premium"
-	"github.com/botlabs-gg/yagpdb/v2/rolecommands/models"
-	"github.com/botlabs-gg/yagpdb/v2/web"
+	"github.com/botlabs-gg/sgpdb/v2/analytics"
+	"github.com/botlabs-gg/sgpdb/v2/bot"
+	"github.com/botlabs-gg/sgpdb/v2/bot/eventsystem"
+	"github.com/botlabs-gg/sgpdb/v2/common"
+	"github.com/botlabs-gg/sgpdb/v2/common/config"
+	"github.com/botlabs-gg/sgpdb/v2/lib/dcmd"
+	"github.com/botlabs-gg/sgpdb/v2/lib/discordgo"
+	"github.com/botlabs-gg/sgpdb/v2/lib/dstate"
+	"github.com/botlabs-gg/sgpdb/v2/lib/jarowinkler"
+	"github.com/botlabs-gg/sgpdb/v2/premium"
+	"github.com/botlabs-gg/sgpdb/v2/rolecommands/models"
+	"github.com/botlabs-gg/sgpdb/v2/web"
 	"github.com/volatiletech/null/v8"
 	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
@@ -286,9 +286,9 @@ func UpdateRoleMenuMessage(ctx context.Context, rm *models.RoleMenu) error {
 		emoji := opt.UnicodeEmoji
 		if opt.EmojiID != 0 {
 			if opt.EmojiAnimated {
-				emoji = fmt.Sprintf("<a:yagpdb:%d>", opt.EmojiID)
+				emoji = fmt.Sprintf("<a:sgpdb:%d>", opt.EmojiID)
 			} else {
-				emoji = fmt.Sprintf("<:yagpdb:%d>", opt.EmojiID)
+				emoji = fmt.Sprintf("<:sgpdb:%d>", opt.EmojiID)
 			}
 		}
 
@@ -617,7 +617,7 @@ var (
 	activeReactionRemovals   = make([]*reactionRemovalOccurence, 0)
 	activeReactionRemovalsmu sync.Mutex
 
-	confDisableReactionRemovalSingleMode = config.RegisterOption("yagpdb.rolecommands.disable_reaction_removal_single_mode", "Disable reaction removal in single mode, could be heavy on number of requests", false)
+	confDisableReactionRemovalSingleMode = config.RegisterOption("sgpdb.rolecommands.disable_reaction_removal_single_mode", "Disable reaction removal in single mode, could be heavy on number of requests", false)
 )
 
 func removeOtherReactions(rm *models.RoleMenu, option *models.RoleMenuOption, userID int64) {

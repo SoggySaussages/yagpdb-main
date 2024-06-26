@@ -1,6 +1,6 @@
 # Soundboard
 
-Soundboard plugin for YAGPDB
+Soundboard plugin for SGPDB
 
 Folder structure:
 

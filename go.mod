@@ -1,4 +1,4 @@
-module github.com/botlabs-gg/yagpdb/v2
+module github.com/botlabs-gg/sgpdb/v2
 
 go 1.20
 

@@ -15,8 +15,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/botlabs-gg/yagpdb/v2/common/cacheset"
-	"github.com/botlabs-gg/yagpdb/v2/lib/discordgo"
+	"github.com/botlabs-gg/sgpdb/v2/common/cacheset"
+	"github.com/botlabs-gg/sgpdb/v2/lib/discordgo"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 	"github.com/jmoiron/sqlx"
@@ -43,7 +43,7 @@ var (
 
 	RedisPoolSize = 0
 
-	Testing = os.Getenv("YAGPDB_TESTING") != ""
+	Testing = os.Getenv("SGPDB_TESTING") != ""
 
 	CurrentRunCounter int64
 
@@ -91,7 +91,7 @@ func Init() error {
 		return err
 	}
 
-	db := "yagpdb"
+	db := "sgpdb"
 	if ConfPQDB.GetString() != "" {
 		db = ConfPQDB.GetString()
 	}
@@ -124,7 +124,7 @@ func Init() error {
 
 	BotApplication = app
 
-	err = RedisPool.Do(radix.Cmd(&CurrentRunCounter, "INCR", "yagpdb_run_counter"))
+	err = RedisPool.Do(radix.Cmd(&CurrentRunCounter, "INCR", "sgpdb_run_counter"))
 	if err != nil {
 		panic(err)
 	}
@@ -188,7 +188,7 @@ func setupGlobalDGoSession() (err error) {
 }
 
 func InitTest() {
-	testDB := os.Getenv("YAGPDB_TEST_DB")
+	testDB := os.Getenv("SGPDB_TEST_DB")
 	if testDB == "" {
 		return
 	}
@@ -201,11 +201,11 @@ func InitTest() {
 
 var (
 	metricsRedisReconnects = promauto.NewCounter(prometheus.CounterOpts{
-		Name: "yagpdb_redis_reconnects_total",
+		Name: "sgpdb_redis_reconnects_total",
 		Help: "Number of reconnects to the redis server",
 	})
 	metricsRedisRetries = promauto.NewCounter(prometheus.CounterOpts{
-		Name: "yagpdb_redis_retries_total",
+		Name: "sgpdb_redis_retries_total",
 		Help: "Number of retries on redis commands",
 	})
 )
@@ -213,7 +213,7 @@ var (
 var RedisAddr = loadRedisAddr()
 
 func loadRedisAddr() string {
-	addr := os.Getenv("YAGPDB_REDIS")
+	addr := os.Getenv("SGPDB_REDIS")
 	if addr == "" {
 		addr = "localhost:6379"
 	}
@@ -224,7 +224,7 @@ func loadRedisAddr() string {
 func connectRedis(unitTests bool) (err error) {
 	maxConns := RedisPoolSize
 	if maxConns == 0 {
-		maxConns, _ = strconv.Atoi(os.Getenv("YAGPDB_REDIS_POOL_SIZE"))
+		maxConns, _ = strconv.Atoi(os.Getenv("SGPDB_REDIS_POOL_SIZE"))
 		if maxConns == 0 {
 			maxConns = 10
 		}

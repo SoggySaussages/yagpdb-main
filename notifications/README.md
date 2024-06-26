@@ -1,6 +1,6 @@
 # Notifications
 
-Simple notifications plugin for YAGPDB.
+Simple notifications plugin for SGPDB.
 
 Will provide general notifications in a server for the following events:
 

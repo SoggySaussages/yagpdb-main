@@ -2,7 +2,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "YAGPDB Docker Debug",
+            "name": "SGPDB Docker Debug",
             "type": "go",
             "request": "attach",
             "port": 4000,
@@ -10,18 +10,18 @@
             "cwd": "${workspaceRoot}",
             "showLog": true,
             "mode": "remote",
-            "remotePath": "/app/yagpdb/",
+            "remotePath": "/app/sgpdb/",
             "substitutePath": [
-                { "from": "${workspaceFolder}", "to": "/app/yagpdb" },
+                { "from": "${workspaceFolder}", "to": "/app/sgpdb" },
             ]
         }, {
-          "name": "YAGPDB Local Debug",
+          "name": "SGPDB Local Debug",
           "type":"go",
           "request": "launch",
           "mode": "debug",
           "envFile": "${workspaceFolder}/app.env",
-          "program": "${workspaceFolder}/cmd/yagpdb/main.go",
-          "output": "${workspaceFolder}/cmd/yagpdb/yagpdb",
+          "program": "${workspaceFolder}/cmd/sgpdb/main.go",
+          "output": "${workspaceFolder}/cmd/sgpdb/sgpdb",
           "args": ["-all","https=false"]
         }
     ]

@@ -16,16 +16,16 @@ import (
 	"unicode/utf8"
 
 	"emperror.dev/errors"
-	"github.com/botlabs-gg/yagpdb/v2/common"
-	"github.com/botlabs-gg/yagpdb/v2/common/cplogs"
-	"github.com/botlabs-gg/yagpdb/v2/common/featureflags"
-	prfx "github.com/botlabs-gg/yagpdb/v2/common/prefix"
-	"github.com/botlabs-gg/yagpdb/v2/common/pubsub"
-	yagtemplate "github.com/botlabs-gg/yagpdb/v2/common/templates"
-	"github.com/botlabs-gg/yagpdb/v2/customcommands/models"
-	"github.com/botlabs-gg/yagpdb/v2/lib/discordgo"
-	"github.com/botlabs-gg/yagpdb/v2/premium"
-	"github.com/botlabs-gg/yagpdb/v2/web"
+	"github.com/botlabs-gg/sgpdb/v2/common"
+	"github.com/botlabs-gg/sgpdb/v2/common/cplogs"
+	"github.com/botlabs-gg/sgpdb/v2/common/featureflags"
+	prfx "github.com/botlabs-gg/sgpdb/v2/common/prefix"
+	"github.com/botlabs-gg/sgpdb/v2/common/pubsub"
+	yagtemplate "github.com/botlabs-gg/sgpdb/v2/common/templates"
+	"github.com/botlabs-gg/sgpdb/v2/customcommands/models"
+	"github.com/botlabs-gg/sgpdb/v2/lib/discordgo"
+	"github.com/botlabs-gg/sgpdb/v2/premium"
+	"github.com/botlabs-gg/sgpdb/v2/web"
 	"github.com/mediocregopher/radix/v3"
 	"github.com/sirupsen/logrus"
 	"github.com/volatiletech/null/v8"
@@ -282,7 +282,7 @@ func handleGetCommand(w http.ResponseWriter, r *http.Request) (web.TemplateData,
 	templateData["IsGuildPremium"] = premium.ContextPremium(r.Context())
 	templateData["MaxCCLength"] = allowedCCLength
 	templateData["PublicLink"] = getPublicLink(cc)
-	
+
 	return serveGroupSelected(r, templateData, cc.GroupID.Int64, cc.GuildID)
 }
 
@@ -862,7 +862,7 @@ func updateTemplateWithCountData(count int, templateData web.TemplateData, ctx c
 
 	additionalMessage := ""
 	if premium.ContextPremiumTier(ctx) != premium.PremiumTierPremium {
-		additionalMessage = fmt.Sprintf("(You may increase the limit upto %d with YAGPDB premium)", MaxCommandsPremium)
+		additionalMessage = fmt.Sprintf("(You may increase the limit upto %d with SGPDB premium)", MaxCommandsPremium)
 	}
 	templateData["AdditionalMessage"] = additionalMessage
 }

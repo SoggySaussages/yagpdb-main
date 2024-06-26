@@ -1,17 +1,17 @@
 # Just some stuff
-cmd/yagpdb/static/bower_components
-cmd/yagpdb/static/pages
-cmd/yagpdb/static/index.html
-cmd/yagpdb/cert
-cmd/yagpdb/access_log
-cmd/yagpdb/access.log
-cmd/yagpdb/static/report.html
-cmd/yagpdb/yagpdb
-cmd/yagpdb/templates/plugins/*.html
-cmd/yagpdb/soundboard
-cmd/yagpdb/shutdown_logs
-cmd/yagpdb/safebrowsing_db
-cmd/yagpdb/static/video/*
+cmd/sgpdb/static/bower_components
+cmd/sgpdb/static/pages
+cmd/sgpdb/static/index.html
+cmd/sgpdb/cert
+cmd/sgpdb/access_log
+cmd/sgpdb/access.log
+cmd/sgpdb/static/report.html
+cmd/sgpdb/sgpdb
+cmd/sgpdb/templates/plugins/*.html
+cmd/sgpdb/soundboard
+cmd/sgpdb/shutdown_logs
+cmd/sgpdb/safebrowsing_db
+cmd/sgpdb/static/video/*
 
 cmd/capturepanics/capturepanics
 cmd/shardorchestrator/shardorchestrator

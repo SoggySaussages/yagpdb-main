@@ -8,36 +8,32 @@ volumes:
 
 networks:
   default:
-  proxy-tier:
-    external:
-      name: proxy-tier
 
 services:
   app:
-    # We don't provide an official image, but there is a community-made image you can try:
-    #  - teyker/yagpdb (https://hub.docker.com/r/teyker/yagpdb)
-    #
-    # Note that we do not take responsibility for anything that happens as a result of using
-    # the image above.
-    image: PUT_YOUR_OWN_IMAGE_HERE
+    build:
+      # We change context so that we can copy the local repo in during
+      # development
+      context: ../
+      dockerfile: sgpdb_docker/Dockerfile.debug
     restart: unless-stopped
-    command:
-      # - "/app/yagpdb"
-      - "-all"
-      - "-pa"
-      - "-exthttps=true"
-      - "-https=false"
     depends_on:
       - redis
       - db
     networks:
       - default
-      - proxy-tier
     volumes:
       - cert_cache:/app/cert
       - soundboard:/app/soundboard
+      - ..:/app/sgpdb
+    ports:
+      - '5000:5000'
+      - '4000:4000'
+      - '5100-5999:5100-5999'
     env_file:
       - app.env
+    security_opt:
+      - "seccomp:unconfined"
 
   redis:
     image: redis

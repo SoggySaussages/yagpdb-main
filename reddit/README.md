@@ -1,4 +1,4 @@
-# Reddit plugin for YAGPDB
+# Reddit plugin for SGPDB
 
 ### How the feed works
 

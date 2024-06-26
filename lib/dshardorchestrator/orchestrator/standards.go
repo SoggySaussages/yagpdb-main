@@ -10,7 +10,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/botlabs-gg/yagpdb/v2/lib/discordgo"
+	"github.com/botlabs-gg/sgpdb/v2/lib/discordgo"
 )
 
 // StdShardCountProvider is a standard implementation of RecommendedShardCountProvider
