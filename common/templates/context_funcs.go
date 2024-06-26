@@ -335,14 +335,9 @@ func (c *Context) tmplSendMessage(filterSpecialMentions bool, returnID bool) fun
 			return ""
 		}
 
-		sendType := sendMessageGuildChannel
 		cid := c.ChannelArg(channel)
 		if cid == 0 {
 			return ""
-		}
-
-		if cid != c.ChannelArgNoDM(channel) {
-			sendType = sendMessageDM
 		}
 
 		var m *discordgo.Message
