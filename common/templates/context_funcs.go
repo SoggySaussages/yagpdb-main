@@ -48,22 +48,22 @@ func (c *Context) tmplSendDM(s ...interface{}) string {
 	default:
 		msgSend.Content = fmt.Sprint(s...)
 	}
-	serverInfo := []discordgo.MessageComponent{
-		discordgo.ActionsRow{
-			Components: []discordgo.MessageComponent{
-				discordgo.Button{
-					Label:    "Show Server Info",
-					Style:    discordgo.PrimaryButton,
-					Emoji:    &discordgo.ComponentEmoji{Name: "📬"},
-					CustomID: fmt.Sprintf("DM_%d", c.GS.ID),
-				},
-			},
-		},
-	}
-	if len(msgSend.Components) >= 5 {
-		msgSend.Components = msgSend.Components[:4]
-	}
-	msgSend.Components = append(serverInfo, msgSend.Components...)
+	//	serverInfo := []discordgo.MessageComponent{
+	//		discordgo.ActionsRow{
+	//			Components: []discordgo.MessageComponent{
+	//				discordgo.Button{
+	//					Label:    "Show Server Info",
+	//					Style:    discordgo.PrimaryButton,
+	//					Emoji:    &discordgo.ComponentEmoji{Name: "📬"},
+	//					CustomID: fmt.Sprintf("DM_%d", c.GS.ID),
+	//				},
+	//			},
+	//		},
+	//	}
+	//	if len(msgSend.Components) >= 5 {
+	//		msgSend.Components = msgSend.Components[:4]
+	//	}
+	//	msgSend.Components = append(serverInfo, msgSend.Components...)
 
 	channel, err := common.BotSession.UserChannelCreate(c.MS.User.ID)
 	if err != nil {
@@ -371,24 +371,24 @@ func (c *Context) tmplSendMessage(filterSpecialMentions bool, returnID bool) fun
 			msgSend.Content = ToString(msg)
 		}
 
-		if sendType == sendMessageDM {
-			serverInfo := []discordgo.MessageComponent{
-				discordgo.ActionsRow{
-					Components: []discordgo.MessageComponent{
-						discordgo.Button{
-							Label:    "Show Server Info",
-							Style:    discordgo.PrimaryButton,
-							Emoji:    &discordgo.ComponentEmoji{Name: "📬"},
-							CustomID: fmt.Sprintf("DM_%d", c.GS.ID),
-						},
-					},
-				},
-			}
-			if len(msgSend.Components) >= 5 {
-				msgSend.Components = msgSend.Components[:4]
-			}
-			msgSend.Components = append(serverInfo, msgSend.Components...)
-		}
+		//	if sendType == sendMessageDM {
+		//		serverInfo := []discordgo.MessageComponent{
+		//			discordgo.ActionsRow{
+		//				Components: []discordgo.MessageComponent{
+		//					discordgo.Button{
+		//						Label:    "Show Server Info",
+		//						Style:    discordgo.PrimaryButton,
+		//						Emoji:    &discordgo.ComponentEmoji{Name: "📬"},
+		//						CustomID: fmt.Sprintf("DM_%d", c.GS.ID),
+		//					},
+		//				},
+		//			},
+		//		}
+		//		if len(msgSend.Components) >= 5 {
+		//			msgSend.Components = msgSend.Components[:4]
+		//		}
+		//		msgSend.Components = append(serverInfo, msgSend.Components...)
+		//	}
 
 		m, err = common.BotSession.ChannelMessageSendComplex(cid, msgSend)
 

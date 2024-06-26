@@ -493,20 +493,20 @@ func (c *Context) SendResponse(content string) (m *discordgo.Message, err error)
 		// no point in sending the response if it gets deleted immedietely
 		return nil, nil
 	}
-	if sendType == sendMessageDM {
-		msgSend.Components = []discordgo.MessageComponent{
-			discordgo.ActionsRow{
-				Components: []discordgo.MessageComponent{
-					discordgo.Button{
-						Label:    "Show Server Info",
-						Style:    discordgo.PrimaryButton,
-						Emoji:    &discordgo.ComponentEmoji{Name: "📬"},
-						CustomID: fmt.Sprintf("DM_%d", c.GS.ID),
-					},
-				},
-			},
-		}
-	}
+	//	if sendType == sendMessageDM {
+	//		msgSend.Components = []discordgo.MessageComponent{
+	//			discordgo.ActionsRow{
+	//				Components: []discordgo.MessageComponent{
+	//					discordgo.Button{
+	//						Label:    "Show Server Info",
+	//						Style:    discordgo.PrimaryButton,
+	//						Emoji:    &discordgo.ComponentEmoji{Name: "📬"},
+	//						CustomID: fmt.Sprintf("DM_%d", c.GS.ID),
+	//					},
+	//				},
+	//			},
+	//		}
+	//	}
 	if c.CurrentFrame.EphemeralResponse {
 		msgSend.Flags |= discordgo.MessageFlagsEphemeral
 	}
