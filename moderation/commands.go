@@ -315,66 +315,66 @@ var ModerationCommands = []*commands.YAGCommand{
 			return GenericCmdResp(MAKick, target, 0, true, true), nil
 		},
 	},
-	{
-		CustomEnabled: true,
-		CmdCategory:   commands.CategoryModeration,
-		Name:          "Mute",
-		Description:   "Mutes a member",
-		Arguments: []*dcmd.ArgDef{
-			{Name: "User", Type: dcmd.UserID},
-			{Name: "Duration", Type: &commands.DurationArg{}},
-			{Name: "Reason", Type: dcmd.String},
-		},
-		RequiredDiscordPermsHelp: "KickMembers or ManageGuild",
-		RequireBotPerms:          [][]int64{{discordgo.PermissionAdministrator}, {discordgo.PermissionManageGuild}, {discordgo.PermissionManageRoles}},
-		ArgumentCombos:           [][]int{{0, 1, 2}, {0, 2, 1}, {0, 1}, {0, 2}, {0}},
-		SlashCommandEnabled:      true,
-		DefaultEnabled:           false,
-		IsResponseEphemeral:      true,
-		RunFunc: func(parsed *dcmd.Data) (interface{}, error) {
-			config, target, err := MBaseCmd(parsed, parsed.Args[0].Int64())
-			if err != nil {
-				return nil, err
-			}
-
-			if config.MuteRole == "" {
-				return fmt.Sprintf("No mute role selected. Select one at <%s/moderation>", web.ManageServerURL(parsed.GuildData)), nil
-			}
-
-			reason := parsed.Args[2].Str()
-			reason, err = MBaseCmdSecond(parsed, reason, config.MuteReasonOptional, discordgo.PermissionKickMembers, config.MuteCmdRoles, config.MuteEnabled)
-			if err != nil {
-				return nil, err
-			}
-
-			d := time.Duration(config.DefaultMuteDuration.Int64) * time.Minute
-			if parsed.Args[1].Value != nil {
-				d = parsed.Args[1].Value.(time.Duration)
-			}
-			if d > 0 && d < time.Minute {
-				d = time.Minute
-			}
-
-			logger.Info(d.Seconds())
-
-			member, err := bot.GetMember(parsed.GuildData.GS.ID, target.ID)
-			if err != nil || member == nil {
-				return "Member not found", err
-			}
-
-			var msg *discordgo.Message
-			if parsed.TraditionalTriggerData != nil {
-				msg = parsed.TraditionalTriggerData.Message
-			}
-			err = MuteUnmuteUser(config, true, parsed.GuildData.GS.ID, parsed.GuildData.CS, msg, parsed.Author, reason, member, int(d.Minutes()))
-			if err != nil {
-				return nil, err
-			}
-
-			common.BotSession.GuildMemberMove(parsed.GuildData.GS.ID, target.ID, 0)
-			return GenericCmdResp(MAMute, target, d, true, false), nil
-		},
-	},
+	//	{
+	//		CustomEnabled: true,
+	//		CmdCategory:   commands.CategoryModeration,
+	//		Name:          "Mute",
+	//		Description:   "Mutes a member",
+	//		Arguments: []*dcmd.ArgDef{
+	//			{Name: "User", Type: dcmd.UserID},
+	//			{Name: "Duration", Type: &commands.DurationArg{}},
+	//			{Name: "Reason", Type: dcmd.String},
+	//		},
+	//		RequiredDiscordPermsHelp: "KickMembers or ManageGuild",
+	//		RequireBotPerms:          [][]int64{{discordgo.PermissionAdministrator}, {discordgo.PermissionManageGuild}, {discordgo.PermissionManageRoles}},
+	//		ArgumentCombos:           [][]int{{0, 1, 2}, {0, 2, 1}, {0, 1}, {0, 2}, {0}},
+	//		SlashCommandEnabled:      true,
+	//		DefaultEnabled:           false,
+	//		IsResponseEphemeral:      true,
+	//		RunFunc: func(parsed *dcmd.Data) (interface{}, error) {
+	//			config, target, err := MBaseCmd(parsed, parsed.Args[0].Int64())
+	//			if err != nil {
+	//				return nil, err
+	//			}
+	//
+	//			if config.MuteRole == "" {
+	//				return fmt.Sprintf("No mute role selected. Select one at <%s/moderation>", web.ManageServerURL(parsed.GuildData)), nil
+	//			}
+	//
+	//			reason := parsed.Args[2].Str()
+	//			reason, err = MBaseCmdSecond(parsed, reason, config.MuteReasonOptional, discordgo.PermissionKickMembers, config.MuteCmdRoles, config.MuteEnabled)
+	//			if err != nil {
+	//				return nil, err
+	//			}
+	//
+	//			d := time.Duration(config.DefaultMuteDuration.Int64) * time.Minute
+	//			if parsed.Args[1].Value != nil {
+	//				d = parsed.Args[1].Value.(time.Duration)
+	//			}
+	//			if d > 0 && d < time.Minute {
+	//				d = time.Minute
+	//			}
+	//
+	//			logger.Info(d.Seconds())
+	//
+	//			member, err := bot.GetMember(parsed.GuildData.GS.ID, target.ID)
+	//			if err != nil || member == nil {
+	//				return "Member not found", err
+	//			}
+	//
+	//			var msg *discordgo.Message
+	//			if parsed.TraditionalTriggerData != nil {
+	//				msg = parsed.TraditionalTriggerData.Message
+	//			}
+	//			err = MuteUnmuteUser(config, true, parsed.GuildData.GS.ID, parsed.GuildData.CS, msg, parsed.Author, reason, member, int(d.Minutes()))
+	//			if err != nil {
+	//				return nil, err
+	//			}
+	//
+	//			common.BotSession.GuildMemberMove(parsed.GuildData.GS.ID, target.ID, 0)
+	//			return GenericCmdResp(MAMute, target, d, true, false), nil
+	//		},
+	//	},
 	{
 		CustomEnabled: true,
 		CmdCategory:   commands.CategoryModeration,

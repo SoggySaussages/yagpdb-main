@@ -126,7 +126,7 @@ func (p *Plugin) LoadServerHomeWidget(w http.ResponseWriter, r *http.Request) (w
 	<li>Giverole/Takerole commands: %s</li>
 	<li>Kick command: %s</li>
 	<li>Ban command: %s</li>
-	<li>Mute/Unmute commands: %s</li>
+	<!-- <li>Mute/Unmute commands: %s</li> -->
 	<li>Timeout/Untimeout commands: %s</li>
 	<li>Warning commands: %s</li>
 </ul>`
@@ -141,7 +141,8 @@ func (p *Plugin) LoadServerHomeWidget(w http.ResponseWriter, r *http.Request) (w
 	templateData["WidgetBody"] = template.HTML(fmt.Sprintf(format, web.EnabledDisabledSpanStatus(config.ReportEnabled),
 		web.EnabledDisabledSpanStatus(config.CleanEnabled), web.EnabledDisabledSpanStatus(config.GiveRoleCmdEnabled),
 		web.EnabledDisabledSpanStatus(config.KickEnabled), web.EnabledDisabledSpanStatus(config.BanEnabled),
-		web.EnabledDisabledSpanStatus(config.MuteEnabled), web.EnabledDisabledSpanStatus(config.TimeoutEnabled),
+		//	web.EnabledDisabledSpanStatus(config.MuteEnabled),
+		web.EnabledDisabledSpanStatus(config.TimeoutEnabled),
 		web.EnabledDisabledSpanStatus(config.WarnCommandsEnabled)))
 
 	return templateData, nil

@@ -24,11 +24,11 @@ the punishment, is an <a href="https://docs.yagpdb.xyz/reference/templates#user"
                             Timeout <span
                                 class="indicator indicator-{{if .ModConfig.TimeoutEnabled}}success{{else}}danger{{end}}"></span>
                         </a></li>
-                    <li class="nav-item"><a class="nav-link" href="#mute" aria-controls="mute/unmute" role="tab"
+                    <!-- <li class="nav-item"><a class="nav-link" href="#mute" aria-controls="mute/unmute" role="tab"
                             data-toggle="tab">
                             Mute <span
                                 class="indicator indicator-{{if .ModConfig.MuteEnabled}}success{{else}}danger{{end}}"></span>
-                        </a></li>
+                        </a></li> -->
                     <li class="nav-item"><a class="nav-link" href="#kick" aria-controls="kick" role="tab"
                             data-toggle="tab">
                             Kick <span
@@ -47,7 +47,7 @@ the punishment, is an <a href="https://docs.yagpdb.xyz/reference/templates#user"
                 </ul>
                 <div class="tab-content">
                     <div role="tabpanel" class="tab-pane active" id="general">{{template "moderation_general" .}}</div>
-                    <div role="tabpanel" class="tab-pane" id="mute">{{template "moderation_mute" .}}</div>
+                    <!-- <div role="tabpanel" class="tab-pane" id="mute">{{template "moderation_mute" .}}</div> -->
                     <div role="tabpanel" class="tab-pane" id="timeout">{{template "moderation_timeout" .}}</div>
                     <div role="tabpanel" class="tab-pane" id="kick">{{template "moderation_kick" .}}</div>
                     <div role="tabpanel" class="tab-pane" id="ban">{{template "moderation_ban" .}}</div>
