@@ -31,10 +31,10 @@ var (
 
 // Setting it to 1 Month approx
 const (
-	MinIntervalTriggerDurationMinutes = 5
+	MinIntervalTriggerDurationMinutes = 0
 	MinIntervalTriggerDurationHours   = 1
-	MaxIntervalTriggerDurationHours   = 744
-	MaxIntervalTriggerDurationMinutes = 44640
+	MaxIntervalTriggerDurationHours   = 999999
+	MaxIntervalTriggerDurationMinutes = 999999
 
 	dbPageMaxDisplayLength = 64
 )
@@ -358,12 +358,12 @@ func filterEmptyResponses(s string, ss ...string) []string {
 }
 
 const (
-	MaxCommands                 = 100
-	MaxCommandsPremium          = 250
-	MaxCCResponsesLength        = 10000
-	MaxCCResponsesLengthPremium = 20000
-	MaxUserMessages             = 20
-	MaxGroups                   = 50
+	MaxCommands                 = 999999
+	MaxCommandsPremium          = 999999
+	MaxCCResponsesLength        = 1000000
+	MaxCCResponsesLengthPremium = 1000000
+	MaxUserMessages             = 999999
+	MaxGroups                   = 999999
 )
 
 func MaxCommandsForContext(ctx context.Context) int {

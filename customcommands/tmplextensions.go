@@ -219,9 +219,9 @@ func tmplRunCC(ctx *templates.Context) interface{} {
 				currentStackDepth = currentStackDepthI.(int)
 			}
 
-			if currentStackDepth >= 2 {
-				return "", errors.New("Max nested immediate execCC calls reached (2)")
-			}
+			//	if currentStackDepth >= 2 {
+			//		return "", errors.New("Max nested immediate execCC calls reached (2)")
+			//	}
 
 			newCtx := templates.NewContext(ctx.GS, cs, ctx.MS)
 			if ctx.Msg != nil {

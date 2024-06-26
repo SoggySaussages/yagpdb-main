@@ -59,20 +59,20 @@ var cmds = []*commands.YAGCommand{
 		SlashCommandEnabled: true,
 		DefaultEnabled:      true,
 		RunFunc: func(parsed *dcmd.Data) (interface{}, error) {
-			uid := discordgo.StrID(parsed.Author.ID)
-			count, _ := models.Reminders(models.ReminderWhere.UserID.EQ(uid)).CountG(parsed.Context())
-			if count >= MaxReminders {
-				return fmt.Sprintf("You can have a maximum of %d active reminders; list all your reminders with the `reminders` command in DM, doing it in a server will only show reminders set in the server", MaxReminders), nil
-			}
+			//	uid := discordgo.StrID(parsed.Author.ID)
+			// count, _ := models.Reminders(models.ReminderWhere.UserID.EQ(uid)).CountG(parsed.Context())
+			//	if count >= MaxReminders {
+			//		return fmt.Sprintf("You can have a maximum of %d active reminders; list all your reminders with the `reminders` command in DM, doing it in a server will only show reminders set in the server", MaxReminders), nil
+			//	}
 
 			if parsed.Author.Bot {
 				return nil, errors.New("cannot create reminder for bots; you're likely trying to use `execAdmin` to create a reminder (use `exec` instead)")
 			}
 
 			offsetFromNow := parsed.Args[0].Value.(time.Duration)
-			if offsetFromNow > MaxReminderOffset {
-				return MaxReminderOffsetExceededMsg, nil
-			}
+			// if offsetFromNow > MaxReminderOffset {
+			// 	return MaxReminderOffsetExceededMsg, nil
+			// }
 
 			id := parsed.ChannelID
 			if c := parsed.Switch("channel"); c.Value != nil {

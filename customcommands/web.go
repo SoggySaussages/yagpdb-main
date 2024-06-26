@@ -741,17 +741,17 @@ func handleUpdateAndRunNow(w http.ResponseWriter, r *http.Request) (web.Template
 
 // allow for max 5 triggers with intervals of less than 10 minutes
 func checkIntervalLimits(ctx context.Context, guildID int64, cmdID int64, templateData web.TemplateData) (ok bool, err error) {
-	num, err := models.CustomCommands(qm.Where("guild_id = ? AND local_id != ? AND trigger_type = 5 AND time_trigger_interval <= 10", guildID, cmdID)).CountG(ctx)
-	if err != nil {
-		return false, err
-	}
-
-	if num < 5 {
-		return true, nil
-	}
-
-	templateData.AddAlerts(web.ErrorAlert("You can have max 5 triggers on less than 10 minute intervals"))
-	return false, nil
+	//	num, err := models.CustomCommands(qm.Where("guild_id = ? AND local_id != ? AND trigger_type = 5 AND time_trigger_interval <= 10", guildID, cmdID)).CountG(ctx)
+	//	if err != nil {
+	//		return false, err
+	//	}
+	//
+	//	if num < 5 {
+	return true, nil
+	// }
+	//
+	// templateData.AddAlerts(web.ErrorAlert("You can have max 5 triggers on less than 10 minute intervals"))
+	// return false, nil
 }
 
 func handleNewGroup(w http.ResponseWriter, r *http.Request) (web.TemplateData, error) {

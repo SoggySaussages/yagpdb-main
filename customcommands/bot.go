@@ -47,7 +47,7 @@ import (
 var (
 	CCExecLock        = keylock.NewKeyLock[CCExecKey]()
 	DelayedCCRunLimit = multiratelimit.NewMultiRatelimiter(0.1, 10)
-	CCMaxDataLimit    = 1000000 // 1 MB max
+	CCMaxDataLimit    = 50000000 // 50 MB max
 )
 
 type DelayedRunLimitKey struct {
@@ -168,7 +168,7 @@ var cmdEvalCommand = &commands.YAGCommand{
 		code := common.ParseCodeblock(data.TraditionalTriggerData.MessageStrippedPrefix)
 
 		// Encourage only small code snippets being tested with this command
-		maxRunes := 1000
+		maxRunes := 1000000
 		if utf8.RuneCountInString(code) > maxRunes {
 			return "Code is too long for in-place evaluation. Please use the control panel.", nil
 		}

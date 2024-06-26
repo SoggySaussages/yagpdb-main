@@ -1212,9 +1212,9 @@ func tmplRoundEven(args ...interface{}) float64 {
 	return math.RoundToEven(ToFloat64(args[0]))
 }
 
-var ErrStringTooLong = errors.NewPlain("String is too long (max 1MB)")
+var ErrStringTooLong = errors.NewPlain("String is too long (max 50MB)")
 
-const MaxStringLength = 1000000
+const MaxStringLength = 50000000
 
 func joinStrings(sep string, args ...interface{}) (string, error) {
 

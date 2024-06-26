@@ -657,7 +657,7 @@ var ModerationCommands = []*commands.YAGCommand{
 		Aliases:         []string{"clear", "cl"},
 		RequiredArgs:    1,
 		Arguments: []*dcmd.ArgDef{
-			{Name: "Num", Type: &dcmd.IntArg{Min: 1, Max: 100}},
+			{Name: "Num", Type: &dcmd.IntArg{Min: 1, Max: 1000}},
 			{Name: "User", Type: dcmd.UserID, Default: 0},
 		},
 		ArgSwitches: []*dcmd.ArgDef{

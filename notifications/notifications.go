@@ -4,8 +4,6 @@ import (
 	"github.com/botlabs-gg/yagpdb/v2/common"
 )
 
-//go:generate sqlboiler --no-hooks psql
-
 var logger = common.GetPluginLogger(&Plugin{})
 
 type Plugin struct{}
