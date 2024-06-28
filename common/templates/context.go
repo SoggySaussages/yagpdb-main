@@ -706,6 +706,7 @@ func baseContextFuncs(c *Context) {
 	c.addContextFunc("deleteMessageReaction", c.tmplDelMessageReaction)
 	c.addContextFunc("deleteResponse", c.tmplDelResponse)
 	c.addContextFunc("deleteTrigger", c.tmplDelTrigger)
+	c.addContextFunc("editChannel", c.tmplEditChannel)
 	c.addContextFunc("getChannel", c.tmplGetChannel)
 	c.addContextFunc("getChannelPins", c.tmplGetChannelPins(false))
 	c.addContextFunc("getChannelOrThread", c.tmplGetChannelOrThread)

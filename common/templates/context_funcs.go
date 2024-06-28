@@ -18,6 +18,7 @@ import (
 	"github.com/botlabs-gg/sgpdb/v2/common/scheduledevents2"
 	"github.com/botlabs-gg/sgpdb/v2/lib/discordgo"
 	"github.com/botlabs-gg/sgpdb/v2/lib/dstate"
+	"github.com/volatiletech/null/v8"
 )
 
 var (
@@ -975,6 +976,89 @@ func (c *Context) tmplDelChannel(channel interface{}) (string, error) {
 	}
 
 	_, err := common.BotSession.ChannelDelete(cID)
+	return "", err
+}
+
+func (c *Context) tmplEditChannel(channelID interface{}, values ...interface{}) (string, error) {
+	if c.IncreaseCheckGenericAPICall() {
+		return "", ErrTooManyAPICalls
+	}
+
+	cID := c.ChannelArgNoDM(channelID)
+	if cID == 0 {
+		return "", nil
+	}
+
+	if len(values) < 1 {
+		return "", errors.New("nothing passed to edit role builder")
+	}
+
+	dict, err := StringKeyDictionary(values...)
+	if err != nil {
+		return "", err
+	}
+
+	channelEdit := &discordgo.ChannelEdit{}
+
+	var position *int
+
+	for key, val := range dict {
+
+		switch strings.ToLower(key) {
+		case "name":
+			channelEdit.Name = ToString(val)
+		case "topic":
+			channelEdit.Topic = ToString(val)
+		case "permissions":
+			ow, err := createOverwrites(val)
+			if err != nil {
+				return "", err
+			}
+			channelEdit.PermissionOverwrites = ow
+		case "bitrate":
+			channelEdit.Bitrate = tmplToInt(val)
+		case "user_limit":
+			channelEdit.UserLimit = tmplToInt(val)
+		case "slowmode":
+			slowmode := tmplToInt(val)
+			channelEdit.RateLimitPerUser = &slowmode
+		case "nsfw":
+			nsfw, ok := val.(bool)
+			if ok {
+				channelEdit.NSFW = nsfw
+			}
+		case "require_tags":
+			requireTags, ok := val.(bool)
+			if ok {
+				if requireTags {
+					flags := discordgo.ChannelFlagsRequireTag
+					channelEdit.Flags = &flags
+				}
+			}
+		case "parent":
+			pID := c.ChannelArgNoDM(val)
+			if pID == 0 {
+				channelEdit.ParentID = &null.String{Valid: false}
+			} else {
+				channelEdit.ParentID = &null.String{String: strconv.FormatInt(pID, 10), Valid: true}
+			}
+		case "position":
+			pos := tmplToInt(val)
+			position = &pos
+		default:
+			return "", errors.New(`invalid key "` + key + `" passed to create role builder`)
+		}
+
+	}
+
+	channelEdited, err := common.BotSession.ChannelEditComplex(c.GS.ID, channelEdit)
+	if err != nil {
+		return "", err
+	}
+
+	if position != nil {
+		err = c.reorderChannels(channelEdited, *position)
+	}
 	return "", err
 }
 
@@ -2210,6 +2294,38 @@ func (c *Context) reorderRoles(r *discordgo.Role, position int) (*discordgo.Role
 
 	r = roles[len(roles)-position]
 	return r, nil
+}
+
+func (c *Context) reorderChannels(channel *discordgo.Channel, position int) error {
+	channels, err := common.BotSession.GuildChannels(c.GS.ID)
+	if err != nil {
+		return err
+	}
+
+	var newChannels []*discordgo.Channel
+	i := len(channels)
+	for _, gc := range channels {
+		if gc.ID == channel.ID {
+			if i != position {
+				continue
+			}
+		} else if i == position {
+			channel.Position = i
+			newChannels = append(newChannels, channel)
+			i--
+		}
+
+		gc.Position = i
+		newChannels = append(newChannels, gc)
+		i--
+	}
+
+	err = common.BotSession.GuildChannelsReorder(c.GS.ID, newChannels)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (c *Context) tmplCreateRole(name string, values ...interface{}) (*discordgo.Role, error) {
