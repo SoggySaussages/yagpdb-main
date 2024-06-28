@@ -111,9 +111,9 @@ var (
 		"roleAbove":   roleIsAbove,
 		"seq":         sequence,
 
-		"shuffle": shuffle,
-		"verb":    common.RandomVerb,
-		"hash":    tmplSha256,
+		"shuffle":      shuffle,
+		"verb":         common.RandomVerb,
+		"hash":         tmplSha256,
 		"decodeBase64": tmplDecodeBase64,
 		"encodeBase64": tmplEncodeBase64,
 
@@ -699,7 +699,9 @@ func baseContextFuncs(c *Context) {
 	c.addContextFunc("addMessageReactions", c.tmplAddMessageReactions)
 	c.addContextFunc("addReactions", c.tmplAddReactions)
 	c.addContextFunc("addResponseReactions", c.tmplAddResponseReactions)
+	c.addContextFunc("createChannel", c.tmplCreateChannel)
 	c.addContextFunc("deleteAllMessageReactions", c.tmplDelAllMessageReactions)
+	c.addContextFunc("deleteChannel", c.tmplDelChannel)
 	c.addContextFunc("deleteMessage", c.tmplDelMessage)
 	c.addContextFunc("deleteMessageReaction", c.tmplDelMessageReaction)
 	c.addContextFunc("deleteResponse", c.tmplDelResponse)
