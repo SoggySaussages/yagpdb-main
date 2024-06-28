@@ -69,7 +69,7 @@ var cmds = []*commands.YAGCommand{
 				return nil, errors.New("cannot create reminder for bots; you're likely trying to use `execAdmin` to create a reminder (use `exec` instead)")
 			}
 
-			//  offsetFromNow := parsed.Args[0].Value.(time.Duration)
+			offsetFromNow := parsed.Args[0].Value.(time.Duration)
 			//  if offsetFromNow > MaxReminderOffset {
 			//  	return MaxReminderOffsetExceededMsg, nil
 			//  }
