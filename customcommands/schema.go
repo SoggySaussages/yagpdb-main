@@ -65,6 +65,8 @@ ALTER TABLE custom_commands ADD COLUMN IF NOT EXISTS trigger_on_edit BOOLEAN NOT
 `, `
 ALTER TABLE custom_commands ADD COLUMN IF NOT EXISTS public_id TEXT NOT NULL DEFAULT '';
 `, `
+ALTER TABLE custom_commands ADD COLUMN IF NOT EXISTS voice_trigger_mode SMALLINT NOT NULL DEFAULT 0;
+`, `
 CREATE INDEX IF NOT EXISTS custom_commands_public_id_idx ON custom_commands(public_id);
 `, `
 ALTER TABLE custom_commands ADD COLUMN IF NOT EXISTS import_count INT NOT NULL DEFAULT 0;

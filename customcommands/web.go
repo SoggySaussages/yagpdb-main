@@ -451,6 +451,7 @@ func handleNewCommand(w http.ResponseWriter, r *http.Request) (web.TemplateData,
 		}
 		dbModel.Name = importCC.Name
 		dbModel.ReactionTriggerMode = importCC.ReactionTriggerMode
+		dbModel.VoiceTriggerMode = importCC.VoiceTriggerMode
 		dbModel.Responses = importCC.Responses
 		dbModel.TextTrigger = importCC.TextTrigger
 		dbModel.TextTriggerCaseSensitive = importCC.TextTriggerCaseSensitive
@@ -539,9 +540,9 @@ func handleUpdateCommand(w http.ResponseWriter, r *http.Request) (web.TemplateDa
 	dbModel.TriggerType = int(triggerTypeFromForm(cmdEdit.TriggerTypeForm))
 	// check low interval limits
 	if dbModel.TriggerType == int(CommandTriggerInterval) && dbModel.TimeTriggerInterval <= 10 {
-		if dbModel.TimeTriggerInterval < 5 {
-			dbModel.TimeTriggerInterval = 5
-		}
+		//	if dbModel.TimeTriggerInterval < 5 {
+		//		dbModel.TimeTriggerInterval = 5
+		//	}
 
 		ok, err := checkIntervalLimits(ctx, activeGuild.ID, dbModel.LocalID, templateData)
 		if err != nil || !ok {
@@ -894,6 +895,8 @@ func triggerTypeFromForm(str string) CommandTriggerType {
 		return CommandTriggerComponent
 	case "modal":
 		return CommandTriggerModal
+	case "voice":
+		return CommandTriggerVoice
 	default:
 		return CommandTriggerCommand
 

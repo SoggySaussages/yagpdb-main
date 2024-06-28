@@ -79,6 +79,10 @@
                           <p id="trigger-desc-reaction">
                             The command will trigger on the specified reaction events.
                           </p>
+                          {{else if eq .CC.TriggerType 9}}
+                          <p id="trigger-desc-voice">
+                            The command will run when a user joins, leaves, or moves voice channels.
+                          </p>
                           {{end}}
                         </div>
                       </div>
@@ -113,6 +117,37 @@
                   </div>
                 </div>
               </div>
+              {{else if eq .CC.TriggerType 9}}
+              <div id="cc-voice-trigger-details" class="hidden col-lg-8">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="form-check">
+                            <input class="form-check-input" disabled type="radio" name="voice_trigger_mode"
+                                id="voice-mode-both-{{.CC.LocalID}}" value="0"
+                                {{if eq .CC.VoiceTriggerMode 0}}checked{{end}}>
+                            <label class="form-check-label" for="voice-mode-both-{{.CC.LocalID}}">
+                                Channel joins + leaves
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" disabled type="radio" name="voice_trigger_mode"
+                                id="voice-mode-added-{{.CC.LocalID}}" value="1"
+                                {{if eq .CC.VoiceTriggerMode 1}}checked{{end}}>
+                            <label class="form-check-label" for="voice-mode-added-{{.CC.LocalID}}">
+                                Channel joins only
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" disabled type="radio" name="voice_trigger_mode"
+                                id="voice-mode-removed-{{.CC.LocalID}}" value="2"
+                                {{if eq .CC.VoiceTriggerMode 2}}checked{{end}}>
+                            <label class="form-check-label" for="voice-mode-removed-{{.CC.LocalID}}">
+                                Channel leaves only
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
               {{else if eq .CC.TriggerType 6}}
               <div id="cc-reaction-trigger-details" class="col-lg-8">
                 <div class="row">

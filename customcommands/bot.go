@@ -72,6 +72,7 @@ func (p *Plugin) BotInit() {
 	eventsystem.AddHandlerAsyncLastLegacy(p, bot.ConcurrentEventHandler(HandleMessageUpdate), eventsystem.EventMessageUpdate)
 	eventsystem.AddHandlerAsyncLastLegacy(p, bot.ConcurrentEventHandler(handleMessageReactions), eventsystem.EventMessageReactionAdd, eventsystem.EventMessageReactionRemove)
 	eventsystem.AddHandlerAsyncLastLegacy(p, bot.ConcurrentEventHandler(handleInteractionCreate), eventsystem.EventInteractionCreate)
+	eventsystem.AddHandlerAsyncLastLegacy(p, bot.ConcurrentEventHandler(HandleVoiceStateChange), eventsystem.EventVoiceStateUpdate)
 
 	pubsub.AddHandler("custom_commands_run_now", handleCustomCommandsRunNow, models.CustomCommand{})
 	scheduledevents2.RegisterHandler("cc_next_run", NextRunScheduledEvent{}, handleNextRunScheduledEVent)
@@ -403,7 +404,7 @@ func handleDelayedRunCC(evt *schEventsModels.ScheduledEvent, data interface{}) (
 	if err != nil {
 		return false, errors.WrapIf(err, "find_command")
 	}
-	
+
 	if cmd.R.Group != nil && cmd.R.Group.Disabled {
 		return false, errors.New("custom command group is disabled")
 	}
@@ -834,6 +835,70 @@ func HandleMessageCreate(evt *eventsystem.EventData) {
 	}
 }
 
+func HandleVoiceStateChange(evt *eventsystem.EventData) {
+	vc := evt.VoiceStateUpdate()
+	join := false
+	cs := &dstate.ChannelState{}
+	if vc.ChannelID != 0 {
+		cs = evt.CSOrThread()
+		join = true
+
+		if hasPerms, _ := bot.BotHasPermissionGS(evt.GS, cs.ID, discordgo.PermissionSendMessages); !hasPerms {
+			// don't run in channel we don't have perms in
+			return
+		}
+	}
+	member := bot.State.GetMember(cs.GuildID, vc.UserID)
+
+	if !evt.HasFeatureFlag(featureFlagHasCommands) {
+		return
+	}
+
+	if vc.GuildID == 0 {
+		// ignore dm reactions
+		return
+	}
+
+	member.GuildID = evt.GS.ID
+
+	ms, triggeredCmds, err := findVoiceTriggerCustomCommands(evt.Context(), cs, vc.UserID, join)
+	if err != nil {
+		if common.IsDiscordErr(err, discordgo.ErrCodeUnknownMember) {
+			// example scenario: removing reactions of a user that's not on the server
+			// (reactions aren't cleared automatically when a user leaves)
+			return
+		}
+
+		logger.WithField("guild", evt.GS.ID).WithError(err).Error("failed finding voice ccs")
+		return
+	}
+
+	if len(triggeredCmds) < 1 {
+		return
+	}
+
+	metricsExecutedCommands.With(prometheus.Labels{"trigger": "voice"}).Inc()
+
+	for _, matched := range triggeredCmds {
+		if cs == nil {
+			cs = evt.GS.GetChannel(matched.CC.ContextChannel)
+		}
+		err = ExecuteCustomCommandFromVoice(matched.CC, evt.GS, ms, cs, vc, join)
+		if err != nil {
+			logger.WithField("guild", cs.GuildID).WithField("cc_id", matched.CC.LocalID).WithError(err).Error("Error executing custom command")
+		}
+	}
+}
+
+func ExecuteCustomCommandFromVoice(cc *models.CustomCommand, gs *dstate.GuildSet, ms *dstate.MemberState, cs *dstate.ChannelState, voiceState *discordgo.VoiceStateUpdate, join bool) error {
+	tmplCtx := templates.NewContext(gs, cs, ms)
+
+	tmplCtx.Data["VoiceState"] = voiceState
+	tmplCtx.Data["Joined"] = join
+
+	return ExecuteCustomCommand(cc, tmplCtx)
+}
+
 type TriggeredCC struct {
 	CC       *models.CustomCommand
 	Stripped string
@@ -894,6 +959,64 @@ func findReactionTriggerCustomCommands(ctx context.Context, cs *dstate.ChannelSt
 		}
 
 		if didMatch := CheckMatchReaction(cmd, reaction, add); didMatch {
+
+			matched = append(matched, &TriggeredCC{
+				CC: cmd,
+			})
+		}
+	}
+
+	if len(matched) < 1 {
+		// no matches
+		return nil, matched, nil
+	}
+
+	ms, err = bot.GetMember(cs.GuildID, userID)
+	if err != nil {
+		return nil, nil, errors.WithStackIf(err)
+	}
+
+	if ms.User.Bot {
+		return nil, nil, nil
+	}
+
+	// filter by roles
+	filtered := make([]*TriggeredCC, 0, len(matched))
+	for _, v := range matched {
+		if !CmdRunsForUser(v.CC, ms) {
+			continue
+		}
+
+		filtered = append(filtered, v)
+	}
+
+	sortTriggeredCCs(filtered)
+
+	limit := CCMessageExecLimitNormal
+	if isPremium, _ := premium.IsGuildPremium(cs.GuildID); isPremium {
+		limit = CCMessageExecLimitPremium
+	}
+
+	if len(filtered) > limit {
+		filtered = filtered[:limit]
+	}
+
+	return ms, filtered, nil
+}
+
+func findVoiceTriggerCustomCommands(ctx context.Context, cs *dstate.ChannelState, userID int64, join bool) (ms *dstate.MemberState, matches []*TriggeredCC, err error) {
+	cmds, err := BotCachedGetCommandsWithMessageTriggers(cs.GuildID, ctx)
+	if err != nil {
+		return nil, nil, errors.WrapIf(err, "BotCachedGetCommandsWithVoiceTriggers")
+	}
+
+	var matched []*TriggeredCC
+	for _, cmd := range cmds {
+		if cmd.Disabled || !CmdRunsInChannel(cmd, common.ChannelOrThreadParentID(cs)) || cmd.R.Group != nil && cmd.R.Group.Disabled {
+			continue
+		}
+
+		if didMatch := CheckMatchVoice(cmd, join); didMatch {
 
 			matched = append(matched, &TriggeredCC{
 				CC: cmd,
@@ -1437,6 +1560,23 @@ func CheckMatchReaction(cmd *models.CustomCommand, reaction *discordgo.MessageRe
 		return add
 	case ReactionModeRemoveOnly:
 		return !add
+	}
+
+	return false
+}
+
+func CheckMatchVoice(cmd *models.CustomCommand, join bool) (match bool) {
+	if cmd.TriggerType != int(CommandTriggerVoice) {
+		return false
+	}
+
+	switch cmd.VoiceTriggerMode {
+	case VoiceModeBoth:
+		return true
+	case VoiceModeJoinOnly:
+		return join
+	case VoiceModeLeaveOnly:
+		return !join
 	}
 
 	return false

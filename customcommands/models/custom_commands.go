@@ -43,6 +43,7 @@ type CustomCommand struct {
 	RolesWhitelistMode        bool              `boil:"roles_whitelist_mode" json:"roles_whitelist_mode" toml:"roles_whitelist_mode" yaml:"roles_whitelist_mode"`
 	ContextChannel            int64             `boil:"context_channel" json:"context_channel" toml:"context_channel" yaml:"context_channel"`
 	ReactionTriggerMode       int16             `boil:"reaction_trigger_mode" json:"reaction_trigger_mode" toml:"reaction_trigger_mode" yaml:"reaction_trigger_mode"`
+	VoiceTriggerMode       int16             `boil:"voice_trigger_mode" json:"voice_trigger_mode" toml:"voice_trigger_mode" yaml:"voice_trigger_mode"`
 	LastError                 string            `boil:"last_error" json:"last_error" toml:"last_error" yaml:"last_error"`
 	LastErrorTime             null.Time         `boil:"last_error_time" json:"last_error_time,omitempty" toml:"last_error_time" yaml:"last_error_time,omitempty"`
 	RunCount                  int               `boil:"run_count" json:"run_count" toml:"run_count" yaml:"run_count"`
@@ -78,6 +79,7 @@ var CustomCommandColumns = struct {
 	RolesWhitelistMode        string
 	ContextChannel            string
 	ReactionTriggerMode       string
+	VoiceTriggerMode       string
 	LastError                 string
 	LastErrorTime             string
 	RunCount                  string
@@ -108,6 +110,7 @@ var CustomCommandColumns = struct {
 	RolesWhitelistMode:        "roles_whitelist_mode",
 	ContextChannel:            "context_channel",
 	ReactionTriggerMode:       "reaction_trigger_mode",
+	VoiceTriggerMode:       "voice_trigger_mode",
 	LastError:                 "last_error",
 	LastErrorTime:             "last_error_time",
 	RunCount:                  "run_count",
@@ -140,6 +143,7 @@ var CustomCommandTableColumns = struct {
 	RolesWhitelistMode        string
 	ContextChannel            string
 	ReactionTriggerMode       string
+	VoiceTriggerMode       string
 	LastError                 string
 	LastErrorTime             string
 	RunCount                  string
@@ -169,6 +173,7 @@ var CustomCommandTableColumns = struct {
 	RolesWhitelistMode:        "custom_commands.roles_whitelist_mode",
 	ContextChannel:            "custom_commands.context_channel",
 	ReactionTriggerMode:       "custom_commands.reaction_trigger_mode",
+	VoiceTriggerMode:       "custom_commands.voice_trigger_mode",
 	LastError:                 "custom_commands.last_error",
 	LastErrorTime:             "custom_commands.last_error_time",
 	RunCount:                  "custom_commands.run_count",
@@ -381,6 +386,7 @@ var CustomCommandWhere = struct {
 	RolesWhitelistMode        whereHelperbool
 	ContextChannel            whereHelperint64
 	ReactionTriggerMode       whereHelperint16
+	VoiceTriggerMode       whereHelperint16
 	LastError                 whereHelperstring
 	LastErrorTime             whereHelpernull_Time
 	RunCount                  whereHelperint
@@ -411,6 +417,7 @@ var CustomCommandWhere = struct {
 	RolesWhitelistMode:        whereHelperbool{field: "\"custom_commands\".\"roles_whitelist_mode\""},
 	ContextChannel:            whereHelperint64{field: "\"custom_commands\".\"context_channel\""},
 	ReactionTriggerMode:       whereHelperint16{field: "\"custom_commands\".\"reaction_trigger_mode\""},
+	VoiceTriggerMode:       whereHelperint16{field: "\"custom_commands\".\"voice_trigger_mode\""},
 	LastError:                 whereHelperstring{field: "\"custom_commands\".\"last_error\""},
 	LastErrorTime:             whereHelpernull_Time{field: "\"custom_commands\".\"last_error_time\""},
 	RunCount:                  whereHelperint{field: "\"custom_commands\".\"run_count\""},
@@ -452,9 +459,9 @@ func (r *customCommandR) GetGroup() *CustomCommandGroup {
 type customCommandL struct{}
 
 var (
-	customCommandAllColumns            = []string{"local_id", "guild_id", "group_id", "trigger_type", "text_trigger", "text_trigger_case_sensitive", "time_trigger_interval", "time_trigger_excluding_days", "time_trigger_excluding_hours", "last_run", "next_run", "responses", "channels", "channels_whitelist_mode", "roles", "roles_whitelist_mode", "context_channel", "reaction_trigger_mode", "last_error", "last_error_time", "run_count", "show_errors", "disabled", "github_response", "trigger_on_edit", "public_id", "import_count", "name", "public"}
+	customCommandAllColumns            = []string{"local_id", "guild_id", "group_id", "trigger_type", "text_trigger", "text_trigger_case_sensitive", "time_trigger_interval", "time_trigger_excluding_days", "time_trigger_excluding_hours", "last_run", "next_run", "responses", "channels", "channels_whitelist_mode", "roles", "roles_whitelist_mode", "context_channel", "reaction_trigger_mode", "voice_trigger_mode", "last_error", "last_error_time", "run_count", "show_errors", "disabled", "github_response", "trigger_on_edit", "public_id", "import_count", "name", "public"}
 	customCommandColumnsWithoutDefault = []string{"local_id", "guild_id", "trigger_type", "text_trigger", "text_trigger_case_sensitive", "time_trigger_interval", "time_trigger_excluding_days", "time_trigger_excluding_hours", "responses", "channels_whitelist_mode", "roles_whitelist_mode"}
-	customCommandColumnsWithDefault    = []string{"group_id", "last_run", "next_run", "channels", "roles", "context_channel", "reaction_trigger_mode", "last_error", "last_error_time", "run_count", "show_errors", "disabled", "trigger_on_edit", "public_id", "import_count", "name", "public", "github_response"}
+	customCommandColumnsWithDefault    = []string{"group_id", "last_run", "next_run", "channels", "roles", "context_channel", "reaction_trigger_mode", "voice_trigger_mode", "last_error", "last_error_time", "run_count", "show_errors", "disabled", "trigger_on_edit", "public_id", "import_count", "name", "public", "github_response"}
 	customCommandPrimaryKeyColumns     = []string{"guild_id", "local_id"}
 	customCommandGeneratedColumns      = []string{}
 )

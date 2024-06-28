@@ -98,6 +98,8 @@
                                                     Message Component</option>
                                                 <option value="modal" {{if eq .CC.TriggerType 8}} selected{{end}}>
                                                     Modal Submission</option>
+                                                <option value="voice" {{if eq .CC.TriggerType 9}} selected{{end}}>
+                                                    Voice State Change</option>
                                             </select>
                                         </div>
                                     </div>
@@ -140,6 +142,9 @@
                                         </p>
                                         <p id="trigger-desc-modal">
                                             The command will run when a modal whose custom ID matches the given regex is submitted. BETA FEATURE.
+                                        </p>
+                                        <p id="trigger-desc-voice">
+                                            The command will run when a user joins, leaves, or moves voice channels.
                                         </p>
                                     </div>
                                 </div>
@@ -201,9 +206,39 @@
                                     </div>
                                 </div>
                             </div>
-                            <div id="cc-time-trigger-details" class="hidden col-lg-8">
+                            <div id="cc-voice-trigger-details" class="hidden col-lg-8">
                                 <div class="row">
-                                    <div class="col-lg-4">
+                                    <div class="col-lg-12">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="voice_trigger_mode"
+                                                id="voice-mode-both-{{.CC.LocalID}}" value="0"
+                                                {{if eq .CC.VoiceTriggerMode 0}}checked{{end}}>
+                                            <label class="form-check-label" for="voice-mode-both-{{.CC.LocalID}}">
+                                                Channel joins + leaves
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="voice_trigger_mode"
+                                                id="voice-mode-added-{{.CC.LocalID}}" value="1"
+                                                {{if eq .CC.VoiceTriggerMode 1}}checked{{end}}>
+                                            <label class="form-check-label" for="voice-mode-added-{{.CC.LocalID}}">
+                                                Channel joins only
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="voice_trigger_mode"
+                                                id="voice-mode-removed-{{.CC.LocalID}}" value="2"
+                                                {{if eq .CC.VoiceTriggerMode 2}}checked{{end}}>
+                                            <label class="form-check-label" for="voice-mode-removed-{{.CC.LocalID}}">
+                                                Channel leaves only
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="cc-channel-details" class="hidden col-lg-8">
+                                <div class="row">
+                                    <div id="cc-time-trigger-details" class="col-lg-4">
                                         <div class="form-group">
                                             <label>Interval</label>
                                             <input type="number" min="0" class="form-control" name="time_trigger_interval"
@@ -219,7 +254,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="row mt-3">
+                                <div id="cc-time-trigger-details-2" class="row mt-3">
                                         <div class="form-group col-lg-3">
                                             <label for="trigger">Excluding hours (UTC)</label><br>
                                             <select name="time_trigger_excluding_hours" class="multiselect form-control"
@@ -565,13 +600,14 @@
         setCMCheckbox();
     });
 
-    var intervalTriggerEls = ['#interval-cc-run-now', '#cc-time-trigger-details'];
+    var intervalTriggerEls = ['#interval-cc-run-now', '#cc-channel-details', '#cc-time-trigger-details', '#cc-time-trigger-details-2'];
     var textTriggerEls = ['#cc-text-trigger-details', '#cc-extra-settings'];
     var messageTriggerEls = [...textTriggerEls, '#cc-message-trigger-label', '#cc-message-trigger-details'];
     var interactionTriggerEls = [...textTriggerEls, '#cc-customid-trigger-label'];
 
     // html elements that should be shown for specific trigger types and hidden otherwise
     var triggerTypeEls = {
+        voice: ['#trigger-desc-voice', '#cc-channel-details', '#cc-extra-settings'],
         modal: [...interactionTriggerEls, '#trigger-desc-modal'],
         component: [...interactionTriggerEls, '#trigger-desc-component'],
         interval_hours: [...intervalTriggerEls, '#trigger-desc-interval_hours'],
@@ -638,7 +674,7 @@
 
     // 'require roles' mode with no required roles
     var checkNoEmptyRequiredRoles = {
-        applicableTriggerTypes: ['modal', 'component', 'reaction', 'cmd', 'prefix', 'contains', 'regex', 'exact'],
+        applicableTriggerTypes: ['voice', 'modal', 'component', 'reaction', 'cmd', 'prefix', 'contains', 'regex', 'exact'],
         warningId: 'require-no-roles-warning',
         run() {
             const isRequireMode = $('#require-role-mode').prop('checked');
@@ -661,7 +697,7 @@
     $('#command-roles').change(() => checkNoEmptyRequiredRoles.run());
 
     var checkNoEmptyRequiredChannels = {
-        applicableTriggerTypes: ['modal', 'component', 'reaction', 'cmd', 'prefix', 'contains', 'regex', 'exact'],
+        applicableTriggerTypes: ['voice', 'modal', 'component', 'reaction', 'cmd', 'prefix', 'contains', 'regex', 'exact'],
         warningId: 'require-no-channels-warning',
         run() {
             const isRequireMode = $('#require-channel-mode').prop('checked');
@@ -684,7 +720,7 @@
     $('#command-channels').change(() => checkNoEmptyRequiredChannels.run());
 
     var checkMissingIntervalTriggerChannel = {
-        applicableTriggerTypes: ['interval_hours', 'interval_minutes'],
+        applicableTriggerTypes: ['voice', 'interval_hours', 'interval_minutes'],
         warningId: 'time-trigger-no-channel-warning',
         run() {
             const selectedChannel = $('#time-trigger-channel').val();

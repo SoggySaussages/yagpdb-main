@@ -75,6 +75,7 @@ const (
 	CommandTriggerReaction   CommandTriggerType = 6
 	CommandTriggerComponent  CommandTriggerType = 7
 	CommandTriggerModal      CommandTriggerType = 8
+	CommandTriggerVoice      CommandTriggerType = 9
 )
 
 var (
@@ -89,6 +90,7 @@ var (
 		CommandTriggerNone,
 		CommandTriggerComponent,
 		CommandTriggerModal,
+		CommandTriggerVoice,
 	}
 
 	triggerStrings = map[CommandTriggerType]string{
@@ -102,6 +104,7 @@ var (
 		CommandTriggerNone:       "None",
 		CommandTriggerComponent:  "Component",
 		CommandTriggerModal:      "Modal",
+		CommandTriggerVoice:      "Voice",
 	}
 )
 
@@ -109,6 +112,12 @@ const (
 	ReactionModeBoth       = 0
 	ReactionModeAddOnly    = 1
 	ReactionModeRemoveOnly = 2
+)
+
+const (
+	VoiceModeBoth      = 0
+	VoiceModeJoinOnly  = 1
+	VoiceModeLeaveOnly = 2
 )
 
 func (t CommandTriggerType) String() string {
@@ -135,6 +144,7 @@ type CustomCommand struct {
 	TimeTriggerExcludingHours []int64 `schema:"time_trigger_excluding_hours"`
 
 	ReactionTriggerMode int `schema:"reaction_trigger_mode"`
+	VoiceTriggerMode    int `schema:"voice_trigger_mode"`
 
 	// If set, then the following channels are required, otherwise they are ignored
 	RequireChannels bool    `json:"require_channels" schema:"require_channels"`
@@ -225,6 +235,7 @@ func (cc *CustomCommand) ToDBModel() *models.CustomCommand {
 		ContextChannel:            cc.ContextChannel,
 
 		ReactionTriggerMode: int16(cc.ReactionTriggerMode),
+		VoiceTriggerMode:    int16(cc.VoiceTriggerMode),
 
 		Responses: cc.Responses,
 
