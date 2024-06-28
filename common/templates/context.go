@@ -726,6 +726,8 @@ func baseContextFuncs(c *Context) {
 	// Channel functions
 	c.addContextFunc("editChannelName", c.tmplEditChannelName)
 	c.addContextFunc("editChannelTopic", c.tmplEditChannelTopic)
+	c.addContextFunc("createChannel", c.tmplCreateChannel)
+	c.addContextFunc("deleteChannel", c.tmplDelChannel)
 
 	c.addContextFunc("getChannel", c.tmplGetChannel)
 	c.addContextFunc("getChannelPins", c.tmplGetChannelPins(false))

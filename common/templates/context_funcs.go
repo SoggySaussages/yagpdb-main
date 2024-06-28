@@ -2,6 +2,7 @@ package templates
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"math"
@@ -998,6 +999,98 @@ func (c *Context) tmplDelAllMessageReactions(values ...reflect.Value) (reflect.V
 	}
 
 	return callVariadic(f, false, values...)
+}
+
+func createOverwrite(overwrite ...interface{}) (*discordgo.PermissionOverwrite, error) {
+	o := discordgo.PermissionOverwrite{}
+
+	var m map[string]interface{}
+	switch t := overwrite[0].(type) {
+	case SDict:
+		m = t
+	case *SDict:
+		m = *t
+	case map[string]interface{}:
+		m = t
+	case *discordgo.PermissionOverwrite:
+		return t, nil
+	default:
+		dict, err := StringKeyDictionary(overwrite...)
+		if err != nil {
+			return &o, err
+		}
+		m = dict
+	}
+
+	owType, ok := m["type"]
+	if ok {
+		m["type"] = discordgo.PermissionOverwriteType(tmplToInt(owType))
+	}
+
+	encoded, err := json.Marshal(m)
+	if err != nil {
+		return &o, err
+	}
+
+	var ow *discordgo.PermissionOverwrite
+	err = json.Unmarshal(encoded, &ow)
+	if err != nil {
+		return &o, err
+	}
+	return ow, nil
+}
+
+func createOverwrites(overwrites ...interface{}) ([]*discordgo.PermissionOverwrite, error) {
+	o := []*discordgo.PermissionOverwrite{}
+
+	v, _ := indirect(reflect.ValueOf(overwrites))
+	if v.Kind() == reflect.Slice {
+		for i := 0; i < v.Len(); i++ {
+			ow, err := createOverwrite(v.Index(i).Interface())
+			if err != nil {
+				return nil, err
+			}
+			o = append(o, ow)
+		}
+	} else {
+		ow, err := createOverwrite(overwrites)
+		if err != nil {
+			return nil, err
+		}
+		o = append(o, ow)
+	}
+
+	return o, nil
+}
+
+func (c *Context) tmplCreateChannel(name string, cType int, parent interface{}, overwrites ...interface{}) (string, error) {
+	if c.IncreaseCheckGenericAPICall() {
+		return "", ErrTooManyAPICalls
+	}
+
+	pID := c.ChannelArgNoDM(parent)
+
+	ow, err := createOverwrites(overwrites...)
+	if err != nil {
+		return "", err
+	}
+
+	_, err = common.BotSession.GuildChannelCreateWithOverwrites(c.GS.ID, name, discordgo.ChannelType(cType), pID, ow)
+	return "", err
+}
+
+func (c *Context) tmplDelChannel(channel interface{}) (string, error) {
+	if c.IncreaseCheckGenericAPICall() {
+		return "", ErrTooManyAPICalls
+	}
+
+	cID := c.ChannelArgNoDM(channel)
+	if cID == 0 {
+		return "", nil
+	}
+
+	_, err := common.BotSession.ChannelDelete(cID)
+	return "", err
 }
 
 func (c *Context) tmplGetMessage(channel, msgID interface{}) (*discordgo.Message, error) {
