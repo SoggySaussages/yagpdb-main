@@ -12,7 +12,7 @@ var Command = &commands.YAGCommand{
 	RunInDM:     true,
 	RunFunc: func(data *dcmd.Data) (interface{}, error) {
 		info := `SGPDB - A **S**oggy **G**eneral **P**urpose **D**iscord **B**ot
-This is a fork of [YAGPDB](https://github.com/botlabs-gg/yagpdb) hosted by SoggySaussages.`
+This is a fork of [SGPDB](https://github.com/botlabs-gg/sgpdb) hosted by SoggySaussages.`
 
 		return info, nil
 	},

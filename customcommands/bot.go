@@ -399,9 +399,13 @@ func StringCommands(ccs []*models.CustomCommand, gMap map[int64]string) string {
 
 func handleDelayedRunCC(evt *schEventsModels.ScheduledEvent, data interface{}) (retry bool, err error) {
 	dataCast := data.(*DelayedRunCCData)
-	cmd, err := models.CustomCommands(qm.Where("guild_id = ? AND local_id = ?", evt.GuildID, dataCast.CmdID)).OneG(context.Background())
+	cmd, err := models.CustomCommands(qm.Where("guild_id = ? AND local_id = ?", evt.GuildID, dataCast.CmdID), qm.Load("Group")).OneG(context.Background())
 	if err != nil {
 		return false, errors.WrapIf(err, "find_command")
+	}
+	
+	if cmd.R.Group != nil && cmd.R.Group.Disabled {
+		return false, errors.New("custom command group is disabled")
 	}
 
 	if cmd.Disabled {
@@ -469,9 +473,13 @@ func handleDelayedRunCC(evt *schEventsModels.ScheduledEvent, data interface{}) (
 }
 
 func handleNextRunScheduledEVent(evt *schEventsModels.ScheduledEvent, data interface{}) (retry bool, err error) {
-	cmd, err := models.CustomCommands(qm.Where("guild_id = ? AND local_id = ?", evt.GuildID, (data.(*NextRunScheduledEvent)).CmdID)).OneG(context.Background())
+	cmd, err := models.CustomCommands(qm.Where("guild_id = ? AND local_id = ?", evt.GuildID, (data.(*NextRunScheduledEvent)).CmdID), qm.Load("Group")).OneG(context.Background())
 	if err != nil {
 		return false, errors.WrapIf(err, "find_command")
+	}
+
+	if cmd.R.Group != nil && cmd.R.Group.Disabled {
+		return false, errors.New("custom command group is disabled")
 	}
 
 	if cmd.Disabled {
@@ -845,7 +853,7 @@ func findMessageTriggerCustomCommands(ctx context.Context, cs *dstate.ChannelSta
 
 	var matched []*TriggeredCC
 	for _, cmd := range cmds {
-		if cmd.Disabled || !CmdRunsInChannel(cmd, common.ChannelOrThreadParentID(cs)) || !CmdRunsForUser(cmd, ms) {
+		if cmd.Disabled || !CmdRunsInChannel(cmd, common.ChannelOrThreadParentID(cs)) || !CmdRunsForUser(cmd, ms) || cmd.R.Group != nil && cmd.R.Group.Disabled {
 			continue
 		}
 
@@ -881,7 +889,7 @@ func findReactionTriggerCustomCommands(ctx context.Context, cs *dstate.ChannelSt
 
 	var matched []*TriggeredCC
 	for _, cmd := range cmds {
-		if cmd.Disabled || !CmdRunsInChannel(cmd, common.ChannelOrThreadParentID(cs)) {
+		if cmd.Disabled || !CmdRunsInChannel(cmd, common.ChannelOrThreadParentID(cs)) || cmd.R.Group != nil && cmd.R.Group.Disabled {
 			continue
 		}
 
@@ -939,7 +947,7 @@ func findComponentOrModalTriggerCustomCommands(ctx context.Context, cs *dstate.C
 
 	var matched []*TriggeredCC
 	for _, cmd := range cmds {
-		if cmd.Disabled || !CmdRunsInChannel(cmd, common.ChannelOrThreadParentID(cs)) {
+		if cmd.Disabled || !CmdRunsInChannel(cmd, common.ChannelOrThreadParentID(cs)) || cmd.R.Group != nil && cmd.R.Group.Disabled {
 			continue
 		}
 

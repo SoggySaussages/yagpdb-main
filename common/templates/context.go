@@ -113,6 +113,9 @@ var (
 
 		"shuffle": shuffle,
 		"verb":    common.RandomVerb,
+		"hash":    tmplSha256,
+		"decodeBase64": tmplDecodeBase64,
+		"encodeBase64": tmplEncodeBase64,
 
 		// time functions
 		"currentTime":     tmplCurrentTime,
