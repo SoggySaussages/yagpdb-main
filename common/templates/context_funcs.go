@@ -2086,12 +2086,207 @@ func (c *Context) FindRole(role interface{}) *discordgo.Role {
 	}
 }
 
+func (c *Context) reorderRoles(r *discordgo.Role, position int) (*discordgo.Role, error) {
+	roles, err := common.BotSession.GuildRoles(c.GS.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	var newRoles []*discordgo.Role
+	i := len(roles)
+	for _, gr := range roles {
+		if gr.ID == r.ID {
+			if i != position {
+				continue
+			}
+		} else if i == position {
+			r.Position = i
+			newRoles = append(newRoles, r)
+			i--
+		}
+
+		gr.Position = i
+		newRoles = append(newRoles, gr)
+		i--
+	}
+
+	roles, err = common.BotSession.GuildRoleReorder(c.GS.ID, newRoles)
+	if err != nil {
+		return nil, err
+	}
+
+	r = roles[len(roles)-position]
+	return r, nil
+}
+
+func (c *Context) tmplCreateRole(name string, values ...interface{}) (*discordgo.Role, error) {
+	if c.IncreaseCheckGenericAPICall() {
+		return nil, ErrTooManyAPICalls
+	}
+
+	if len(values) < 1 {
+		return nil, errors.New("nothing passed to create role builder")
+	}
+
+	dict, err := StringKeyDictionary(values...)
+	if err != nil {
+		return nil, err
+	}
+
+	role := discordgo.RoleCreate{
+		Name: name,
+	}
+
+	var position *int
+
+	for key, val := range dict {
+
+		switch strings.ToLower(key) {
+		case "permissions":
+			role.Permissions = ToInt64(val)
+		case "color":
+			role.Color = int32(tmplToInt(val))
+		case "hoist":
+			hoist, ok := val.(bool)
+			if ok {
+				role.Hoist = hoist
+			}
+		case "mentionable":
+			mentionable, ok := val.(bool)
+			if ok {
+				role.Mentionable = mentionable
+			}
+		case "position":
+			pos := tmplToInt(val)
+			position = &pos
+		default:
+			return nil, errors.New(`invalid key "` + key + `" passed to create role builder`)
+		}
+
+	}
+
+	r, err := common.BotSession.GuildRoleCreateComplex(c.GS.ID, role)
+	if err != nil {
+		return nil, err
+	}
+
+	if position != nil {
+		roles, err := common.BotSession.GuildRoles(c.GS.ID)
+		if err != nil {
+			return nil, err
+		}
+
+		var newRoles []*discordgo.Role
+		i := len(roles)
+		for _, gr := range roles {
+			if gr.ID == r.ID {
+				if i != *position {
+					continue
+				}
+			} else if i == *position {
+				r.Position = i
+				newRoles = append(newRoles, r)
+				i--
+			}
+
+			gr.Position = i
+			newRoles = append(newRoles, gr)
+			i--
+		}
+
+		roles, err = common.BotSession.GuildRoleReorder(c.GS.ID, newRoles)
+		if err != nil {
+			return nil, err
+		}
+
+		r = roles[len(roles)-*position]
+	}
+	return r, err
+}
+
 func (c *Context) getRole(roleInput interface{}) (*discordgo.Role, error) {
 	if c.IncreaseCheckGenericAPICall() {
 		return nil, ErrTooManyCalls
 	}
 
 	return c.FindRole(roleInput), nil
+}
+
+func (c *Context) tmplDelRole(roleInput interface{}) (string, error) {
+	r, err := c.getRole(roleInput)
+	if err != nil {
+		return "", nil
+	}
+
+	return "", common.BotSession.GuildRoleDelete(c.GS.ID, r.ID)
+}
+
+func (c *Context) tmplEditRole(roleInput interface{}, values ...interface{}) (*discordgo.Role, error) {
+	if c.IncreaseCheckGenericAPICall() {
+		return nil, ErrTooManyAPICalls
+	}
+
+	if len(values) < 1 {
+		return nil, errors.New("nothing passed to edit role builder")
+	}
+
+	r, err := c.getRole(roleInput)
+	if err != nil {
+		return nil, nil
+	}
+
+	dict, err := StringKeyDictionary(values...)
+	if err != nil {
+		return nil, err
+	}
+
+	role := discordgo.Role{
+		Name:        r.Name,
+		Permissions: r.Permissions,
+		Color:       r.Color,
+		Hoist:       r.Hoist,
+		Mentionable: r.Mentionable,
+	}
+
+	var position *int
+
+	for key, val := range dict {
+
+		switch strings.ToLower(key) {
+		case "name":
+			role.Name = ToString(val)
+		case "permissions":
+			role.Permissions = ToInt64(val)
+		case "color":
+			role.Color = int(tmplToInt(val))
+		case "hoist":
+			hoist, ok := val.(bool)
+			if ok {
+				role.Hoist = hoist
+			}
+		case "mentionable":
+			mentionable, ok := val.(bool)
+			if ok {
+				role.Mentionable = mentionable
+			}
+		case "position":
+			pos := tmplToInt(val)
+			position = &pos
+		default:
+			return nil, errors.New(`invalid key "` + key + `" passed to create role builder`)
+		}
+
+	}
+
+	roleEdited, err := common.BotSession.GuildRoleEdit(c.GS.ID, r.ID, role.Name, role.Color, role.Hoist, role.Permissions, role.Mentionable)
+	if err != nil {
+		return nil, err
+	}
+
+	if position != nil {
+		r, err = c.reorderRoles(roleEdited, *position)
+	}
+	return r, err
 }
 
 func (c *Context) tmplGetRole(roleInput interface{}) (*discordgo.Role, error) {

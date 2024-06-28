@@ -658,6 +658,9 @@ func baseContextFuncs(c *Context) {
 	c.addContextFunc("mentionRoleName", c.tmplMentionRoleName)
 
 	// Role functions
+	c.addContextFunc("createRole", c.tmplCreateRole)
+	c.addContextFunc("deleteRole", c.tmplDelRole)
+	c.addContextFunc("editRole", c.tmplEditRole)
 	c.addContextFunc("getRole", c.tmplGetRole)
 	c.addContextFunc("getRoleID", c.tmplGetRoleID)
 	c.addContextFunc("getRoleName", c.tmplGetRoleName)
