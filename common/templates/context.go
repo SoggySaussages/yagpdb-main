@@ -693,6 +693,7 @@ func baseContextFuncs(c *Context) {
 
 	// permission funcs
 	c.addContextFunc("hasPermissions", c.tmplHasPermissions)
+	c.addContextFunc("moveMember", c.tmplMoveMember)
 	c.addContextFunc("targetHasPermissions", c.tmplTargetHasPermissions)
 	c.addContextFunc("getTargetPermissionsIn", c.tmplGetTargetPermissionsIn)
 

@@ -750,6 +750,20 @@ func (c *Context) hasPerms(ms *dstate.MemberState, channelID int64, needed int64
 	return false, nil
 }
 
+func (c *Context) tmplMoveMember(member, channel interface{}) (string, error) {
+	targetID := TargetUserID(member)
+	if targetID == 0 {
+		return "", nil
+	}
+
+	cID := c.ChannelArgNoDM(channel)
+	if cID == 0 {
+		return "", nil
+	}
+
+	return "", common.BotSession.GuildMemberMove(c.GS.ID, targetID, cID)
+}
+
 func (c *Context) tmplDelResponse(args ...interface{}) string {
 	dur := 10
 	if len(args) > 0 {
