@@ -2,6 +2,8 @@ package templates
 
 import (
 	"bytes"
+	"crypto/sha256"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"math"
@@ -10,9 +12,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
-	"crypto/sha256"
-	"encoding/base64"
-	
+
 	"emperror.dev/errors"
 	"github.com/botlabs-gg/sgpdb/v2/bot"
 	"github.com/botlabs-gg/sgpdb/v2/common"
@@ -602,6 +602,14 @@ func CreateMessageEdit(values ...interface{}) (*discordgo.MessageEdit, error) {
 
 	return msg, nil
 
+}
+
+func Forex(value float64, from, to string) (float64, error) {
+	_, result, err := common.ForexConvert(value, from, to)
+	if err != nil {
+		return 0, err
+	}
+	return result.Rates[to], nil
 }
 
 func parseAllowedMentions(Data interface{}) (*discordgo.AllowedMentions, error) {
@@ -1705,7 +1713,7 @@ func tmplEncodeBase64(str string) string {
 func tmplSha256(str string) string {
 	hash := sha256.New()
 	hash.Write([]byte(str))
-	
+
 	sha256 := base64.URLEncoding.EncodeToString(hash.Sum(nil))
 
 	return sha256

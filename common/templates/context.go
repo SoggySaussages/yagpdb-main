@@ -99,6 +99,7 @@ var (
 		"cslice":             CreateSlice,
 		"complexMessage":     CreateMessageSend,
 		"complexMessageEdit": CreateMessageEdit,
+		"forex":              Forex,
 		"kindOf":             KindOf,
 
 		"adjective":   common.RandomAdjective,
