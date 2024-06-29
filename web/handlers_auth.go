@@ -217,6 +217,11 @@ func CreateCookieSession(token *oauth2.Token) (cookie *http.Cookie, err error) {
 }
 
 func GetUserAccessLevel(userID int64, g *common.GuildWithConnected, config *models.CoreConfig, roleProvider func(guildID, userID int64) []int64) (hasRead bool, hasWrite bool) {
+	// only guild owner on public test server
+	if g.ID == 1210121618572189767 && !g.Owner {
+		return false, false
+	}
+
 	// if they are the owner or they have manage server perms, then they have full access
 	if g.Owner || g.Permissions&discordgo.PermissionManageGuild == discordgo.PermissionManageGuild {
 		return true, true
