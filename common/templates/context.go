@@ -667,6 +667,10 @@ func baseContextFuncs(c *Context) {
 
 	c.addContextFunc("sendTemplate", c.tmplSendTemplate)
 	c.addContextFunc("sendTemplateDM", c.tmplSendTemplateDM)
+	c.addContextFunc("sendWebhook", c.tmplSendWebhookMessage(true, false))
+	c.addContextFunc("sendWebhookNoEscape", c.tmplSendWebhookMessage(false, false))
+	c.addContextFunc("sendWebhookNoEscapeRetID", c.tmplSendWebhookMessage(false, true))
+	c.addContextFunc("sendWebhookRetID", c.tmplSendWebhookMessage(true, true))
 
 	// Reaction functions
 	c.addContextFunc("addMessageReactions", c.tmplAddMessageReactions)

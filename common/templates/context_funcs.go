@@ -426,6 +426,90 @@ func (c *Context) tmplSendMessage(filterSpecialMentions bool, returnID bool) fun
 	}
 }
 
+func (c *Context) tmplSendWebhookMessage(filterSpecialMentions bool, returnID bool) func(channel interface{}, values ...interface{}) interface{} {
+	var repliedUser bool
+	parseMentions := []discordgo.AllowedMentionType{discordgo.AllowedMentionTypeUsers}
+	if !filterSpecialMentions {
+		parseMentions = append(parseMentions, discordgo.AllowedMentionTypeRoles, discordgo.AllowedMentionTypeEveryone)
+		repliedUser = true
+	}
+
+	return func(channel interface{}, values ...interface{}) interface{} {
+		if len(values) < 1 {
+			return errors.New("nothing passed to create webhook message builder")
+		}
+
+		cid := c.ChannelArg(channel)
+		if cid == 0 {
+			return ""
+		}
+
+		dict, err := StringKeyDictionary(values...)
+		if err != nil {
+			return err
+		}
+
+		msg := &discordgo.WebhookParams{}
+
+		for key, val := range dict {
+
+			switch strings.ToLower(key) {
+			case "message":
+				switch typedMsg := val.(type) {
+				case *discordgo.MessageEmbed:
+					msg.Embeds = []*discordgo.MessageEmbed{typedMsg}
+				case []*discordgo.MessageEmbed:
+					msg.Embeds = typedMsg
+				case *discordgo.MessageSend:
+					msg.Content = typedMsg.Content
+					msg.File = typedMsg.File
+					msg.Components = typedMsg.Components
+					msg.Embeds = typedMsg.Embeds
+					msg.Flags = int64(typedMsg.Flags)
+					if !filterSpecialMentions {
+						msg.AllowedMentions = &discordgo.AllowedMentions{Parse: parseMentions, RepliedUser: repliedUser}
+					}
+				default:
+					msg.Content = ToString(msg)
+				}
+			case "username":
+				msg.Username = ToString(val)
+			case "avatar_url":
+				msg.AvatarURL = ToString(val)
+			default:
+				return errors.New(`invalid key "` + key + `" passed to create webhook message builder`)
+			}
+		}
+
+		webhooks, err := common.BotSession.ChannelWebhooks(cid)
+		if err != nil {
+			return err
+		}
+		var found *discordgo.Webhook
+		for _, w := range webhooks {
+			if w.User.ID == common.BotUser.ID {
+				found = w
+				break
+			}
+		}
+		if found == nil {
+			w, err := common.BotSession.WebhookCreate(cid, "SGPDB", "")
+			if err != nil {
+				return err
+			}
+			found = w
+		}
+
+		m, err := common.BotSession.WebhookExecuteComplex(found.ID, found.Token, false, msg)
+
+		if err == nil && returnID {
+			return strconv.FormatInt(m.ID, 10)
+		}
+
+		return ""
+	}
+}
+
 func (c *Context) tmplEditMessage(filterSpecialMentions bool) func(channel interface{}, msgID interface{}, msg interface{}) (interface{}, error) {
 	parseMentions := []discordgo.AllowedMentionType{discordgo.AllowedMentionTypeUsers}
 	if !filterSpecialMentions {
