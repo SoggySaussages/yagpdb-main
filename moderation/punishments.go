@@ -124,8 +124,7 @@ func punish(config *Config, p Punishment, guildID int64, channel *dstate.Channel
 		return err
 	}
 
-	logger.Infof("MODERATION: %s %s %s cause %q", author.Username, action.Prefix, user.Username, reason)
-
+	logger.WithField("guild_id", guildID).Infof("MODERATION: %s %s %s cause %q", author.Username, action.Prefix, user.Username, reason)
 	if memberNotFound {
 		// Wait a tiny bit to make sure the audit log is updated
 		time.Sleep(time.Second * 3)
@@ -137,23 +136,28 @@ func punish(config *Config, p Punishment, guildID int64, channel *dstate.Channel
 
 		// Pull user details from audit log if we can
 		auditLog, err := common.BotSession.GuildAuditLog(gs.ID, common.BotUser.ID, 0, auditLogType, 10)
-		if err == nil {
-			for _, v := range auditLog.Users {
-				if v.ID == user.ID {
-					user = &discordgo.User{
-						ID:            v.ID,
-						Username:      v.Username,
-						Discriminator: v.Discriminator,
-						Bot:           v.Bot,
-						Avatar:        v.Avatar,
-					}
-					break
+		if err != nil {
+			logger.WithError(err).WithField("guild", gs.ID).Error("Failed retrieving audit log")
+		}
+		for _, v := range auditLog.Users {
+			if v.ID == user.ID {
+				user = &discordgo.User{
+					ID:            v.ID,
+					Username:      v.Username,
+					Discriminator: v.Discriminator,
+					Bot:           v.Bot,
+					Avatar:        v.Avatar,
 				}
+				break
 			}
 		}
 	}
 
 	err = CreateModlogEmbed(config, author, action, user, reason, logLink)
+	if err != nil {
+		logger.WithError(err).WithField("guild", gs.ID).Error("Failed creating mod log embed")
+	}
+
 	return err
 }
 
@@ -212,6 +216,11 @@ func sendPunishDM(config *Config, dmMsg string, action ModlogAction, gs *dstate.
 }
 
 func KickUser(config *Config, guildID int64, channel *dstate.ChannelState, message *discordgo.Message, author *discordgo.User, reason string, user *discordgo.User, del int) error {
+	defer func() {
+		if r := recover(); r != nil {
+			logger.Infof("Recovered from panic: %#v", r)
+		}
+	}()
 	config, err := GetConfigIfNotSet(guildID, config)
 	if err != nil {
 		return common.ErrWithCaller(err)
@@ -228,7 +237,10 @@ func KickUser(config *Config, guildID int64, channel *dstate.ChannelState, messa
 		del = 100
 	}
 
-	_, err = DeleteMessages(guildID, channel.ID, user.ID, del, del)
+	if channel != nil {
+		_, err = DeleteMessages(guildID, channel.ID, user.ID, del, del)
+	}
+
 	return err
 }
 
