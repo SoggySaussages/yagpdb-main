@@ -1180,6 +1180,24 @@ func (c *Context) tmplGetMessage(channel, msgID interface{}) (*discordgo.Message
 	return message, nil
 }
 
+func (c *Context) tmplGetMessages(channel interface{}, before ...int64) ([]*discordgo.Message, error) {
+	if c.IncreaseCheckGenericAPICall() {
+		return nil, ErrTooManyAPICalls
+	}
+
+	cID := c.ChannelArgNoDM(channel)
+	if cID == 0 {
+		return nil, nil
+	}
+
+	var b int64
+	if len(before) > 0 {
+		b = before[0]
+	}
+
+	return common.BotSession.ChannelMessages(cID, 100, b, 0, 0)
+}
+
 func (c *Context) tmplGetMember(target interface{}) (*discordgo.Member, error) {
 	if c.IncreaseCheckGenericAPICall() {
 		return nil, ErrTooManyAPICalls
@@ -1196,6 +1214,19 @@ func (c *Context) tmplGetMember(target interface{}) (*discordgo.Member, error) {
 	}
 
 	return member.DgoMember(), nil
+}
+
+func (c *Context) tmplGetMembers(after ...int64) ([]*discordgo.Member, error) {
+	if c.IncreaseCheckGenericAPICall() {
+		return nil, ErrTooManyAPICalls
+	}
+
+	var a int64
+	if len(after) > 0 {
+		a = after[0]
+	}
+
+	return common.BotSession.GuildMembers(c.GS.ID, a, 1000)
 }
 
 func (c *Context) tmplGetChannel(channel interface{}) (*CtxChannel, error) {
