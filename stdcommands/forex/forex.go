@@ -1,17 +1,17 @@
 package forex
 
 import (
-	"encoding/json"
+	"errors"
 	"fmt"
 
 	"math"
-	"net/http"
 	"sort"
 	"strings"
 	"time"
 
 	"github.com/botlabs-gg/sgpdb/v2/bot/paginatedmessages"
 	"github.com/botlabs-gg/sgpdb/v2/commands"
+	"github.com/botlabs-gg/sgpdb/v2/common"
 	"github.com/botlabs-gg/sgpdb/v2/lib/dcmd"
 	"github.com/botlabs-gg/sgpdb/v2/lib/discordgo"
 
@@ -19,7 +19,6 @@ import (
 	"golang.org/x/text/message"
 )
 
-const currenciesAPIURL = "https://api.frankfurter.app/currencies"
 const currencyPerPage = 16
 
 var Command = &commands.YAGCommand{
@@ -38,45 +37,35 @@ var Command = &commands.YAGCommand{
 
 	RunFunc: func(data *dcmd.Data) (interface{}, error) {
 		amount := data.Args[0].Float64()
-		var currenciesResult Currencies
-		var exchangeRateResult ExchangeRate
-
-		err := requestAPI(currenciesAPIURL, &currenciesResult)
-		if err != nil {
-			return nil, err
-		}
-
 		from := strings.ToUpper(data.Args[1].Str())
 		to := strings.ToUpper(data.Args[2].Str())
 
-		// Check if the currencies exist in the map
-		_, fromExist := currenciesResult[from]
-		_, toExist := currenciesResult[to]
+		currenciesResult, exchangeRateResult, err := common.ForexConvert(amount, from, to)
 
 		// Checks the max amount of pages by the number of symbols on each page
-		maxPages := int(math.Ceil(float64(len(currenciesResult)) / float64(currencyPerPage)))
+		maxPages := int(math.Ceil(float64(len(*currenciesResult)) / float64(currencyPerPage)))
 
-		// If the currency isn't supported by API.
-		if !toExist || !fromExist {
-			return paginatedmessages.NewPaginatedResponse(
-				data.GuildData.GS.ID, data.ChannelID, 1, maxPages, func(p *paginatedmessages.PaginatedMessage, page int) (*discordgo.MessageEmbed, error) {
-					embed, err := errEmbed(currenciesResult, page)
-					if err != nil {
-						return nil, err
-					}
-					return embed, nil
-				}), nil
-		}
-
-		err = requestAPI(fmt.Sprintf("https://api.frankfurter.app/latest?amount=%.3f&from=%s&to=%s", amount, from, to), &exchangeRateResult)
 		if err != nil {
+			if errors.Is(err, common.ErrUnknownForexCurrencyError) {
+				// If the currency isn't supported by API.
+				return paginatedmessages.NewPaginatedResponse(
+					data.GuildData.GS.ID, data.ChannelID, 1, maxPages, func(p *paginatedmessages.PaginatedMessage, page int) (*discordgo.MessageEmbed, error) {
+						embed, err := errEmbed(*currenciesResult, page)
+						if err != nil {
+							return nil, err
+						}
+						return embed, nil
+					}), nil
+			} else if errors.Is(err, common.ErrFailedConversion) {
+				return nil, commands.NewPublicError("Failed to convert, Please verify your input")
+			}
 			return nil, err
 		}
 
 		p := message.NewPrinter(language.English)
 		embed := &discordgo.MessageEmbed{
 			Title:       "💱Currency Exchange Rate",
-			Description: p.Sprintf("\n%.2f **%s** (%s) is %.3f **%s** (%s).", amount, currenciesResult[from], from, exchangeRateResult.Rates[to], currenciesResult[to], to),
+			Description: p.Sprintf("\n%.2f **%s** (%s) is %.3f **%s** (%s).", amount, (*currenciesResult)[from], from, exchangeRateResult.Rates[to], (*currenciesResult)[to], to),
 			Color:       0xAE27FF,
 			Timestamp:   time.Now().UTC().Format(time.RFC3339),
 		}
@@ -84,31 +73,7 @@ var Command = &commands.YAGCommand{
 	},
 }
 
-func requestAPI(query string, result interface{}) error {
-	req, err := http.NewRequest("GET", query, nil)
-	if err != nil {
-		return err
-	}
-	req.Header.Set("User-Agent", "SGPDB.xyz (https://github.com/botlabs-gg/sgpdb)")
-
-	resp, err := http.DefaultClient.Do(req)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		return commands.NewPublicError("Failed to convert, Please verify your input")
-	}
-
-	err = json.NewDecoder(resp.Body).Decode(result)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-func errEmbed(currenciesResult Currencies, page int) (*discordgo.MessageEmbed, error) {
+func errEmbed(currenciesResult common.Currencies, page int) (*discordgo.MessageEmbed, error) {
 	desc := "CODE | Description\n------------------"
 	codes := make([]string, 0, len(currenciesResult))
 	for k := range currenciesResult {
@@ -124,18 +89,10 @@ func errEmbed(currenciesResult Currencies, page int) (*discordgo.MessageEmbed, e
 	}
 	embed := &discordgo.MessageEmbed{
 		Title:       "Invalid currency code",
-		URL:         currenciesAPIURL,
+		URL:         common.CurrenciesAPIURL,
 		Color:       0xAE27FF,
 		Timestamp:   time.Now().UTC().Format(time.RFC3339),
-		Description: fmt.Sprintf("Check out available codes on: %s ```\n%s```", currenciesAPIURL, desc),
+		Description: fmt.Sprintf("Check out available codes on: %s ```\n%s```", common.CurrenciesAPIURL, desc),
 	}
 	return embed, nil
 }
-
-type ExchangeRate struct {
-	Amount float64
-	Base   string
-	Date   string
-	Rates  map[string]float64
-}
-type Currencies map[string]string
