@@ -19,9 +19,9 @@ func isExecedByCC(data *dcmd.Data) bool {
 
 func RequireBotAdmin(inner dcmd.RunFunc) dcmd.RunFunc {
 	return func(data *dcmd.Data) (interface{}, error) {
-		if isExecedByCC(data) {
-			return "", nil
-		}
+		//	if isExecedByCC(data) {
+		//		return "", nil
+		//	}
 
 		if admin, err := bot.IsBotAdmin(data.Author.ID); admin && err == nil {
 			return inner(data)
@@ -33,9 +33,9 @@ func RequireBotAdmin(inner dcmd.RunFunc) dcmd.RunFunc {
 
 func RequireOwner(inner dcmd.RunFunc) dcmd.RunFunc {
 	return func(data *dcmd.Data) (interface{}, error) {
-		if isExecedByCC(data) {
-			return " ", nil
-		}
+		//	if isExecedByCC(data) {
+		//		return " ", nil
+		//	}
 
 		if common.IsOwner(data.Author.ID) {
 			return inner(data)
