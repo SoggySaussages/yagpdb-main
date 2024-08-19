@@ -1027,6 +1027,10 @@ func createOverwrite(overwrite ...interface{}) (*discordgo.PermissionOverwrite, 
 func createOverwrites(overwrites ...interface{}) ([]*discordgo.PermissionOverwrite, error) {
 	o := []*discordgo.PermissionOverwrite{}
 
+	if overwrites == nil {
+		return o, nil
+	}
+
 	v, _ := indirect(reflect.ValueOf(overwrites))
 	if v.Kind() == reflect.Slice {
 		for i := 0; i < v.Len(); i++ {
