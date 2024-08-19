@@ -28,8 +28,8 @@ const InTicketPerms = discordgo.PermissionReadMessageHistory | discordgo.Permiss
 
 var _ commands.CommandProvider = (*Plugin)(nil)
 
-func createTicketsDisabledError(guild *dcmd.GuildContextData) string {
-	return fmt.Sprintf("**The tickets system is disabled for this server.** Enable it at: <%s/tickets/settings>.", web.ManageServerURL(guild))
+func createTicketsDisabledError(g *dcmd.GuildContextData) string {
+	return fmt.Sprintf("**The tickets system is disabled for this server.** Enable it at: <%s/tickets/settings>.", web.ManageServerURL(g.GS.ID))
 }
 
 func (p *Plugin) AddCommands() {
@@ -223,7 +223,7 @@ func (p *Plugin) AddCommands() {
 			// create the logs, download the attachments
 			err := createLogs(parsed.GuildData.GS, conf, currentTicket.Ticket, isAdminsOnly)
 			if err != nil {
-				return nil, err
+				return "Cannot send transcript to ticket logs channel, refusing to close ticket.", err
 			}
 
 			TicketLog(conf, parsed.GuildData.GS.ID, parsed.Author, &discordgo.MessageEmbed{

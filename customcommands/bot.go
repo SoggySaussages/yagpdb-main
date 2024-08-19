@@ -38,6 +38,7 @@ import (
 	"github.com/botlabs-gg/sgpdb/v2/lib/discordgo"
 	"github.com/botlabs-gg/sgpdb/v2/lib/dstate"
 	"github.com/botlabs-gg/sgpdb/v2/stdcommands/util"
+	prfx "github.com/botlabs-gg/yagpdb/v2/common/prefix"
 	"github.com/sirupsen/logrus"
 	"github.com/vmihailenco/msgpack"
 	"github.com/volatiletech/null/v8"
@@ -64,7 +65,7 @@ var _ bot.BotInitHandler = (*Plugin)(nil)
 var _ commands.CommandProvider = (*Plugin)(nil)
 
 func (p *Plugin) AddCommands() {
-	commands.AddRootCommands(p, cmdListCommands, cmdFixCommands, cmdEvalCommand)
+	commands.AddRootCommands(p, cmdListCommands, cmdFixCommands, cmdEvalCommand, cmdDiagnoseCCTriggers)
 }
 
 func (p *Plugin) BotInit() {
@@ -191,6 +192,120 @@ var cmdEvalCommand = &commands.YAGCommand{
 	},
 }
 
+type cmdDiagnosisResult int
+
+const (
+	cmdOK cmdDiagnosisResult = iota
+	cmdExceedsTriggerLimits
+	cmdDisabled
+	cmdUnmetRestrictions
+)
+
+type triggeredCmdDiagnosis struct {
+	CC     *models.CustomCommand
+	Result cmdDiagnosisResult
+}
+
+func (diag triggeredCmdDiagnosis) WriteTo(out *strings.Builder) {
+	switch diag.Result {
+	case cmdOK:
+		out.WriteString(":white_check_mark: ")
+	case cmdExceedsTriggerLimits:
+		out.WriteString(":warning: ")
+	}
+
+	fmt.Fprintf(out, "[**CC #%d**](%s): %s `%s`\n", diag.CC.LocalID, cmdControlPanelLink(diag.CC),
+		CommandTriggerType(diag.CC.TriggerType), diag.CC.TextTrigger)
+	switch diag.Result {
+	case cmdOK:
+		out.WriteString("- will execute")
+	case cmdExceedsTriggerLimits:
+		out.WriteString("- would otherwise execute, but **exceeds limit on commands executed per message**")
+	case cmdDisabled:
+		out.WriteString("- triggers on input, but **is disabled**")
+	case cmdUnmetRestrictions:
+		out.WriteString("- triggers on input, but **has unmet role/channel restrictions**")
+	}
+}
+
+var cmdDiagnoseCCTriggers = &commands.YAGCommand{
+	CmdCategory: commands.CategoryDebug,
+	Name:        "DiagnoseCCTriggers",
+	Aliases:     []string{"debugcctriggers", "diagnosetriggers", "debugtriggers", "dcct"},
+	Description: "List all custom commands that would trigger on the input and identify potential issues",
+	Arguments: []*dcmd.ArgDef{
+		{Name: "input", Type: dcmd.String},
+	},
+	RequireDiscordPerms: []int64{discordgo.PermissionManageGuild},
+	SlashCommandEnabled: false,
+	DefaultEnabled:      true,
+	RunFunc: func(data *dcmd.Data) (interface{}, error) {
+		cmds, err := BotCachedGetCommandsWithMessageTriggers(data.GuildData.GS.ID, data.Context())
+		if err != nil {
+			return "Failed fetching custom commands", err
+		}
+
+		prefix, err := prfx.GetCommandPrefixRedis(data.GuildData.GS.ID)
+		if err != nil {
+			return "Failed fetching command prefix", err
+		}
+
+		// Use the raw input, not dcmd's interpretation of it (which may drop characters.)
+		input := data.TraditionalTriggerData.MessageStrippedPrefix
+
+		var triggered []*models.CustomCommand
+		for _, cmd := range cmds {
+			if matches, _, _ := CheckMatch(prefix, cmd, input); matches {
+				triggered = append(triggered, cmd)
+			}
+		}
+		if len(triggered) == 0 {
+			return "No commands trigger on the input", nil
+		}
+
+		sort.Slice(triggered, func(i, j int) bool { return hasHigherPriority(triggered[i], triggered[j]) })
+
+		limit := CCActionExecLimit(data.GuildData.GS.ID)
+		executed, skipped := 0, 0
+
+		diagnoses := make([]triggeredCmdDiagnosis, 0, len(triggered))
+		for _, cmd := range triggered {
+			switch {
+			case cmd.Disabled || (cmd.R.Group != nil && cmd.R.Group.Disabled):
+				diagnoses = append(diagnoses, triggeredCmdDiagnosis{cmd, cmdDisabled})
+			case !CmdRunsForUser(cmd, data.GuildData.MS):
+				diagnoses = append(diagnoses, triggeredCmdDiagnosis{cmd, cmdUnmetRestrictions})
+			case !CmdRunsInChannel(cmd, common.ChannelOrThreadParentID(data.GuildData.CS)):
+				diagnoses = append(diagnoses, triggeredCmdDiagnosis{cmd, cmdUnmetRestrictions})
+			case executed >= limit:
+				skipped++
+				diagnoses = append(diagnoses, triggeredCmdDiagnosis{cmd, cmdExceedsTriggerLimits})
+			default:
+				executed++
+				diagnoses = append(diagnoses, triggeredCmdDiagnosis{cmd, cmdOK})
+			}
+		}
+
+		var out strings.Builder
+		if skipped > 0 {
+			fmt.Fprintf(&out, `> ### Potential issue detected
+> Not all custom commands triggering on the input will actually be executed.
+> Note that at most %d custom commands can be executed by a single message.`, limit)
+			out.WriteByte('\n')
+		}
+		out.WriteString("## Commands triggering on input\n")
+		for _, diagnosis := range diagnoses {
+			diagnosis.WriteTo(&out)
+			out.WriteByte('\n')
+		}
+		msg := &discordgo.MessageSend{
+			Flags:   discordgo.MessageFlagsSuppressEmbeds,
+			Content: out.String(),
+		}
+		return msg, nil
+	},
+}
+
 var cmdListCommands = &commands.YAGCommand{
 	CmdCategory:    commands.CategoryTool,
 	Name:           "CustomCommands",
@@ -253,7 +368,7 @@ var cmdListCommands = &commands.YAGCommand{
 		msg := &discordgo.MessageSend{Flags: discordgo.MessageFlagsSuppressEmbeds}
 
 		responses := fmt.Sprintf("```\n%s\n```", strings.Join(cc.Responses, "```\n```"))
-		if data.Switches["file"].Value != nil || len(responses) >= 2000 && data.Switches["raw"].Value == nil {
+		if data.Switches["file"].Value != nil || len(responses) > 1500 && data.Switches["raw"].Value == nil {
 			var buf bytes.Buffer
 			buf.WriteString(strings.Join(cc.Responses, "\nAdditional response:\n"))
 
@@ -290,7 +405,7 @@ var cmdListCommands = &commands.YAGCommand{
 		}
 
 		if hasRead, _ := web.GetUserAccessLevel(data.Author.ID, gWithConnected, common.GetCoreServerConfCached(data.GuildData.GS.ID), web.StaticRoleProvider(roles)); hasRead {
-			ccIDMaybeWithLink = fmt.Sprintf("[%[1]d](%[2]s/customcommands/commands/%[1]d/)", cc.LocalID, web.ManageServerURL(data.GuildData))
+			ccIDMaybeWithLink = fmt.Sprintf("[%d](%s)", cc.LocalID, cmdControlPanelLink(cc))
 		}
 
 		// Every message content-based custom command trigger has a numerical value less than 5
@@ -343,6 +458,10 @@ var cmdListCommands = &commands.YAGCommand{
 		}
 		return msg, nil
 	},
+}
+
+func cmdControlPanelLink(cmd *models.CustomCommand) string {
+	return fmt.Sprintf("%s/customcommands/commands/%d/", web.ManageServerURL(cmd.GuildID), cmd.LocalID)
 }
 
 func FindCommands(ccs []*models.CustomCommand, data *dcmd.Data) (foundCCS []*models.CustomCommand, provided bool) {
@@ -554,10 +673,20 @@ func shouldIgnoreChannel(msg *discordgo.Message, gs *dstate.GuildSet, cState *ds
 	return false
 }
 
+// Limit the number of custom commands that can be executed on a single action (messages, reactions,
+// component uses, and so on).
+
 const (
-	CCMessageExecLimitNormal  = 3
-	CCMessageExecLimitPremium = 5
+	CCActionExecLimitNormal  = 3
+	CCActionExecLimitPremium = 5
 )
+
+func CCActionExecLimit(guildID int64) int {
+	if isPremium, _ := premium.IsGuildPremium(guildID); isPremium {
+		return CCActionExecLimitPremium
+	}
+	return CCActionExecLimitNormal
+}
 
 func (p *Plugin) OnRemovedPremiumGuild(GuildID int64) error {
 	commands, err := models.CustomCommands(qm.Where("guild_id = ?", GuildID), qm.Offset(MaxCommands)).AllG(context.Background())
@@ -690,6 +819,10 @@ func handleInteractionCreate(evt *eventsystem.EventData) {
 		return
 	}
 
+	// Ephemeral messages always have guild_id = 0 even if created in a guild channel; see
+	// https://github.com/discord/discord-api-docs/issues/4557. But exec/execAdmin rely
+	// on the guild ID of the message to fill guild data, so patch it here.
+	interaction.Message.GuildID = evt.GS.ID
 	interaction.Member.GuildID = evt.GS.ID
 
 	switch interaction.Type {
@@ -932,13 +1065,11 @@ func findMessageTriggerCustomCommands(ctx context.Context, cs *dstate.ChannelSta
 		}
 	}
 
-	sortTriggeredCCs(matched)
+	sort.Slice(matched, func(i, j int) bool {
+		return hasHigherPriority(matched[i].CC, matched[j].CC)
+	})
 
-	limit := CCMessageExecLimitNormal
-	if isPremium, _ := premium.IsGuildPremium(msg.GuildID); isPremium {
-		limit = CCMessageExecLimitPremium
-	}
-
+	limit := CCActionExecLimit(msg.GuildID)
 	if len(matched) > limit {
 		matched = matched[:limit]
 	}
@@ -990,13 +1121,67 @@ func findReactionTriggerCustomCommands(ctx context.Context, cs *dstate.ChannelSt
 		filtered = append(filtered, v)
 	}
 
-	sortTriggeredCCs(filtered)
+	sort.Slice(filtered, func(i, j int) bool {
+		return hasHigherPriority(filtered[i].CC, filtered[j].CC)
+	})
 
-	limit := CCMessageExecLimitNormal
-	if isPremium, _ := premium.IsGuildPremium(cs.GuildID); isPremium {
-		limit = CCMessageExecLimitPremium
+	limit := CCActionExecLimit(cs.GuildID)
+	if len(filtered) > limit {
+		filtered = filtered[:limit]
 	}
 
+	return ms, filtered, nil
+}
+
+func findVoiceTriggerCustomCommands(ctx context.Context, cs *dstate.ChannelState, userID int64, join bool) (ms *dstate.MemberState, matches []*TriggeredCC, err error) {
+	cmds, err := BotCachedGetCommandsWithMessageTriggers(cs.GuildID, ctx)
+	if err != nil {
+		return nil, nil, errors.WrapIf(err, "BotCachedGetCommandsWithVoiceTriggers")
+	}
+
+	var matched []*TriggeredCC
+	for _, cmd := range cmds {
+		if cmd.Disabled || !CmdRunsInChannel(cmd, common.ChannelOrThreadParentID(cs)) || cmd.R.Group != nil && cmd.R.Group.Disabled {
+			continue
+		}
+
+		if didMatch := CheckMatchVoice(cmd, join); didMatch {
+
+			matched = append(matched, &TriggeredCC{
+				CC: cmd,
+			})
+		}
+	}
+
+	if len(matched) < 1 {
+		// no matches
+		return nil, matched, nil
+	}
+
+	ms, err = bot.GetMember(cs.GuildID, userID)
+	if err != nil {
+		return nil, nil, errors.WithStackIf(err)
+	}
+
+	if ms.User.Bot {
+		return nil, nil, nil
+	}
+
+	// filter by roles
+	filtered := make([]*TriggeredCC, 0, len(matched))
+	for _, v := range matched {
+		if !CmdRunsForUser(v.CC, ms) {
+			continue
+		}
+
+		filtered = append(filtered, v)
+	}
+
+	sort.Slice(filtered, func(i, j int) bool {
+		return hasHigherPriority(filtered[i].CC, filtered[j].CC)
+	})
+
+	limit := CCActionExecLimit(cs.GuildID)
 	if len(filtered) > limit {
 		filtered = filtered[:limit]
 	}
@@ -1119,13 +1304,11 @@ func findComponentOrModalTriggerCustomCommands(ctx context.Context, cs *dstate.C
 		filtered = append(filtered, v)
 	}
 
-	sortTriggeredCCs(filtered)
+	sort.Slice(filtered, func(i, j int) bool {
+		return hasHigherPriority(filtered[i].CC, filtered[j].CC)
+	})
 
-	limit := CCMessageExecLimitNormal
-	if isPremium, _ := premium.IsGuildPremium(cs.GuildID); isPremium {
-		limit = CCMessageExecLimitPremium
-	}
-
+	limit := CCActionExecLimit(cs.GuildID)
 	if len(filtered) > limit {
 		filtered = filtered[:limit]
 	}
@@ -1133,25 +1316,21 @@ func findComponentOrModalTriggerCustomCommands(ctx context.Context, cs *dstate.C
 	return filtered, nil
 }
 
-func sortTriggeredCCs(ccs []*TriggeredCC) {
-	sort.Slice(ccs, func(i, j int) bool {
-		a := ccs[i]
-		b := ccs[j]
+// hasHigherPriority reports whether custom command a should be executed in preference to custom
+// command b. Regex custom commands always have lowest priority, with ties broken by ID (smaller ID
+// has priority.)
+func hasHigherPriority(a *models.CustomCommand, b *models.CustomCommand) bool {
+	aIsRegex := a.TriggerType == int(CommandTriggerRegex)
+	bIsRegex := b.TriggerType == int(CommandTriggerRegex)
 
-		if a.CC.TriggerType == b.CC.TriggerType {
-			return a.CC.LocalID < b.CC.LocalID
-		}
-
-		if a.CC.TriggerType == int(CommandTriggerRegex) {
-			return false
-		}
-
-		if b.CC.TriggerType == int(CommandTriggerRegex) {
-			return true
-		}
-
-		return a.CC.LocalID < b.CC.LocalID
-	})
+	switch {
+	case !aIsRegex && bIsRegex:
+		return true
+	case aIsRegex && !bIsRegex:
+		return false
+	default:
+		return a.LocalID < b.LocalID
+	}
 }
 
 func ExecuteCustomCommandFromMessage(gs *dstate.GuildSet, cmd *models.CustomCommand, member *dstate.MemberState, cs *dstate.ChannelState, cmdArgs []string, stripped string, m *discordgo.Message, isEdit bool) error {
@@ -1215,8 +1394,13 @@ func ExecuteCustomCommand(cmd *models.CustomCommand, tmplCtx *templates.Context)
 	lockHandle := CCExecLock.Lock(lockKey, time.Minute, time.Minute*10)
 	if lockHandle == -1 {
 		f.Warn("Exceeded max lock attempts for cc")
+		errChannel := tmplCtx.CurrentFrame.CS.ID
+		if cmd.RedirectErrorsChannel != 0 {
+			errChannel = cmd.RedirectErrorsChannel
+		}
+
 		if cmd.ShowErrors {
-			common.BotSession.ChannelMessageSend(tmplCtx.CurrentFrame.CS.ID, fmt.Sprintf("Gave up trying to execute custom command #%d after 1 minute because there is already one or more instances of it being executed.", cmd.LocalID))
+			common.BotSession.ChannelMessageSend(errChannel, fmt.Sprintf("Gave up trying to execute custom command #%d after 1 minute because there is already one or more instances of it being executed.", cmd.LocalID))
 		}
 		updatePostCommandRan(cmd, errors.New("Gave up trying to execute, already an existing instance executing"))
 		return nil
@@ -1252,9 +1436,18 @@ func ExecuteCustomCommand(cmd *models.CustomCommand, tmplCtx *templates.Context)
 	// deal with the results
 	if err != nil {
 		logger.WithField("guild", tmplCtx.GS.ID).WithError(err).Error("Error executing custom command")
+
+		errChannel := tmplCtx.CurrentFrame.CS.ID
+		if cmd.RedirectErrorsChannel != 0 {
+			errChannel = cmd.RedirectErrorsChannel
+		}
+
 		if cmd.ShowErrors {
 			out += "\nAn error caused the execution of the custom command template to stop:\n"
 			out += formatCustomCommandRunErr(chanMsg, err)
+
+			common.BotSession.ChannelMessageSend(errChannel, out)
+			return nil
 		}
 	}
 
@@ -1491,11 +1684,16 @@ func onExecPanic(cmd *models.CustomCommand, err error, tmplCtx *templates.Contex
 
 	l.Error("Error executing custom command")
 
+	errChannel := tmplCtx.CurrentFrame.CS.ID
+	if cmd.RedirectErrorsChannel != 0 {
+		errChannel = cmd.RedirectErrorsChannel
+	}
+
 	if cmd.ShowErrors {
 		out := "\nAn error caused the execution of the custom command template to stop:\n"
 		out += "`" + err.Error() + "`"
 
-		common.BotSession.ChannelMessageSend(tmplCtx.CurrentFrame.CS.ID, out)
+		common.BotSession.ChannelMessageSend(errChannel, out)
 	}
 
 	updatePostCommandRan(cmd, err)

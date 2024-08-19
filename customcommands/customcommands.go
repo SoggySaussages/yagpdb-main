@@ -137,7 +137,8 @@ type CustomCommand struct {
 	PublicID        string             `json:"public_id" schema:"public_id"`
 	GithubResponse  bool               `json:"github_response" schema:"github_response"`
 
-	ContextChannel int64 `schema:"context_channel" valid:"channel,true"`
+	ContextChannel         int64 `schema:"context_channel" valid:"channel,true"`
+	RedirectErrorsChannel  int64 `schema:"redirect_errors_channel" valid:"channel,true"`
 
 	TimeTriggerInterval       int     `schema:"time_trigger_interval"`
 	TimeTriggerExcludingDays  []int64 `schema:"time_trigger_excluding_days"`
@@ -233,6 +234,7 @@ func (cc *CustomCommand) ToDBModel() *models.CustomCommand {
 		TimeTriggerExcludingDays:  cc.TimeTriggerExcludingDays,
 		TimeTriggerExcludingHours: cc.TimeTriggerExcludingHours,
 		ContextChannel:            cc.ContextChannel,
+		RedirectErrorsChannel:     cc.RedirectErrorsChannel,
 
 		ReactionTriggerMode: int16(cc.ReactionTriggerMode),
 		VoiceTriggerMode:    int16(cc.VoiceTriggerMode),
