@@ -29,6 +29,7 @@ import (
 	"github.com/botlabs-gg/sgpdb/v2/common/featureflags"
 	"github.com/botlabs-gg/sgpdb/v2/common/keylock"
 	"github.com/botlabs-gg/sgpdb/v2/common/multiratelimit"
+	prfx "github.com/botlabs-gg/sgpdb/v2/common/prefix"
 	"github.com/botlabs-gg/sgpdb/v2/common/pubsub"
 	"github.com/botlabs-gg/sgpdb/v2/common/scheduledevents2"
 	schEventsModels "github.com/botlabs-gg/sgpdb/v2/common/scheduledevents2/models"
@@ -38,7 +39,6 @@ import (
 	"github.com/botlabs-gg/sgpdb/v2/lib/discordgo"
 	"github.com/botlabs-gg/sgpdb/v2/lib/dstate"
 	"github.com/botlabs-gg/sgpdb/v2/stdcommands/util"
-	prfx "github.com/botlabs-gg/yagpdb/v2/common/prefix"
 	"github.com/sirupsen/logrus"
 	"github.com/vmihailenco/msgpack"
 	"github.com/volatiletech/null/v8"
@@ -1182,64 +1182,6 @@ func findVoiceTriggerCustomCommands(ctx context.Context, cs *dstate.ChannelState
 	})
 
 	limit := CCActionExecLimit(cs.GuildID)
-	if len(filtered) > limit {
-		filtered = filtered[:limit]
-	}
-
-	return ms, filtered, nil
-}
-
-func findVoiceTriggerCustomCommands(ctx context.Context, cs *dstate.ChannelState, userID int64, join bool) (ms *dstate.MemberState, matches []*TriggeredCC, err error) {
-	cmds, err := BotCachedGetCommandsWithMessageTriggers(cs.GuildID, ctx)
-	if err != nil {
-		return nil, nil, errors.WrapIf(err, "BotCachedGetCommandsWithVoiceTriggers")
-	}
-
-	var matched []*TriggeredCC
-	for _, cmd := range cmds {
-		if cmd.Disabled || !CmdRunsInChannel(cmd, common.ChannelOrThreadParentID(cs)) || cmd.R.Group != nil && cmd.R.Group.Disabled {
-			continue
-		}
-
-		if didMatch := CheckMatchVoice(cmd, join); didMatch {
-
-			matched = append(matched, &TriggeredCC{
-				CC: cmd,
-			})
-		}
-	}
-
-	if len(matched) < 1 {
-		// no matches
-		return nil, matched, nil
-	}
-
-	ms, err = bot.GetMember(cs.GuildID, userID)
-	if err != nil {
-		return nil, nil, errors.WithStackIf(err)
-	}
-
-	if ms.User.Bot {
-		return nil, nil, nil
-	}
-
-	// filter by roles
-	filtered := make([]*TriggeredCC, 0, len(matched))
-	for _, v := range matched {
-		if !CmdRunsForUser(v.CC, ms) {
-			continue
-		}
-
-		filtered = append(filtered, v)
-	}
-
-	sortTriggeredCCs(filtered)
-
-	limit := CCMessageExecLimitNormal
-	if isPremium, _ := premium.IsGuildPremium(cs.GuildID); isPremium {
-		limit = CCMessageExecLimitPremium
-	}
-
 	if len(filtered) > limit {
 		filtered = filtered[:limit]
 	}
