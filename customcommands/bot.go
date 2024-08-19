@@ -970,8 +970,15 @@ func HandleMessageCreate(evt *eventsystem.EventData) {
 }
 
 func HandleVoiceStateChange(evt *eventsystem.EventData) {
+	dbg, err := json.MarshalIndent(*evt, "", "\t")
+	logger.Error(err)
+	logger.Info(string(dbg))
+	dbg, err = json.MarshalIndent(*evt.GS, "", "\t")
+	logger.Error(err)
+	logger.Info(string(dbg))
 	vc := evt.VoiceStateUpdate()
-	dbg, _ := json.Marshal(evt)
+	dbg, err = json.MarshalIndent(vc, "", "\t")
+	logger.Error(err)
 	logger.Info(string(dbg))
 	vc.GuildID = evt.GS.ID
 	join := false
