@@ -975,11 +975,6 @@ func HandleVoiceStateChange(evt *eventsystem.EventData) {
 	if vc.ChannelID != 0 {
 		cs = evt.CSOrThread()
 		join = true
-
-		if hasPerms, _ := bot.BotHasPermissionGS(evt.GS, cs.ID, discordgo.PermissionSendMessages); !hasPerms {
-			// don't run in channel we don't have perms in
-			return
-		}
 	}
 	member := bot.State.GetMember(cs.GuildID, vc.UserID)
 
@@ -1015,6 +1010,10 @@ func HandleVoiceStateChange(evt *eventsystem.EventData) {
 	for _, matched := range triggeredCmds {
 		if cs == nil {
 			cs = evt.GS.GetChannel(matched.CC.ContextChannel)
+		}
+		if hasPerms, _ := bot.BotHasPermissionGS(evt.GS, cs.ID, discordgo.PermissionSendMessages); !hasPerms {
+			// don't run in channel we don't have perms in
+			return
 		}
 		err = ExecuteCustomCommandFromVoice(matched.CC, evt.GS, ms, cs, vc, join)
 		if err != nil {
