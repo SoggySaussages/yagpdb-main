@@ -970,6 +970,7 @@ func HandleMessageCreate(evt *eventsystem.EventData) {
 
 func HandleVoiceStateChange(evt *eventsystem.EventData) {
 	vc := evt.VoiceStateUpdate()
+	vc.GuildID = evt.GS.ID
 	join := false
 	cs := &dstate.ChannelState{GuildID: vc.GuildID}
 	if vc.ChannelID != 0 {
