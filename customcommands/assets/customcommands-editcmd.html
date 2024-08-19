@@ -149,6 +149,9 @@
                                         </p>
                                         <p id="trigger-desc-voice">
                                             The command will run when a user joins, leaves, or moves voice channels.
+                                            Note that when a user leaves a voice channel, the <code>.Channel</code>
+                                            context data is <code>nil</code>, making it necessary to specify a channel
+                                            where voice state leaves can be executed.
                                         </p>
                                     </div>
                                 </div>
@@ -616,7 +619,7 @@
 
     // html elements that should be shown for specific trigger types and hidden otherwise
     var triggerTypeEls = {
-        voice: ['#trigger-desc-voice', '#cc-channel-details', '#cc-extra-settings'],
+        voice: ['#trigger-desc-voice', '#cc-channel-details', '#cc-extra-settings', '#cc-voice-trigger-details'],
         modal: [...interactionTriggerEls, '#trigger-desc-modal'],
         component: [...interactionTriggerEls, '#trigger-desc-component'],
         interval_hours: [...intervalTriggerEls, '#trigger-desc-interval_hours'],
@@ -735,7 +738,7 @@
             const selectedChannel = $('#time-trigger-channel').val();
             if (!selectedChannel) {
                 addWarningIfNotExists(this.warningId,
-                    "Selecting no channel for an interval command effectively disables your command, meaning it will never run."
+                    "Selecting no channel for this command trigger effectively disables your command, meaning it will never run."
                     + " If your command does not need to run in a specific channel, select a arbitrary one from the list instead.",
                 );
             } else {
