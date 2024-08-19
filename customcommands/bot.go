@@ -3,6 +3,7 @@ package customcommands
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
 	"math/rand"
 	"os"
@@ -970,6 +971,8 @@ func HandleMessageCreate(evt *eventsystem.EventData) {
 
 func HandleVoiceStateChange(evt *eventsystem.EventData) {
 	vc := evt.VoiceStateUpdate()
+	dbg, _ := json.Marshal(evt)
+	logger.Info(string(dbg))
 	vc.GuildID = evt.GS.ID
 	join := false
 	cs := &dstate.ChannelState{GuildID: vc.GuildID}
