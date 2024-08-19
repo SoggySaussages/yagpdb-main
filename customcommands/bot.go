@@ -971,7 +971,7 @@ func HandleMessageCreate(evt *eventsystem.EventData) {
 func HandleVoiceStateChange(evt *eventsystem.EventData) {
 	vc := evt.VoiceStateUpdate()
 	join := false
-	cs := &dstate.ChannelState{}
+	cs := &dstate.ChannelState{GuildID: vc.GuildID}
 	if vc.ChannelID != 0 {
 		cs = evt.CSOrThread()
 		join = true
@@ -1141,8 +1141,10 @@ func findVoiceTriggerCustomCommands(ctx context.Context, cs *dstate.ChannelState
 
 	var matched []*TriggeredCC
 	for _, cmd := range cmds {
-		if cmd.Disabled || !CmdRunsInChannel(cmd, common.ChannelOrThreadParentID(cs)) || cmd.R.Group != nil && cmd.R.Group.Disabled {
-			continue
+		if cs.ID != 0 {
+			if cmd.Disabled || !CmdRunsInChannel(cmd, common.ChannelOrThreadParentID(cs)) || cmd.R.Group != nil && cmd.R.Group.Disabled {
+				continue
+			}
 		}
 
 		if didMatch := CheckMatchVoice(cmd, join); didMatch {
