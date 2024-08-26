@@ -69,15 +69,22 @@
                             {{textChannelOptions .ActiveGuild.Channels nil false ""}}
                         </select>
                     </div>
-                    {{checkbox "MentionEveryone" "new-mention-everyone" `Mention Everyone` false}}
-                    <div class="form-group">
-                       <div>
-                        <select id="roles" class="multiselect form-control" multiple="multiple" name="MentionRoles" data-plugin-multiselect>
-                            {{roleOptionsMulti .ActiveGuild.Roles nil nil}}
-                        </select>
-                        <label for="roles">Mention Roles</label>
+                    <span class="custom-announcement-popover">
+                        <div class="custom-announcement-disables">
+                            {{checkbox "MentionEveryone" "new-mention-everyone" `Mention Everyone` false}}
                         </div>
-                    </div>
+                    </span>
+                    <span class="custom-announcement-popover">
+                        <div class="form-group custom-announcement-disables">
+                           <div>
+                            <select id="roles" class="multiselect form-control" multiple="multiple" name="MentionRoles" data-plugin-multiselect>
+                                {{roleOptionsMulti .ActiveGuild.Roles nil nil}}
+                            </select>
+                            <label for="roles">Mention Roles</label>
+                            </div>
+                        </div>
+                    </span>
+                    </form>
                     {{checkbox "PublishLivestream" "new-publish-livestream" `Publish Livestreams` true}}
                     {{checkbox "PublishShorts" "new-publish-shorts" `Publish Shorts` true}}
 
@@ -157,15 +164,19 @@
                                 {{textChannelOptions $dot.ActiveGuild.Channels .ChannelID false ""}}
                             </select>
                         </td>
-                        <td class="yt-tbl-column">
-                            {{checkbox "MentionEveryone" (joinStr "" "mention-everyone-" .ID) `Mention everyone` .MentionEveryone (joinStr "" `form="sub-item-` .ID `"`)}}
-                        </td>
-                        <td class="yt-tbl-column">
-                              <select form="sub-item-{{.ID}}" name="MentionRoles" class="multiselect form-control" multiple="multiple"
-                                id="mention-roles" data-plugin-multiselect>
-                                {{roleOptionsMulti $dot.ActiveGuild.Roles nil .MentionRoles }}
-                            </select>
-                        </td>
+                            <span class="custom-announcement-popover">
+                            <td class="yt-tbl-column custom-announcement-disables">
+                                {{checkbox "MentionEveryone" (joinStr "" "mention-everyone-" .ID) `Mention everyone` .MentionEveryone (joinStr "" `form="sub-item-` .ID `"`)}}
+                            </td>
+                            </span>
+                        <span class="custom-announcement-popover">
+                            <td class="yt-tbl-column custom-announcement-disables">
+                                  <select form="sub-item-{{.ID}}" name="MentionRoles" class="multiselect form-control" multiple="multiple"
+                                    id="mention-roles" data-plugin-multiselect>
+                                    {{roleOptionsMulti $dot.ActiveGuild.Roles nil .MentionRoles }}
+                                </select>
+                            </td>
+                        </span>
                         <td class="yt-tbl-column">
                             {{checkbox "PublishLivestream" (joinStr "" "publish-livestream-" .ID) `Publish Livestreams` .PublishLivestream (joinStr "" `form="sub-item-` .ID `"`)}}
                         </td>
@@ -229,5 +240,35 @@
             saveButton.classList.remove("btn-disabled")
         }
     }
+
+    var popoverEls = document.body.getElementsByClassName("custom-announcement-popover")
+        for (var i = 0; i < popoverEls.length; i++) {
+            popoverEls[i].addClass('popover-trigger')
+            popoverEls[i].attr("data-toggle", "popover")
+            popoverEls[i].attr("data-placement", "top")
+            popoverEls[i].attr("data-content", "Disabled when \"Custom Announcement\" is enabled.")
+            popoverEls[i].attr("data-trigger", "hover")
+        }
+    
+    // Disables inputs and enable popovers when disabled == true, otherwise
+    // the inverse
+    function DisableMentions(disabled) {
+        var popovers = document.body.getElementsByClassName("custom-announcement-popover")
+        for (var i = 0; i < popovers.length; i++) {
+            if (disabled) {
+                popovers[i].popover('enable')
+            } else {
+                popovers[i].popover('disable')
+            }
+        }
+        var inputs = document.body.getElementsByClassName("custom-announcement-disables")
+        for (var i = 0; i < inputs.length; i++) {
+            inputs[i].disabled = disabled
+        }
+    }
+
+    DisableMentions({{.Announcement.Enabled}})
+
+    $('yt-announcement-enabled').addEventListener('change', (event) => { DisableMentions(event.currentTarget.checked) })
 </script>
 {{template "cp_footer" .}} {{end}}
