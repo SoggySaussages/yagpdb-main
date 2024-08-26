@@ -251,23 +251,23 @@
     // Disables inputs and enable popovers when disabled == true, otherwise
     // the inverse
     function DisableMentions(disabled) {
-        var popovers = document.body.getElementsByClassName("custom-announcement-popover")
+        var popovers = document.body.getElementsByClassName("custom-announcement-popover");
         for (var i = 0; i < popovers.length; i++) {
             if (disabled) {
-                $(popovers[i]).popover('enable')
+                $(popovers[i]).popover('enable');
             } else {
-                $(popovers[i]).popover('disable')
+                $(popovers[i]).popover('disable');
             }
         }
-        var inputs = document.body.getElementsByClassName("custom-announcement-disables")
+        var inputs = document.body.getElementsByClassName("custom-announcement-disables");
         for (var i = 0; i < inputs.length; i++) {
             $(inputs[i]).find(":input").attr("disabled", true);
         }
     }
 
-    DisableMentions({{.Announcement.Enabled}})
+    DisableMentions({{.Announcement.Enabled}});
 
     var announcementCheckbox = document.getElementById('checkbox');
-    announcementCheckbox.addEventListener('change', (event) => { DisableMentions(event.currentTarget.checked) })
+    announcementCheckbox.addEventListener('change', (event) => { DisableMentions(event.currentTarget.checked) });
 </script>
 {{template "cp_footer" .}} {{end}}
