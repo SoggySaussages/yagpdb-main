@@ -244,10 +244,10 @@
     var popoverEls = document.body.getElementsByClassName("custom-announcement-popover")
         for (var i = 0; i < popoverEls.length; i++) {
             popoverEls[i].classList.add("popover-trigger")
-            popoverEls[i].attr("data-toggle", "popover")
-            popoverEls[i].attr("data-placement", "top")
-            popoverEls[i].attr("data-content", "Disabled when \"Custom Announcement\" is enabled.")
-            popoverEls[i].attr("data-trigger", "hover")
+            popoverEls[i].setAttribute("data-toggle", "popover")
+            popoverEls[i].setAttribute("data-placement", "top")
+            popoverEls[i].setAttribute("data-content", "Disabled when \"Custom Announcement\" is enabled.")
+            popoverEls[i].setAttribute("data-trigger", "hover")
         }
     
     // Disables inputs and enable popovers when disabled == true, otherwise
