@@ -256,9 +256,9 @@
         var popovers = document.body.getElementsByClassName("custom-announcement-popover")
         for (var i = 0; i < popovers.length; i++) {
             if (disabled) {
-                popovers[i].popover('enable')
+                $(popovers[i]).popover('enable')
             } else {
-                popovers[i].popover('disable')
+                $(popovers[i]).popover('disable')
             }
         }
         var inputs = document.body.getElementsByClassName("custom-announcement-disables")
