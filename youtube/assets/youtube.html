@@ -253,7 +253,7 @@
         var disable = $('yt-announcement-enabled:checked').val();
         var popovers = document.body.getElementsByClassName("custom-announcement-popover");
         for (var i = 0; i < popovers.length; i++) {
-            if (disabled) {
+            if (disable) {
                 $(popovers[i]).popover('enable');
             } else {
                 $(popovers[i]).popover('disable');
@@ -261,7 +261,7 @@
         }
         var inputs = document.body.getElementsByClassName("custom-announcement-disables");
         for (var i = 0; i < inputs.length; i++) {
-            $(inputs[i]).find(":input").attr("readonly", disabled);
+            $(inputs[i]).find(":input").attr("readonly", disable);
         }
     }
 
