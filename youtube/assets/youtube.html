@@ -240,17 +240,17 @@
     }
 
     var popoverEls = document.body.getElementsByClassName("custom-announcement-popover")
-        for (var i = 0; i < popoverEls.length; i++) {
-            popoverEls[i].classList.add("popover-trigger")
-            popoverEls[i].setAttribute("data-toggle", "popover")
-            popoverEls[i].setAttribute("data-placement", "top")
-            popoverEls[i].setAttribute("data-content", "Disabled when \"Custom Announcement\" is enabled.")
-            popoverEls[i].setAttribute("data-trigger", "hover")
-        }
+    for (var i = 0; i < popoverEls.length; i++) {
+        popoverEls[i].classList.add("popover-trigger")
+        popoverEls[i].setAttribute("data-toggle", "popover")
+        popoverEls[i].setAttribute("data-placement", "top")
+        popoverEls[i].setAttribute("data-content", "Disabled when \"Custom Announcement\" is enabled.")
+        popoverEls[i].setAttribute("data-trigger", "hover")
+    }
     
-    // Disables inputs and enable popovers when disabled == true, otherwise
-    // the inverse
-    function DisableMentions(disabled) {
+    // Disables inputs and enable popovers
+    function DisableMentions() {
+        var disable = $('yt-announcement-enabled:checked').val();
         var popovers = document.body.getElementsByClassName("custom-announcement-popover");
         for (var i = 0; i < popovers.length; i++) {
             if (disabled) {
@@ -265,9 +265,9 @@
         }
     }
 
-    DisableMentions({{.Announcement.Enabled}});
+    DisableMentions();
 
     var announcementCheckbox = document.getElementById('yt-announcement-enabled');
-    announcementCheckbox.addEventListener('change', (event) => { DisableMentions(event.currentTarget.checked) });
+    announcementCheckbox.addEventListener('change', (event) => { DisableMentions() });
 </script>
 {{template "cp_footer" .}} {{end}}
