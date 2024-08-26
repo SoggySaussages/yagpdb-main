@@ -267,7 +267,7 @@
 
     DisableMentions({{.Announcement.Enabled}});
 
-    var announcementCheckbox = document.getElementById('checkbox');
+    var announcementCheckbox = document.getElementById('yt-announcement-enabled');
     announcementCheckbox.addEventListener('change', (event) => { DisableMentions(event.currentTarget.checked) });
 </script>
 {{template "cp_footer" .}} {{end}}
