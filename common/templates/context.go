@@ -878,6 +878,9 @@ func detectCyclicValue(v interface{}) error {
 type Dict map[interface{}]interface{}
 
 func (d Dict) Set(key interface{}, value interface{}) (string, error) {
+	if key == nil {
+		return "", errors.New("key cannot be nil")
+	}
 	d[key] = value
 	if isContainer(value) {
 		if err := detectCyclicValue(d); err != nil {
@@ -912,7 +915,11 @@ func (d Dict) HasKey(k interface{}) (ok bool) {
 
 func (d Dict) MarshalJSON() ([]byte, error) {
 	md := make(map[string]interface{})
+
 	for k, v := range d {
+		if k == nil {
+			return nil, errors.New("key is nil, cannot parse to json")
+		}
 		krv := reflect.ValueOf(k)
 		switch krv.Kind() {
 		case reflect.String:

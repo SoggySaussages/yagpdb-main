@@ -21,7 +21,7 @@ SGPDB is a multifunctional, modular Discord bot. It is modular in the sense that
 
 * [Homepage](https://sgpdb.xyz)
 * [Support Server](https://discord.gg/4udtcA5)
-* [Documentation](https://docs.yagpdb.xyz)
+* [Help Center](https://help.yagpdb.xyz)
 
 ## Selfhosting
 

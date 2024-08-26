@@ -27,7 +27,7 @@ import (
 )
 
 func MBaseCmd(cmdData *dcmd.Data, targetID int64) (config *Config, targetUser *discordgo.User, err error) {
-	config, err = GetCachedConfigOrDefault(cmdData.GuildData.GS.ID)
+	config, err = FetchConfig(cmdData.GuildData.GS.ID)
 	if err != nil {
 		return nil, nil, errors.WithMessage(err, "GetConfig")
 	}
@@ -59,7 +59,7 @@ func MBaseCmdSecond(cmdData *dcmd.Data, reason string, reasonArgOptional bool, n
 	cmdName := cmdData.Cmd.Trigger.Names[0]
 	oreason = reason
 	if !enabled {
-		return oreason, commands.NewUserErrorf("The **%s** command is disabled on this server. It can be enabled at <%s/moderation>", cmdName, web.ManageServerURL(cmdData.GuildData))
+		return oreason, commands.NewUserErrorf("The **%s** command is disabled on this server. It can be enabled at <%s/moderation>", cmdName, web.ManageServerURL(cmdData.GuildData.GS.ID))
 	}
 
 	if strings.TrimSpace(reason) == "" {
@@ -341,7 +341,7 @@ var ModerationCommands = []*commands.YAGCommand{
 	//			}
 	//
 	//			if config.MuteRole == 0 {
-	//				return fmt.Sprintf("No mute role selected. Select one at <%s/moderation>", web.ManageServerURL(parsed.GuildData)), nil
+	//				return fmt.Sprintf("No mute role selected. Select one at <%s/moderation>", web.ManageServerURL(parsed.GuildData.GS.ID)), nil
 	//			}
 	//
 	//			reason := parsed.Args[2].Str()
@@ -1385,7 +1385,7 @@ func PaginateWarnings(parsed *dcmd.Data) func(p *paginatedmessages.PaginatedMess
 		count, err := models.ModerationWarnings(
 			models.ModerationWarningWhere.UserID.EQ(userIDStr),
 			models.ModerationWarningWhere.GuildID.EQ(parsed.GuildData.GS.ID),
-		).CountG(parsed.Context())
+		).CountG(context.Background())
 		if err != nil {
 			return nil, err
 		}
@@ -1397,7 +1397,7 @@ func PaginateWarnings(parsed *dcmd.Data) func(p *paginatedmessages.PaginatedMess
 			qm.OrderBy("id desc"),
 			qm.Offset(skip),
 			qm.Limit(limit),
-		).AllG(parsed.Context())
+		).AllG(context.Background())
 		if err != nil {
 			return nil, err
 		}

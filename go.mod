@@ -22,7 +22,7 @@ require (
 	github.com/gofrs/uuid v4.4.0+incompatible // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/google/safebrowsing v0.0.0-20190624211811-bbf0d20d26b3
-	github.com/gorilla/schema v1.2.0
+	github.com/gorilla/schema v1.4.1
 	github.com/gorilla/websocket v1.5.0
 	github.com/hashicorp/go-cleanhttp v0.5.2
 	github.com/jedib0t/go-pretty v4.3.0+incompatible
@@ -60,11 +60,11 @@ require (
 	github.com/volatiletech/strmangle v0.0.6
 	goji.io v2.0.2+incompatible
 	golang.org/x/crypto v0.21.0
-	golang.org/x/image v0.10.0
+	golang.org/x/image v0.18.0
 	golang.org/x/net v0.23.0
 	golang.org/x/oauth2 v0.10.0
 	golang.org/x/sys v0.21.0 // indirect
-	golang.org/x/text v0.14.0
+	golang.org/x/text v0.16.0
 	golang.org/x/time v0.3.0
 	golang.org/x/xerrors v0.0.0-20231012003039-104605ab7028 // indirect
 	google.golang.org/api v0.131.0

@@ -59,7 +59,7 @@ type GroupForm struct {
 
 	WhitelistRoles []int64 `valid:"role,true"`
 	BlacklistRoles []int64 `valid:"role,true"`
-	Disabled       bool
+	IsEnabled      bool
 }
 
 type SearchForm struct {
@@ -773,13 +773,14 @@ func handleUpdateGroup(w http.ResponseWriter, r *http.Request) (web.TemplateData
 	if err != nil {
 		return templateData, err
 	}
+	logrus.Infof("groupForm.IsEnabled %#v", groupForm.IsEnabled)
 
 	model.WhitelistChannels = groupForm.WhitelistChannels
 	model.IgnoreChannels = groupForm.BlacklistChannels
 	model.WhitelistRoles = groupForm.WhitelistRoles
 	model.IgnoreRoles = groupForm.BlacklistRoles
 	model.Name = groupForm.Name
-	model.Disabled = groupForm.Disabled
+	model.Disabled = !groupForm.IsEnabled
 	model.GitHub = groupForm.GitHub
 
 	go cloneCCRepo(activeGuild.ID, model.ID, model.GitHub)
