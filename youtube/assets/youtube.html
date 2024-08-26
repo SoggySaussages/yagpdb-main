@@ -261,7 +261,7 @@
         }
         var inputs = document.body.getElementsByClassName("custom-announcement-disables");
         for (var i = 0; i < inputs.length; i++) {
-            $(inputs[i]).find(":input").attr("disabled", true);
+            $(inputs[i]).find(":input").attr("readonly", disabled);
         }
     }
 
