@@ -243,7 +243,7 @@
 
     var popoverEls = document.body.getElementsByClassName("custom-announcement-popover")
         for (var i = 0; i < popoverEls.length; i++) {
-            popoverEls[i].addClass('popover-trigger')
+            popoverEls[i].classList.add("popover-trigger")
             popoverEls[i].attr("data-toggle", "popover")
             popoverEls[i].attr("data-placement", "top")
             popoverEls[i].attr("data-content", "Disabled when \"Custom Announcement\" is enabled.")
