@@ -273,10 +273,8 @@
         for (var i = 0; i < inputs.length; i++) {
             if (disable) {
                 $(inputs[i]).find(":input").prop("disabled", true);
-                $(inputs[i]).find(":select").prop("disabled", true);
             } else {
                 $(inputs[i]).find(":input").prop("disabled", false);
-                $(inputs[i]).find(":select").prop("disabled", false);
             }
         }
     }
