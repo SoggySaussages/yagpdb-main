@@ -239,29 +239,36 @@
         }
     }
 
-    var popoverEls = document.body.getElementsByClassName("custom-announcement-popover");
-    for (var i = 0; i < popoverEls.length; i++) {
-        popoverEls[i].classList.add("popover-trigger");
-        popoverEls[i].setAttribute("data-toggle", "popover");
-        popoverEls[i].setAttribute("data-placement", "top");
-        popoverEls[i].setAttribute("data-content", "Disabled when \"Custom Announcement\" is enabled.");
-        popoverEls[i].setAttribute("data-trigger", "hover");
+    function enablePopovers() {
+        var popoverEls = document.body.getElementsByClassName("custom-announcement-popover");
+        for (var i = 0; i < popoverEls.length; i++) {
+            popoverEls[i].classList.add("popover-trigger");
+            popoverEls[i].setAttribute("data-toggle", "popover");
+            popoverEls[i].setAttribute("data-placement", "top");
+            popoverEls[i].setAttribute("data-content", "Disabled when \"Custom Announcement\" is enabled.");
+            popoverEls[i].setAttribute("data-trigger", "hover");
+        };
+    }
 
-        // Manually initialize popovers early
-        $(popoverEls[i]).popover();
+    function disablePopovers() {
+        var popoverEls = document.body.getElementsByClassName("custom-announcement-popover");
+        for (var i = 0; i < popoverEls.length; i++) {
+            popoverEls[i].classList.remove("popover-trigger");
+            popoverEls[i].removeAttribute("data-toggle");
+            popoverEls[i].removeAttribute("data-placement");
+            popoverEls[i].removeAttribute("data-content");
+            popoverEls[i].removeAttribute("data-trigger");
+        };
     }
     
     // Disables inputs and enable popovers
     function DisableMentions() {
         var disable = $('#yt-announcement-enabled:checked').val();
-        var popovers = document.body.getElementsByClassName("custom-announcement-popover");
-        for (var i = 0; i < popovers.length; i++) {
             if (disable) {
-                $(popovers[i]).popover('enable');
+                enablePopovers();
             } else {
-                $(popovers[i]).popover('disable');
+                disablePopovers();
             }
-        }
         var inputs = document.body.getElementsByClassName("custom-announcement-disables");
         for (var i = 0; i < inputs.length; i++) {
             $(inputs[i]).find(":input").attr("readonly", disable);
