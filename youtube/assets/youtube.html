@@ -239,13 +239,16 @@
         }
     }
 
-    var popoverEls = document.body.getElementsByClassName("custom-announcement-popover")
+    var popoverEls = document.body.getElementsByClassName("custom-announcement-popover");
     for (var i = 0; i < popoverEls.length; i++) {
-        popoverEls[i].classList.add("popover-trigger")
-        popoverEls[i].setAttribute("data-toggle", "popover")
-        popoverEls[i].setAttribute("data-placement", "top")
-        popoverEls[i].setAttribute("data-content", "Disabled when \"Custom Announcement\" is enabled.")
-        popoverEls[i].setAttribute("data-trigger", "hover")
+        popoverEls[i].classList.add("popover-trigger");
+        popoverEls[i].setAttribute("data-toggle", "popover");
+        popoverEls[i].setAttribute("data-placement", "top");
+        popoverEls[i].setAttribute("data-content", "Disabled when \"Custom Announcement\" is enabled.");
+        popoverEls[i].setAttribute("data-trigger", "hover");
+
+        // Manually initialize popovers early
+        $(popoverEls[i]).popover();
     }
     
     // Disables inputs and enable popovers
