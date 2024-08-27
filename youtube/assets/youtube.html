@@ -272,9 +272,9 @@
         var inputs = document.body.getElementsByClassName("custom-announcement-disables");
         for (var i = 0; i < inputs.length; i++) {
             if (disable) {
-                $(inputs[i]).find(":input").attr("readOnly", "true");
+                $(inputs[i]).find(":input").prop("readonly", true);
             } else {
-                $(inputs[i]).find(":input").removeAttr("readOnly");
+                $(inputs[i]).find(":input").prop("readonly", false);
             }
         }
     }
