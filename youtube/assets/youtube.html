@@ -69,18 +69,18 @@
                             {{textChannelOptions .ActiveGuild.Channels nil false ""}}
                         </select>
                     </div>
-                    <div class="custom-announcement-disables">
-                        <span class="custom-announcement-popover">
+                    <div class="disable-when-custom-announcements">
+                        <span class="popover-trigger disabled-popup" data-toggle="popover" data-trigger="hover" data-placement="left">
                             {{checkbox "MentionEveryone" "new-mention-everyone" `Mention Everyone` false}}
                         </span>
                     </div>
-                    <div class="form-group custom-announcement-disables">
+                    <div class="form-group disable-when-custom-announcements">
                         <div>
-                            <span class="custom-announcement-popover">
-                            <select id="roles" class="multiselect form-control" multiple="multiple" name="MentionRoles" data-plugin-multiselect>
-                                {{roleOptionsMulti .ActiveGuild.Roles nil nil}}
-                            </select>
-                            <label for="roles">Mention Roles</label>
+                            <span class="popover-trigger disabled-popup" data-toggle="popover" data-trigger="hover" data-placement="left">
+                                <select id="roles" class="multiselect form-control" multiple="multiple" name="MentionRoles" data-plugin-multiselect>
+                                    {{roleOptionsMulti .ActiveGuild.Roles nil nil}}
+                                </select>
+                                <label for="roles">Mention Roles</label>
                             </span>
                         </div>
                     </div>
@@ -163,17 +163,17 @@
                                 {{textChannelOptions $dot.ActiveGuild.Channels .ChannelID false ""}}
                             </select>
                         </td>
-                        <td class="yt-tbl-column custom-announcement-disables">
-                            <span class="custom-announcement-popover">
-                            {{checkbox "MentionEveryone" (joinStr "" "mention-everyone-" .ID) `Mention everyone` .MentionEveryone (joinStr "" `form="sub-item-` .ID `"`)}}
+                        <td class="yt-tbl-column disable-when-custom-announcements">
+                            <span class="popover-trigger disabled-popup" data-toggle="popover" data-trigger="hover" data-placement="top">
+                                {{checkbox "MentionEveryone" (joinStr "" "mention-everyone-" .ID) `Mention everyone` .MentionEveryone (joinStr "" `form="sub-item-` .ID `"`)}}
                             </span>
                         </td>
-                        <td class="yt-tbl-column custom-announcement-disables">
-                            <span class="custom-announcement-popover">
-                            <select form="sub-item-{{.ID}}" name="MentionRoles" class="multiselect form-control" multiple="multiple"
-                              id="mention-roles" data-plugin-multiselect>
-                              {{roleOptionsMulti $dot.ActiveGuild.Roles nil .MentionRoles }}
-                            </select>
+                        <td class="yt-tbl-column disable-when-custom-announcements">
+                            <span class="popover-trigger disabled-popup" data-toggle="popover" data-trigger="hover" data-placement="top">
+                                <select form="sub-item-{{.ID}}" name="MentionRoles" class="multiselect form-control" multiple="multiple"
+                                id="mention-roles" data-plugin-multiselect>
+                                {{roleOptionsMulti $dot.ActiveGuild.Roles nil .MentionRoles }}
+                                </select>
                             </span>
                         </td>
                         <td class="yt-tbl-column">
@@ -213,7 +213,9 @@
             } else {
                 addButton.attr("disabled", true)
             }
-        })
+        });
+
+        customAnnouncementsChanged();
     })
 
     function OnAnnouncementChange(textArea) {
@@ -240,49 +242,23 @@
         }
     }
 
-    function enablePopovers() {
-        var popoverEls = document.body.getElementsByClassName("custom-announcement-popover");
-        for (var i = 0; i < popoverEls.length; i++) {
-            popoverEls[i].classList.add("popover-trigger");
-            popoverEls[i].setAttribute("data-toggle", "popover");
-            popoverEls[i].setAttribute("data-placement", "top");
-            popoverEls[i].setAttribute("data-content", "Disabled when \"Custom Announcement\" is enabled.");
-            popoverEls[i].setAttribute("data-trigger", "hover");
-        };
-    }
+    function customAnnouncementsChanged() {
+        var customAnnouncementsEnabled = $("#yt-announcement-enabled").is(":checked");
 
-    function disablePopovers() {
-        var popoverEls = document.body.getElementsByClassName("custom-announcement-popover");
-        for (var i = 0; i < popoverEls.length; i++) {
-            popoverEls[i].classList.remove("popover-trigger");
-            popoverEls[i].removeAttribute("data-toggle");
-            popoverEls[i].removeAttribute("data-placement");
-            popoverEls[i].removeAttribute("data-content");
-            popoverEls[i].removeAttribute("data-trigger");
-        };
-    }
-    
-    // Disables inputs and enable popovers
-    function DisableMentions() {
-        var disable = $('#yt-announcement-enabled:checked').val();
-            if (disable) {
-                enablePopovers();
-            } else {
-                disablePopovers();
-            }
-        var inputs = document.body.getElementsByClassName("custom-announcement-disables");
-        for (var i = 0; i < inputs.length; i++) {
-            if (disable) {
-                $(inputs[i]).find(":input").prop("disabled", true);
-            } else {
-                $(inputs[i]).find(":input").prop("disabled", false);
-            }
+        var els = $(".disable-when-custom-announcements");
+        if (customAnnouncementsEnabled) {
+            els.find(":input").prop("disabled", true);
+            els.find(".disabled-popup")
+                .attr("data-content", "Disabled when 'Custom Announcements' is enabled.")
+                .popover("enable");
+        } else {
+            els.find(":input").prop("disabled", false);
+            els.find(".disabled-popup").popover("disable");
         }
     }
 
-    DisableMentions();
-
-    var announcementCheckbox = document.getElementById('yt-announcement-enabled');
-    announcementCheckbox.addEventListener('change', (event) => { DisableMentions(); });
+    $("#yt-announcement-enabled").change(() => {
+        customAnnouncementsChanged();
+    });
 </script>
 {{template "cp_footer" .}} {{end}}
