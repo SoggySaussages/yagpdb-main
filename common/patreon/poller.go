@@ -16,12 +16,13 @@ import (
 var logger = common.GetFixedPrefixLogger("patreon")
 
 type Poller struct {
-	mu     sync.RWMutex
-	config *oauth2.Config
-	token  *oauth2.Token
-	client *patreonapi.Client
-
-	activePatrons []*Patron
+	mu                   sync.RWMutex
+	config               *oauth2.Config
+	token                *oauth2.Token
+	client               *patreonapi.Client
+	lastSuccesfulFetchAt time.Time
+	isLastFetchSuccess   bool
+	activePatrons        []*Patron
 }
 
 var (
@@ -118,11 +119,22 @@ func (p *Poller) Run() {
 	}
 }
 
+func (p *Poller) IsLastFetchSuccess() bool {
+	if p.activePatrons == nil || len(p.activePatrons) < 1 {
+		return false
+	}
+	if time.Since(p.lastSuccesfulFetchAt) < time.Minute*5 {
+		return p.isLastFetchSuccess
+	}
+	return false
+}
+
 func (p *Poller) Poll() {
 	// Get your campaign data
 	campaignResponse, err := p.client.FetchCampaigns()
 	if err != nil || len(campaignResponse.Data) < 1 {
 		logger.WithError(err).Error("Failed fetching campaign")
+		p.isLastFetchSuccess = false
 		return
 	}
 
@@ -141,10 +153,9 @@ func (p *Poller) Poll() {
 
 		if err != nil {
 			logger.WithError(err).Error("Failed fetching pledges")
+			p.isLastFetchSuccess = false
 			return
 		}
-
-		// logger.Println("num results: ", len(membersResponse.Data))
 
 		// Get all the users in an easy-to-lookup way
 		users := make(map[string]*patreonapi.UserAttributes)
@@ -165,7 +176,6 @@ func (p *Poller) Poll() {
 			}
 
 			if attributes.LastChargeStatus != patreonapi.ChargeStatusPaid && attributes.LastChargeStatus != patreonapi.ChargeStatusPending {
-				// logger.Println("Not paid: ", attributes.FullName)
 				continue
 			}
 
@@ -173,7 +183,10 @@ func (p *Poller) Poll() {
 				continue
 			}
 
-			// logger.Println(attributes.PatronStatus + " --- " + user.FirstName + ":" + user.LastName + ":" + user.Vanity)
+			// Skip if the next charge date is in the past
+			if attributes.NextChargeDate != nil && attributes.NextChargeDate.Before(time.Now()) {
+				continue
+			}
 
 			patron := &Patron{
 				AmountCents: attributes.CurrentEntitledAmountCents,
@@ -192,18 +205,15 @@ func (p *Poller) Poll() {
 			}
 
 			patrons = append(patrons, patron)
-			// logger.Printf("%s is pledging %d cents, Discord: %d\n", patron.Name, patron.AmountCents, patron.DiscordID)
 		}
 
 		// Get the link to the next page of pledges
 		nextCursor := membersResponse.Meta.Pagination.Cursors.Next
 		if nextCursor == "" {
-			// logger.Println("No nextlink ", page)
 			break
 		}
 
 		cursor = nextCursor
-		// logger.Println("nextlink: ", page, ": ", cursor, ", current len: ", len(patrons))
 		page++
 		time.Sleep(time.Second)
 	}
@@ -211,6 +221,8 @@ func (p *Poller) Poll() {
 	// Swap the stored ones, this dosent mutate the existing returned slices so we dont have to do any copying on each request woo
 	p.mu.Lock()
 	p.activePatrons = patrons
+	p.lastSuccesfulFetchAt = time.Now()
+	p.isLastFetchSuccess = true
 	p.mu.Unlock()
 }
 

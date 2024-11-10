@@ -887,7 +887,7 @@ func (c *Context) tmplDelMessage(channel, msgID interface{}, args ...interface{}
 		dur = 86400
 	}
 
-	MaybeScheduledDeleteMessage(c.GS.ID, cID, mID, dur)
+	MaybeScheduledDeleteMessage(c.GS.ID, cID, mID, dur, "")
 
 	return ""
 }

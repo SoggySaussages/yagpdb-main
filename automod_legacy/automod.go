@@ -52,10 +52,10 @@ func (c Config) Name() string {
 	return "Automoderator"
 }
 
-func NewConfig() *Config {
+func DefaultConfig() *Config {
 	return &Config{
-		Spam:    &SpamRule{},
-		Mention: &MentionRule{},
+		Spam:    &SpamRule{NumMessages: 1, Within: 5},
+		Mention: &MentionRule{Treshold: 1},
 		Invite:  &InviteRule{},
 		Links:   &LinksRule{},
 		Sites:   &SitesRule{},
@@ -64,9 +64,21 @@ func NewConfig() *Config {
 }
 
 func GetConfig(guildID int64) (config *Config, err error) {
-
-	config = NewConfig()
 	err = common.GetRedisJson(KeyConfig(guildID), &config)
+	if config == nil {
+		config = DefaultConfig()
+	}
+	// This is needed for legacy reason
+	// because the validation for this is via a common middleware which may break a heck lot of things if tinkered with.
+	if config.Spam.NumMessages == 0 {
+		config.Spam.NumMessages = 1
+	}
+	if config.Spam.Within == 0 {
+		config.Spam.Within = 5
+	}
+	if config.Mention.Treshold == 0 {
+		config.Mention.Treshold = 1
+	}
 	return
 }
 

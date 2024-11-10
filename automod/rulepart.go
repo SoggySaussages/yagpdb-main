@@ -71,6 +71,8 @@ var RulePartMap = map[int]RulePart{
 	216: &ThreadCondition{false},
 	217: &MessageAttachmentCondition{true},
 	218: &MessageAttachmentCondition{false},
+	219: &MessageForwardCondition{true},
+	220: &MessageForwardCondition{false},
 
 	// Effects 3xx
 	300: &DeleteMessageEffect{},
@@ -231,7 +233,7 @@ type TriggerContext struct {
 type MessageTrigger interface {
 	RulePart
 
-	CheckMessage(triggerCtx *TriggerContext, cs *dstate.ChannelState, m *discordgo.Message, mdStripped string) (isAffected bool, err error)
+	CheckMessage(triggerCtx *TriggerContext, cs *dstate.ChannelState, m *discordgo.Message) (isAffected bool, err error)
 }
 
 // ViolationListener is a trigger that gets triggered on a violation
