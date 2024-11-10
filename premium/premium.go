@@ -318,7 +318,7 @@ func tierFlags(tier PremiumTier) []string {
 
 func SendPremiumDM(userID int64, source PremiumSourceType, numSlots int) {
 	logger.Infof("Sending premium DM to user: %d for %d slots via %s subscription", userID, numSlots, string(source))
-	confSendPatreonPremiumDM := config.RegisterOption("sgpdb.premium.send_patreon_dm", "Send DMs to users when they receive premium slots", false)
+	confSendPatreonPremiumDM := config.RegisterOption("yagpdb.premium.send_patreon_dm", "Send DMs to users when they receive premium slots", false)
 	if !confSendPatreonPremiumDM.GetBool() && source == PremiumSourceTypePatreon {
 		return
 	}
