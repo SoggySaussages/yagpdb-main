@@ -15,7 +15,7 @@ services:
     #image: PUT_YOUR_OWN_IMAGE_HERE
     build:
       context: ../
-      dockerfile: yagpdb_docker/Dockerfile
+      dockerfile: sgpdb_docker/Dockerfile
     restart: unless-stopped
     command:
       # - "/app/sgpdb"
