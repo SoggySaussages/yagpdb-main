@@ -471,6 +471,46 @@ func (c *Context) tmplEditMessage(filterSpecialMentions bool) func(channel inter
 	}
 }
 
+func (c *Context) tmplForwardMessage(retID bool) func(channel, msgID, targetChannel interface{}) (interface{}, error) {
+	return func(channel, msgID, targetChannel interface{}) (interface{}, error) {
+		if c.IncreaseCheckCallCounter("message_forward", 2) {
+			return "", ErrTooManyCalls
+		}
+
+		cID := c.ChannelArgNoDM(channel)
+		if cID == 0 {
+			return "", errors.New("unknown origin channel")
+		}
+		hasPerms, err := bot.BotHasPermissionGS(c.GS, cID, discordgo.PermissionViewChannel|discordgo.PermissionReadMessageHistory)
+		if err != nil {
+			return "", err
+		}
+		if !hasPerms {
+			return "", errors.New("insufficient permissions in the target channel")
+		}
+
+		mID := ToInt64(msgID)
+		targetID := c.ChannelArgNoDM(targetChannel)
+		if cID == 0 {
+			return "", errors.New("unknown target channel")
+		}
+
+		m, err := common.BotSession.ChannelMessageSendReply(targetID, "", &discordgo.MessageReference{
+			Type:      discordgo.MessageReferenceTypeForward,
+			ChannelID: cID,
+			MessageID: mID,
+		})
+		if err != nil {
+			return "", err
+		}
+
+		if retID {
+			return m.ID, nil
+		}
+		return "", nil
+	}
+}
+
 func (c *Context) tmplPinMessage(unpin bool) func(channel, msgID interface{}) (string, error) {
 	return func(channel, msgID interface{}) (string, error) {
 		if c.IncreaseCheckCallCounter("message_pins", 5) {
