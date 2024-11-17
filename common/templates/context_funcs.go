@@ -1033,7 +1033,9 @@ func (c *Context) tmplCloseThread(channel interface{}, flags ...bool) (string, e
 		return "", errors.New("must specify a thread")
 	}
 
-	edit := &discordgo.ChannelEdit{}
+	archived := true
+	edit := &discordgo.ChannelEdit{Archived: &archived}
+
 	var lock bool
 	switch len(flags) {
 	case 0:
@@ -1046,9 +1048,6 @@ func (c *Context) tmplCloseThread(channel interface{}, flags ...bool) (string, e
 
 	if lock {
 		edit.Locked = &lock
-	} else {
-		archived := true
-		edit.Archived = &archived
 	}
 
 	_, err := common.BotSession.ChannelEditComplex(cID, edit)
