@@ -1222,6 +1222,41 @@ func (c *Context) tmplEditThread(channel interface{}, args ...interface{}) (stri
 	return "", nil
 }
 
+func (c *Context) tmplLockThread(channel interface{}) (string, error) {
+
+	if c.IncreaseCheckCallCounter("edit_channel", 10) {
+		return "", ErrTooManyCalls
+	}
+
+	cID := c.ChannelArg(channel)
+	if cID == 0 {
+		return "", nil //dont send an error, a nil output would indicate invalid/unknown channel
+	}
+
+	if c.IncreaseCheckCallCounter("edit_channel_"+strconv.FormatInt(cID, 10), 2) {
+		return "", ErrTooManyCalls
+	}
+
+	cstate := c.GS.GetChannelOrThread(cID)
+	if cstate == nil {
+		return "", errors.New("thread not in state")
+	}
+
+	if !cstate.Type.IsThread() {
+		return "", errors.New("must specify a thread")
+	}
+
+	locked := true
+	edit := &discordgo.ChannelEdit{Locked: &locked}
+
+	_, err := common.BotSession.ChannelEditComplex(cID, edit)
+	if err != nil {
+		return "", errors.New("unable to edit thread")
+	}
+
+	return "", nil
+}
+
 func (c *Context) tmplOpenThread(cID int64) (string, error) {
 
 	if c.IncreaseCheckCallCounter("edit_channel", 10) {

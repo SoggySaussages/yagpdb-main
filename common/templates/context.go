@@ -732,6 +732,7 @@ func baseContextFuncs(c *Context) {
 	c.addContextFunc("createThread", c.tmplCreateThread)
 	c.addContextFunc("deleteThread", c.tmplDeleteThread)
 	c.addContextFunc("editThread", c.tmplEditThread)
+	c.addContextFunc("lockThread", c.tmplLockThread)
 	c.addContextFunc("openThread", c.tmplOpenThread)
 	c.addContextFunc("removeThreadMember", c.tmplThreadMemberRemove)
 
