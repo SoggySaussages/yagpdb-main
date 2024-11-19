@@ -4137,7 +4137,6 @@ var Verbs = []string{
 	"ransom",
 	"rant",
 	"rap",
-	"rape",
 	"rappel",
 	"rasp",
 	"rasterise",
