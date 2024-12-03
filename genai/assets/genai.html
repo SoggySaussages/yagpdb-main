@@ -1,0 +1,175 @@
+{{define "cp_genai"}}
+
+{{template "cp_head" .}}
+<header class="page-header">
+    <h2>Generative AI Configuration</h2>
+</header>
+
+{{template "cp_alerts" .}}
+{{$dot := .}}
+
+<!-- /.row -->
+<div class="row">
+    <div class="col-lg-12">
+        <sction class="card {{if .GenAIConfig.Enabled}}card-featured card-featured-success{{end}}">
+            <form method="post" data-async-form>
+                <header class="card-header">
+                    {{checkbox "enabled" "genai-enabled-check" `<h2 class="card-title">Enable</h2>` .GenAIConfig.Enabled}}
+                </header>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <p>
+                                This feature allows you to query Generative AI using a variety of methods:
+                            </p>
+                            <ul>
+                                <li>Using the <code>genai</code> command</li>
+                                <li>Creating your own commands with preset prompts</li>
+                                <li>Moderating messages in Advanced Automoderator</li>
+                                <li>Using the <code>genaiComplete</code>, <code>genaiCompleteComplex</code>, and <code>genaiModerate</code> functions in Custom Commands</li>
+                            </ul>
+                            <p>
+                                To use this feature, you will need to create an account with one of the supported providers, and pay for API access. Once you have created a paid account, generate an API token, and input it here. This allows YAGPDB to send requests to the Generative AI provider using the credits from your account.
+                            </p>
+                            <p>Trying to decide which provider to use? Here's a quick guide:</p>
+                            <ul>
+                                <li><strong>OpenAI GPTs</strong>: Assisting consistency, Problem solving complexity, Great automoderator.<br>
+                                    Ideal for: Server assistant, customize to your server's needs. Coding questions and large scale problem solving. AI Moderation trigger.</li>
+                                <li><strong>Google Gemini</strong>: Commitment to prompt, Use of input data, Open to NSFW (when run in NSFW channels).<br>
+                                    Ideal for: Fun, less serious features. Data summation. NSFW roleplay.</li>
+                                <li><strong>Anthropic Claude</strong>: Safe conversation, Creative writing, Roleplay<br>
+                                    Ideal for: SFW Roleplay, Creativity, Low negativity conversation (note that as a byproduct of this, Claude refuses to moderate some abusive messages, so the automod trigger is inconsistent at best)</li>
+                            </ul>
+                            <div class="form-group">
+                                <label>Generative AI Provider</label>
+                                <select class="form-control" id="provider-dropdown" name="provider"
+                                    onchange="providerChanged(this)">
+
+                                    {{range .GenAIProviders}}
+                                    <option value="{{.ID}}" {{if eq .ID $dot.GenAIConfig.Provider}}selected{{end}}>{{.String}}
+                                    </option>
+                                    {{end}}
+                                </select>
+                                <div id="key">
+                                    <div id="key-reset-button"{{if not .KeySet}} class="hidden"{{end}}>
+                                        <button type="submit" onclick="disableToken();" class="btn btn-secondary btn-lg btn-block">Reset API Token</button>
+                                        <p>Note: This will <strong>not</strong> reset your token on {{(index .GenAIProviders .GenAIConfig.Provider).String}}'s end, meaning your token will still be fully usable by anyone who has it until you do so. Visit their API Dashboard to delete your API token.</p>
+                                    </div>
+                                    <div id="key-input-field"{{if .KeySet}} class="hidden"{{end}}>
+                                        <label for="key">API Key</label>
+                                        <input id="key" type="password" class="form-control" name="key">
+                                    </div>
+                                </div>
+                                <a class="mb-1 mt-1 mr-1 modal-basic btn btn-info btn-lg"
+                                href="#api-obtain-instructions">Obtaining an API Key</a>
+                                <select class="form-control" id="model-dropdown" name="model">
+                                    {{range .GenAIProviders}}
+                                    <optgroup id="model-options-provider-{{.ID}}" label="{{.String}}">
+                                        {{range $k, $v := .ModelMap}}
+                                        <option value="{{$v}}" {{if eq $v $dot.GenAIConfig.Model}}selected{{end}}>{{$k}}
+                                        </option>
+                                        {{end}}
+                                    </optgroup>
+                                    {{end}}
+                                </select>
+                                {{range .GenAIProviders}}
+                                <div id="model-description-provider-{{.ID}}">
+                                    <p><a href="{{.WebData.ModelDescriptionsURL}}">{{.String}}'s Model List</a></p>
+                                    <p>Visit <a href="{{.WebData.PlaygroundURL}}">{{.String}}'s playground</a> to test your prompts against different models and messages before implementing on YAGPDB.</p>
+                                    <p>Note: Moderation with {{.String}} uses the following model: <code>{{.WebData.ModelForModeration}}</code></p>
+                                </div>
+                                {{end}}
+                            </div>
+                            {{checkbox "basecmdenabled" "base_cmd_enabled" `Enable GenAI Command` .GenAIConfig.BaseCMDEnabled}}
+                            <input type="checkbox" id="reset_token" name="reset_token" class="hidden">
+                        </div>
+                        <!-- /.col-lg-12 -->
+                    </div>
+                    <!-- /.row -->
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <button type="submit" class="btn btn-primary btn-lg btn-block">Save GenAI
+                                Settings</button>
+                        </div>
+                    </div>
+                    <!-- /.row -->
+                </div>
+                <!-- /.panel-body -->
+            </form>
+            </section>
+            <!-- /.panel -->
+    </div>
+    <!-- /.col-lg-12 -->
+</div>
+<!-- /.row -->
+
+<div id="api-obtain-instructions" class="modal-block modal-header-color modal-block-info mfp-hide">
+    <section class="card">
+        {{range .GenAIProviders}}
+        <div id="api-instructions-provider-{{.ID}}">
+            <header class="card-header">
+                <h2 class="card-title">Obtaining an API Key for {{.String}}</h2>
+            </header>
+            <div class="card-body">
+                <div class="modal-wrapper">
+                    <div class="modal-text">
+                        <p class="help-block">
+                            {{.WebData.ObtainingAPIKeyInstructions}}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {{end}}
+        <footer class="card-footer">
+            <div class="row">
+                <div class="col-md-12 text-right">
+                    <button class="btn btn-info modal-dismiss">OK</button>
+                </div>
+            </div>
+        </footer>
+    </section>
+</div>
+
+<script type="text/javascript">
+    $(function () {
+        providerChanged();
+    });
+
+    // html elements that should be shown for specific trigger types and hidden otherwise
+    var providerEls = { {{range .GenAIProviders}}
+        {{.ID}}: ['#api-instructions-provider-{{.ID}}', '#model-options-provider-{{.ID}}', '#model-description-provider-{{.ID}}'{{if .KeyRequired}}, '#key'{{end}}],{{end}}
+    };
+
+    function providerChanged() {
+        const curProvider = $('#provider-dropdown').val();
+
+        const elsToHide = [];
+        const elsToShow = [];
+        for (const [t, els] of Object.entries(providerEls)) {
+            if (t === curProvider) elsToShow.push(...els);
+            else elsToHide.push(...els);
+        }
+
+        // Order of operations is important: if we first show elements
+        // applicable to the current trigger type, then hide elements applicable
+        // to other trigger types, we may end up momentarily showing a relevant
+        // element then hiding it. To avoid this undesirable behavior, first
+        // hide elements from other trigger types and only then show elements
+        // for the current trigger type.
+        for (const el of elsToHide) $(el).addClass('hidden');
+        for (const el of elsToHide) $(el).addClass('disabled');
+        for (const el of elsToShow) $(el).removeClass('hidden');
+        for (const el of elsToShow) $(el).removeClass('disabled');
+    };
+
+    function disableToken() {
+        $('#key-reset-button').addClass('hidden')
+        $('#key-input-field').removeClass('hidden')
+        $('#reset_token').prop('checked', true)
+    }
+</script>
+
+{{template "cp_footer" .}}
+
+{{end}}
