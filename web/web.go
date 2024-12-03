@@ -438,6 +438,7 @@ const (
 	SidebarCategoryCore           = "Core"
 	SidebarCategoryCustomCommands = "CustomCommands"
 	SidebarCategoryModeration     = "Moderation"
+	SidebarCategoryGenAI          = "Generative AI"
 )
 
 type SidebarItem struct {
