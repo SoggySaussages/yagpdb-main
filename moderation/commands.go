@@ -380,11 +380,11 @@ var ModerationCommands = []*commands.YAGCommand{
 	//			if err != nil || member == nil {
 	//				return "Member not found", err
 	//			}
-
-			err = checkHierarchy(parsed, target.ID)
-			if err != nil {
-				return nil, err
-			}
+    //
+    //		err = checkHierarchy(parsed, target.ID)
+    //		if err != nil {
+    //			return nil, err
+    //		}
 	//
 	//			var msg *discordgo.Message
 	//			if parsed.TraditionalTriggerData != nil {

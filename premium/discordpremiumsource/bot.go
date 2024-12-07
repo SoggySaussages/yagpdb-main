@@ -3,7 +3,6 @@ package discordpremiumsource
 import (
 	"fmt"
 
-	"emperror.dev/errors"
 	"github.com/botlabs-gg/sgpdb/v2/bot"
 	"github.com/botlabs-gg/sgpdb/v2/bot/eventsystem"
 	"github.com/botlabs-gg/sgpdb/v2/commands"
@@ -11,10 +10,7 @@ import (
 	"github.com/botlabs-gg/sgpdb/v2/common/pubsub"
 	"github.com/botlabs-gg/sgpdb/v2/lib/dcmd"
 	"github.com/botlabs-gg/sgpdb/v2/lib/discordgo"
-	"github.com/botlabs-gg/sgpdb/v2/premium"
-	"github.com/botlabs-gg/sgpdb/v2/premium/models"
 	"github.com/botlabs-gg/sgpdb/v2/stdcommands/util"
-	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 
 var _ bot.BotInitHandler = (*Plugin)(nil)

@@ -77,7 +77,7 @@ const (
 	CommandTriggerComponent  CommandTriggerType = 7
 	CommandTriggerModal      CommandTriggerType = 8
 	CommandTriggerCron       CommandTriggerType = 9
-	CommandTriggerVoice      CommandTriggerType = 10
+	CommandTriggerVoice      CommandTriggerType = 11
 )
 
 var (
@@ -93,7 +93,7 @@ var (
 		CommandTriggerComponent,
 		CommandTriggerModal,
 		CommandTriggerCron,
-		CommandTriggerVoice
+		CommandTriggerVoice,
 	}
 
 	triggerStrings = map[CommandTriggerType]string{
