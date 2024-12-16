@@ -3,16 +3,25 @@ package genai
 import (
 	"context"
 	"encoding/json"
+	"fmt"
+	"reflect"
+	"slices"
+	"strings"
 
 	"github.com/botlabs-gg/yagpdb/v2/lib/dstate"
 	"github.com/openai/openai-go"
 	"github.com/openai/openai-go/option"
+	"github.com/openai/openai-go/shared"
 )
 
 type GenAIProviderOpenAI struct{}
 
-func (p GenAIProviderOpenAI) Type() GenAIProviderID {
+func (p GenAIProviderOpenAI) ID() GenAIProviderID {
 	return GenAIProviderOpenAIID
+}
+
+func (p GenAIProviderOpenAI) String() string {
+	return "OpenAI"
 }
 
 func (p GenAIProviderOpenAI) DefaultModel() string {
@@ -30,12 +39,35 @@ var GenAIModelMapOpenAI = &GenAIProviderModelMap{
 	"GPT 3.5 Turbo": openai.ChatModelGPT3_5Turbo,
 }
 
-func (p *GenAIProviderOpenAI) ModelMap() *GenAIProviderModelMap {
+func (p GenAIProviderOpenAI) ModelMap() *GenAIProviderModelMap {
 	return GenAIModelMapOpenAI
 }
 
-func (p *GenAIProviderOpenAI) ComplexCompletion(gs dstate.GuildState, input *GenAIInput) (*GenAIResponse, *GenAIResponseUsage, error) {
-	var messages []openai.ChatCompletionMessageParamUnion
+func (p GenAIProviderOpenAI) KeyRequired() bool {
+	return true
+}
+
+// ~ accurate for English text as of Dec 2024
+const CharacterCountToTokenRatioOpenAI = int64(4 / 1)
+
+func (p GenAIProviderOpenAI) EstimateTokens(combinedInput string, maxTokens int64) (inputEstimatedTokens, outputMaxTokens int64) {
+	inputEstimatedTokens = int64(len(combinedInput)) / CharacterCountToTokenRatioOpenAI
+	outputMaxTokens = maxTokens - inputEstimatedTokens
+	return
+}
+
+func (p GenAIProviderOpenAI) BasicCompletion(gs *dstate.GuildState, systemMsg, userMsg string, maxTokens int64, nsfw bool) (*GenAIResponse, *GenAIResponseUsage, error) {
+	input := &GenAIInput{BotSystemMessage: BotSystemMessagePromptGeneric + BotSystemMessagePromptAppendSingleResponseContext, SystemMessage: systemMsg, UserMessage: userMsg, MaxTokens: maxTokens}
+	if nsfw {
+		input.BotSystemMessage = fmt.Sprintf("%s\n%s", input.BotSystemMessage, BotSystemMessagePromptAppendNSFW)
+	} else {
+		input.BotSystemMessage = fmt.Sprintf("%s\n%s", input.BotSystemMessage, BotSystemMessagePromptAppendNonNSFW)
+	}
+	return p.ComplexCompletion(gs, input)
+}
+
+func (p GenAIProviderOpenAI) ComplexCompletion(gs *dstate.GuildState, input *GenAIInput) (*GenAIResponse, *GenAIResponseUsage, error) {
+	messages := []openai.ChatCompletionMessageParamUnion{openai.SystemMessage(input.BotSystemMessage)}
 
 	if input.SystemMessage != "" {
 		messages = append(messages, openai.SystemMessage(input.SystemMessage))
@@ -70,7 +102,12 @@ func (p *GenAIProviderOpenAI) ComplexCompletion(gs dstate.GuildState, input *Gen
 		}
 	}
 
-	requestParams := openai.ChatCompletionNewParams{}
+	config, err := BotCachedGetConfig(gs.ID)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	requestParams := openai.ChatCompletionNewParams{Model: openai.F(config.Model), MaxCompletionTokens: openai.Int(input.MaxTokens)}
 
 	if len(messages) > 0 {
 		requestParams.Messages = openai.F(messages)
@@ -80,20 +117,14 @@ func (p *GenAIProviderOpenAI) ComplexCompletion(gs dstate.GuildState, input *Gen
 		requestParams.Tools = openai.F(tools)
 	}
 
-	key, err := getAPIToken(&gs)
+	key, err := getAPIToken(gs)
 	if err != nil {
 		return nil, nil, err
 	}
 
 	client := openai.NewClient(option.WithAPIKey(key))
 
-	chatCompletion, err := client.Chat.Completions.New(context.TODO(), openai.ChatCompletionNewParams{
-		Messages: openai.F([]openai.ChatCompletionMessageParamUnion{
-			openai.UserMessage("Say this is a test"),
-			openai.UserMessage("Say this is a test"),
-		}),
-		Model: openai.F(openai.ChatModelGPT4o),
-	})
+	chatCompletion, err := client.Chat.Completions.New(context.TODO(), requestParams)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -117,7 +148,79 @@ func (p *GenAIProviderOpenAI) ComplexCompletion(gs dstate.GuildState, input *Gen
 			Content:   content,
 			Functions: &functionResponse,
 		}, &GenAIResponseUsage{
-			InputTokens:  uint64(chatCompletion.Usage.PromptTokens),
-			OutputTokens: uint64(chatCompletion.Usage.CompletionTokens),
+			InputTokens:  int64(chatCompletion.Usage.PromptTokens),
+			OutputTokens: int64(chatCompletion.Usage.CompletionTokens),
 		}, nil
+}
+
+func (p GenAIProviderOpenAI) ModerateMessage(gs *dstate.GuildState, message string) (*GenAIModerationCategoryProbability, *GenAIResponseUsage, error) {
+	key, err := getAPIToken(gs)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	moderationParams := openai.ModerationNewParams{
+		Input: openai.F[openai.ModerationNewParamsInputUnion](shared.UnionString(message)),
+		Model: openai.F(openai.ModerationModelOmniModerationLatest),
+	}
+
+	client := openai.NewClient(option.WithAPIKey(key))
+
+	moderation, err := client.Moderations.New(context.TODO(), moderationParams)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	response := GenAIModerationCategoryProbability{}
+
+	catScores := reflect.ValueOf(moderation.Results[0].CategoryScores)
+	typed := catScores.Type()
+	availableCategories := []string{}
+	for _, c := range GenAIModerationCategories {
+		availableCategories = append(availableCategories, strings.ReplaceAll(c, " ", ""))
+	}
+
+	for i := 0; i < catScores.NumField(); i++ {
+		category := typed.Field(i).Name
+		if !slices.Contains(availableCategories, category) {
+			continue
+		}
+
+		score := catScores.Field(i).Float()
+		response[category] = score
+	}
+
+	return &response, &GenAIResponseUsage{}, nil
+}
+
+var GenAIProviderOpenAIWebData = &GenAIProviderWebDescriptions{
+	ObtainingAPIKeyInstructions: `Step one: Create an account.
+	<br>
+	Visit <a href="https://platform.openai.com/docs/guides/production-best-practices/api-keys#setting-up-your-organization">OpenAI's website</a> to do this.
+	<br>
+	<br>
+	Step two: Set up payment method.
+	<br>
+	You must set up a payment method in order to make requests to OpenAI. Do so on <a href="https://platform.openai.com/settings/organization/billing/overview">OpenAI's API dashboard</a>.
+	<br>
+	<br>
+	Step three: Set a Budget Limit.
+	<br>
+	You must set a monthly budget limit within reason to prevent yourself from going into credit debt with OpenAI. Do so on <a href="https://platform.openai.com/settings/organization/limits">OpenAI's API dashboard</a>.
+	<br>
+	<br>
+	Step four: Create an API key.
+	<br>
+	Create an API key on <a href="https://platform.openai.com/api-keys">OpenAI's Dashboard</a>. Set the mode to <strong>restricted</strong>, set every permission to <strong>None</strong>, and then set the "Model capabilities" permission to <strong>Write</strong>.
+	<br>
+	<br>
+	Step five: Copy the API key to YAGPDB.
+	<br>
+	Click copy, then paste the new API key into the "API Key" field on this page.`,
+	ModelDescriptionsURL: "https://platform.openai.com/docs/models",
+	ModelForModeration:   "omni-moderation-latest",
+}
+
+func (p GenAIProviderOpenAI) WebData() *GenAIProviderWebDescriptions {
+	return GenAIProviderOpenAIWebData
 }

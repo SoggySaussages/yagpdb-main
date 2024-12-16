@@ -1,0 +1,116 @@
+{{define "cp_genai"}}
+
+{{template "cp_head" .}}
+<header class="page-header">
+    <h2>GenAI role and announcements</h2>
+</header>
+
+{{template "cp_alerts" .}}
+{{$dot := .}}
+
+<!-- /.row -->
+<div class="row">
+    <div class="col-lg-12">
+        <sction class="card {{if .GenAIConfig.Enabled}}card-featured card-featured-success{{end}}">
+            <form method="post" data-async-form>
+                <header class="card-header">
+                    {{checkbox "enabled" "genai-enabled-check" `<h2 class="card-title">Enable</h2>` .GenAIConfig.Enabled}}
+                </header>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <p>
+                                This feature allows you to query Generative AI using a variety of methods:
+                            </p>
+                            <ul>
+                                <li>Using the <code>genai</code> command</li>
+                                <li>Creating your own commands with preset prompts</li>
+                                <li>Moderating messages in Advanced Automoderator</li>
+                                <li>Using the <code>genaiComplete</code>, <code>genaiCompleteComplex</code>, and <code>genaiModerate</code> functions in Custom Commands</li>
+                            </ul>
+                            <p>
+                                To use this feature, you will need to create an account with one of the supported providers, and pay for API access. Once you have created a paid account, generate an API token, and input it here. This allows YAGPDB to send requests to the Generative AI provider using the credits from your account.
+                            </p>
+                            <div class="form-group">
+                                <label>Generative AI Provider</label>
+                                <select class="form-control" id="provider-dropdown" name="provider"
+                                    onchange="providerChanged(this)">
+
+                                    {{range .GenAIProviders}}
+                                    <option value="{{.ID}}" {{if eq .ID $dot.GenAIConfig.Provider}}selected{{end}}>{{.String}}
+                                    </option>
+                                    {{end}}
+                                </select>
+                            </div>
+                            {{range .GenAIProviders}}
+                            <div id="provider-form-{{.ID}}">
+                                <label for="key-{{.ID}}">OpenAI API Key</label>
+                                <input id="key-{{.ID}}" type="password" class="form-control" name="key-{{.ID}}">
+                                <p>
+                                    {{.WebData.ObtainingAPIKeyInstructions}}
+                                </p>
+                                <select class="form-control" id="model-dropdown-{{.ID}}" name="model-{{.ID}}">
+                                    {{range $k, $v := .ModelMap}}
+                                    <option value="{{$v}}" {{if eq $v $dot.GenAIConfig.Model}}selected{{end}}>{{$k}}
+                                    </option>
+                                    {{end}}
+                                </select>
+                                <p><a href="{{.WebData.ModelDescriptionsURL}}">OpenAI's Model List</a></p>
+                                <p>Note: Moderation with OpenAI uses the following model: <code>{{.WebData.ModelForModeration}}</code></p>
+                            </div>
+                            {{end}}
+                        </div>
+                        <!-- /.col-lg-12 -->
+                    </div>
+                    <!-- /.row -->
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <button type="submit" class="btn btn-primary btn-lg btn-block">Save GenAI
+                                Settings</button>
+                        </div>
+                    </div>
+                    <!-- /.row -->
+                </div>
+                <!-- /.panel-body -->
+            </form>
+            </section>
+            <!-- /.panel -->
+    </div>
+    <!-- /.col-lg-12 -->
+</div>
+<!-- /.row -->
+
+<script type="text/javascript">
+    $(function () {
+        providerChanged();
+    });
+
+    // html elements that should be shown for specific trigger types and hidden otherwise
+    var triggerTypeEls = {{{range .GenAIProviders}}
+        {{.ID}}: ['#provider-form-{{.ID}}'],{{end}}
+    };
+
+    function providerChanged() {
+        const curTriggerType = $('#provider-dropdown').val();
+
+        const elsToHide = [];
+        const elsToShow = [];
+        for (const [t, els] of Object.entries(triggerTypeEls)) {
+            if (t === curTriggerType) elsToShow.push(...els);
+            else elsToHide.push(...els);
+        }
+
+        // Order of operations is important: if we first show elements
+        // applicable to the current trigger type, then hide elements applicable
+        // to other trigger types, we may end up momentarily showing a relevant
+        // element then hiding it. To avoid this undesirable behavior, first
+        // hide elements from other trigger types and only then show elements
+        // for the current trigger type.
+        for (const el of elsToHide) $(el).addClass('hidden');
+        for (const el of elsToShow) $(el).removeClass('hidden');
+    }
+</script>
+
+{{template "cp_footer" .}}
+
+{{end}}

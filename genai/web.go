@@ -4,7 +4,6 @@ import (
 	"context"
 	_ "embed"
 	"fmt"
-	"html"
 	"html/template"
 	"net/http"
 
@@ -13,12 +12,13 @@ import (
 	"github.com/botlabs-gg/yagpdb/v2/common/featureflags"
 	"github.com/botlabs-gg/yagpdb/v2/common/pubsub"
 	"github.com/botlabs-gg/yagpdb/v2/lib/discordgo"
+	"github.com/botlabs-gg/yagpdb/v2/lib/dstate"
 	"github.com/botlabs-gg/yagpdb/v2/web"
 	"goji.io"
 	"goji.io/pat"
 )
 
-//go:embed assets/streaming.html
+//go:embed assets/genai.html
 var PageHTML string
 
 type ConextKey int
@@ -27,31 +27,30 @@ const (
 	ConextKeyConfig ConextKey = iota
 )
 
-var panelLogKey = cplogs.RegisterActionFormat(&cplogs.ActionFormat{Key: "streaming_settings_updated", FormatString: "Updated streaming settings"})
+var panelLogKey = cplogs.RegisterActionFormat(&cplogs.ActionFormat{Key: "genai_settings_updated", FormatString: "Updated genai settings"})
 
 func (p *Plugin) InitWeb() {
-	web.AddHTMLTemplate("streaming/assets/streaming.html", PageHTML)
-	web.AddSidebarItem(web.SidebarCategoryFeeds, &web.SidebarItem{
-		Name: "Streaming",
-		URL:  "streaming",
+	web.AddHTMLTemplate("genai/assets/genai.html", PageHTML)
+	web.AddSidebarItem(web.SidebarCategoryGenAI, &web.SidebarItem{
+		Name: "General",
+		URL:  "genai",
 		Icon: "fas fa-video",
 	})
 
-	streamingMux := goji.SubMux()
-	web.CPMux.Handle(pat.New("/streaming/*"), streamingMux)
-	web.CPMux.Handle(pat.New("/streaming"), streamingMux)
+	genaiMux := goji.SubMux()
+	web.CPMux.Handle(pat.New("/genai/*"), genaiMux)
+	web.CPMux.Handle(pat.New("/genai"), genaiMux)
 
 	// Alll handlers here require guild channels present
-	streamingMux.Use(web.RequireBotMemberMW)
-	streamingMux.Use(web.RequirePermMW(discordgo.PermissionManageRoles))
-	streamingMux.Use(baseData)
+	genaiMux.Use(web.RequireServerAdminMiddleware)
+	genaiMux.Use(baseData)
 
 	// Get just renders the template, so let the renderhandler do all the work
-	streamingMux.Handle(pat.Get(""), web.RenderHandler(nil, "cp_streaming"))
-	streamingMux.Handle(pat.Get("/"), web.RenderHandler(nil, "cp_streaming"))
+	genaiMux.Handle(pat.Get(""), web.RenderHandler(nil, "cp_genai"))
+	genaiMux.Handle(pat.Get("/"), web.RenderHandler(nil, "cp_genai"))
 
-	streamingMux.Handle(pat.Post(""), web.FormParserMW(web.RenderHandler(HandlePostStreaming, "cp_streaming"), Config{}))
-	streamingMux.Handle(pat.Post("/"), web.FormParserMW(web.RenderHandler(HandlePostStreaming, "cp_streaming"), Config{}))
+	genaiMux.Handle(pat.Post(""), web.FormParserMW(web.RenderHandler(HandlePostGenAI, "cp_genai"), Config{}))
+	genaiMux.Handle(pat.Post("/"), web.FormParserMW(web.RenderHandler(HandlePostGenAI, "cp_genai"), Config{}))
 }
 
 // Adds the current config to the context
@@ -59,32 +58,44 @@ func baseData(inner http.Handler) http.Handler {
 	mw := func(w http.ResponseWriter, r *http.Request) {
 		guild, tmpl := web.GetBaseCPContextData(r.Context())
 		config, err := GetConfig(guild.ID)
-		if web.CheckErr(tmpl, err, "Failed retrieving streaming config :'(", web.CtxLogger(r.Context()).Error) {
-			web.LogIgnoreErr(web.Templates.ExecuteTemplate(w, "cp_streaming", tmpl))
+		if web.CheckErr(tmpl, err, "Failed retrieving genai config :'(", web.CtxLogger(r.Context()).Error) {
+			web.LogIgnoreErr(web.Templates.ExecuteTemplate(w, "cp_genai", tmpl))
 			return
 		}
-		tmpl["StreamingConfig"] = config
+		tmpl["GenAIConfig"] = config
+		tmpl["GenAIProviders"] = GenAIProviders
 		inner.ServeHTTP(w, r.WithContext(context.WithValue(r.Context(), ConextKeyConfig, config)))
 	}
 
 	return http.HandlerFunc(mw)
 }
 
-func HandlePostStreaming(w http.ResponseWriter, r *http.Request) interface{} {
+func HandlePostGenAI(w http.ResponseWriter, r *http.Request) interface{} {
 	ctx := r.Context()
 	guild, tmpl := web.GetBaseCPContextData(ctx)
-	tmpl["VisibleURL"] = "/manage/" + discordgo.StrID(guild.ID) + "/streaming/"
+	tmpl["VisibleURL"] = "/manage/" + discordgo.StrID(guild.ID) + "/genai/"
 
 	ok := ctx.Value(common.ContextKeyFormOk).(bool)
 	newConf := ctx.Value(common.ContextKeyParsedForm).(*Config)
+	newConfNoKey := *newConf
+	newConfNoKey.Key = ""
 
-	tmpl["StreamingConfig"] = newConf
+	tmpl["GenAIConfig"] = newConfNoKey
 
 	if !ok {
 		return tmpl
 	}
 
-	err := newConf.Save(guild.ID)
+	var err error
+	provider := GenAIProviderFromID(newConf.Provider)
+	if provider.KeyRequired() {
+		newConf.Key, err = encryptAPIToken(&dstate.GuildState{ID: guild.ID, OwnerID: guild.OwnerID}, newConf.Key)
+		if web.CheckErr(tmpl, err, "Failed encrypting your API token to save", web.CtxLogger(ctx).Error) {
+			return tmpl
+		}
+	}
+
+	err = newConf.Save(guild.ID)
 	if web.CheckErr(tmpl, err, "Failed saving config :'(", web.CtxLogger(ctx).Error) {
 		return tmpl
 	}
@@ -94,9 +105,9 @@ func HandlePostStreaming(w http.ResponseWriter, r *http.Request) interface{} {
 		web.CtxLogger(ctx).WithError(err).Error("failed updating feature flags")
 	}
 
-	err = pubsub.Publish("update_streaming", guild.ID, nil)
+	err = pubsub.Publish("update_genai", guild.ID, nil)
 	if err != nil {
-		web.CtxLogger(ctx).WithError(err).Error("Failed sending update streaming event")
+		web.CtxLogger(ctx).WithError(err).Error("Failed sending update genai event")
 	}
 
 	go cplogs.RetryAddEntry(web.NewLogEntryFromContext(r.Context(), panelLogKey))
@@ -109,8 +120,8 @@ var _ web.PluginWithServerHomeWidget = (*Plugin)(nil)
 func (p *Plugin) LoadServerHomeWidget(w http.ResponseWriter, r *http.Request) (web.TemplateData, error) {
 	ag, templateData := web.GetBaseCPContextData(r.Context())
 
-	templateData["WidgetTitle"] = "Streaming"
-	templateData["SettingsPath"] = "/streaming"
+	templateData["WidgetTitle"] = "GenAI"
+	templateData["SettingsPath"] = "/genai"
 
 	config, err := GetConfig(ag.ID)
 	if err != nil {
@@ -118,9 +129,10 @@ func (p *Plugin) LoadServerHomeWidget(w http.ResponseWriter, r *http.Request) (w
 	}
 
 	format := `<ul>
-	<li>Streaming status: %s</li>
-	<li>Streaming role: <code>%s</code>%s</li>
-	<li>Streaming message: <code>#%s</code>%s</li>
+	<li>GenAI status: %s</li>
+	<li>GenAI provider: <code>%s</code>%s</li>
+	<li>GenAI model: <code>#%s</code>%s</li>
+	<li>GenAI base command: <code>#%s</code>%s</li>
 </ul>`
 
 	status := web.EnabledDisabledSpanStatus(config.Enabled)
@@ -131,26 +143,12 @@ func (p *Plugin) LoadServerHomeWidget(w http.ResponseWriter, r *http.Request) (w
 		templateData["WidgetDisabled"] = true
 	}
 
-	roleStr := "none / unknown"
-	indicatorRole := ""
-	if role := ag.GetRole(config.GiveRole); role != nil {
-		roleStr = html.EscapeString(role.Name)
-		indicatorRole = web.Indicator(true)
-	} else {
-		indicatorRole = web.Indicator(false)
+	provider := GenAIProviderFromID(config.Provider)
+	baseCmdStr := "disabled"
+	if config.BaseCmdEnabled {
+		baseCmdStr = "enabled"
 	}
-
-	indicatorMessage := ""
-	channelStr := "none / unknown"
-
-	if channel := ag.GetChannel(config.AnnounceChannel); channel != nil {
-		indicatorMessage = web.Indicator(true)
-		channelStr = html.EscapeString(channel.Name)
-	} else {
-		indicatorMessage = web.Indicator(false)
-	}
-
-	templateData["WidgetBody"] = template.HTML(fmt.Sprintf(format, status, roleStr, indicatorRole, channelStr, indicatorMessage))
+	templateData["WidgetBody"] = template.HTML(fmt.Sprintf(format, status, provider.String(), web.Indicator(true), config.Model, web.Indicator(true), baseCmdStr, web.Indicator(config.BaseCmdEnabled)))
 
 	return templateData, nil
 }

@@ -6,13 +6,71 @@ import (
 	"crypto/rand"
 	"strconv"
 
+	"github.com/botlabs-gg/yagpdb/v2/bot"
+	"github.com/botlabs-gg/yagpdb/v2/commands"
 	"github.com/botlabs-gg/yagpdb/v2/common"
+	"github.com/botlabs-gg/yagpdb/v2/lib/dcmd"
 	"github.com/botlabs-gg/yagpdb/v2/lib/dstate"
+	"github.com/botlabs-gg/yagpdb/v2/web"
 	"golang.org/x/crypto/scrypt"
 )
 
+var _ commands.CommandProvider = (*Plugin)(nil)
+var _ bot.BotInitHandler = (*Plugin)(nil)
+
+func (p *Plugin) AddCommands() {
+	commands.AddRootCommands(p, baseCmd)
+}
+
 func (p *Plugin) BotInit() {
 
+}
+
+func GenAIProviderFromID(id GenAIProviderID) GenAIProvider {
+	for _, p := range GenAIProviders {
+		if p.ID() == id {
+			return p
+		}
+	}
+	return GenAIProviders[0]
+}
+
+var baseCmd = &commands.YAGCommand{
+	Name:        "genai",
+	Aliases:     []string{"ai"},
+	Description: "Uses your configured Generative AI provider to respond to the prompt",
+	Arguments: []*dcmd.ArgDef{
+		&dcmd.ArgDef{Name: "Prompt", Type: dcmd.String}},
+	RequiredArgs:        1,
+	Cooldown:            5,
+	CmdCategory:         commands.CategoryGeneral,
+	DefaultEnabled:      true,
+	SlashCommandEnabled: true,
+	RunFunc: func(data *dcmd.Data) (interface{}, error) {
+		config, err := BotCachedGetConfig(data.GuildData.GS.ID)
+		if err != nil {
+			return "", err
+		}
+
+		genaiConfigPage := web.ManageServerURL(data.GuildData.GS.ID) + "/genai"
+		if !config.Enabled {
+			return "", commands.NewUserErrorf("Generative AI is disabled on this server. It can be enabled at <%s>", genaiConfigPage)
+		}
+		if !config.BaseCmdEnabled {
+			return "", commands.NewUserErrorf("The **genai** command is disabled on this server. It can be enabled at <%s>", genaiConfigPage)
+		}
+
+		provider := GenAIProviderFromID(config.Provider)
+		if provider.KeyRequired() && config.Key == "" {
+			return "", commands.NewUserErrorf("No API key set for . It can be enabled at <%s>", genaiConfigPage)
+		}
+
+		response, _, err := provider.BasicCompletion(&data.GuildData.GS.GuildState, "", data.Args[0].Str(), 512, false)
+		if err != nil {
+			return "", err
+		}
+		return response.Content, nil
+	},
 }
 
 func createKey(gs *dstate.GuildState) ([]byte, error) {
@@ -74,7 +132,7 @@ func decryptAPIToken(gs *dstate.GuildState, encryptedToken string) (string, erro
 }
 
 func getAPIToken(gs *dstate.GuildState) (string, error) {
-	config, err := GetConfig(gs.ID)
+	config, err := BotCachedGetConfig(gs.ID)
 	if err != nil {
 		logger.WithError(err).WithField("guild", gs.ID).Error("Failed retrieving openai config")
 		return "", err
@@ -85,4 +143,18 @@ func getAPIToken(gs *dstate.GuildState) (string, error) {
 	}
 
 	return decryptAPIToken(gs, config.Key)
+}
+
+var cachedConfig = common.CacheSet.RegisterSlot("genai_configs", nil, int64(0))
+
+func BotCachedGetConfig(guildID int64) (*Config, error) {
+	v, err := cachedConfig.GetCustomFetch(guildID, func(key interface{}) (interface{}, error) {
+		return GetConfig(guildID)
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	return v.(*Config), nil
 }
