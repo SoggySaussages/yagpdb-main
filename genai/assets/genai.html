@@ -86,7 +86,7 @@
     });
 
     // html elements that should be shown for specific trigger types and hidden otherwise
-    var triggerTypeEls = {{{range .GenAIProviders}}
+    var triggerTypeEls = { {{range .GenAIProviders}}
         {{.ID}}: ['#provider-form-{{.ID}}'],{{end}}
     };
 
