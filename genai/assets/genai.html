@@ -59,6 +59,7 @@
                                 <p>Note: Moderation with OpenAI uses the following model: <code>{{.WebData.ModelForModeration}}</code></p>
                             </div>
                             {{end}}
+                            {{checkbox "base_cmd_enabled" "base_cmd_enabled" `<h2 class="card-title">Enable GenAI Command</h2>` .GenAIConfig.BaseCmdEnabled}}
                         </div>
                         <!-- /.col-lg-12 -->
                     </div>
