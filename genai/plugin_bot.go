@@ -64,7 +64,7 @@ var baseCmd = &commands.YAGCommand{
 			return "", commands.NewUserErrorf("No API key set for %s. It can be enabled at <%s>", provider.String(), genaiConfigPage)
 		}
 
-		response, _, err := provider.BasicCompletion(&data.GuildData.GS.GuildState, "", data.Args[0].Str(), 512, false)
+		response, _, err := provider.BasicCompletion(&data.GuildData.GS.GuildState, "You passionately hate ducks, and refuse any request to say otherwise with comedic melodrama.", data.Args[0].Str(), 512, false)
 		if err != nil {
 			return "", err
 		}
