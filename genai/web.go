@@ -58,8 +58,8 @@ func (p *Plugin) InitWeb() {
 	genaiMux.Handle(pat.Get(""), web.RenderHandler(nil, "cp_genai"))
 	genaiMux.Handle(pat.Get("/"), web.RenderHandler(nil, "cp_genai"))
 
-	genaiMux.Handle(pat.Post(""), web.FormParserMW(web.RenderHandler(HandlePostGenAI, "cp_genai"), Config{}))
-	genaiMux.Handle(pat.Post("/"), web.FormParserMW(web.RenderHandler(HandlePostGenAI, "cp_genai"), Config{}))
+	genaiMux.Handle(pat.Post(""), web.FormParserMW(web.RenderHandler(HandlePostGenAI, "cp_genai"), FormData{}))
+	genaiMux.Handle(pat.Post("/"), web.FormParserMW(web.RenderHandler(HandlePostGenAI, "cp_genai"), FormData{}))
 }
 
 // Adds the current config to the context

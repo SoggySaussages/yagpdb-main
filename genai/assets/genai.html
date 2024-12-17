@@ -43,7 +43,7 @@
                                 </select>
                                 <div id="key">
                                     <div id="key-reset-button"{{if eq .GenAIConfig.Key ""}} class="hidden"{{end}}>
-                                        <button onclick="DisableToken();" class="btn btn-danger btn-lg btn-block">Reset API Token</button>
+                                        <button type="submit" onclick="disableToken();" class="btn btn-secondary btn-lg btn-block">Reset API Token</button>
                                         <p>Note: This will <strong>not</strong> reset your token on {{(index .GenAIProviders .GenAIConfig.Provider).String}}'s end, meaning your token will still be fully usable by anyone who has it until you do so. Visit their API Dashboard to delete your API token.</p>
                                     </div>
                                     <div id="key-input-field"{{if ne .GenAIConfig.Key ""}} class="hidden"{{end}}>
@@ -74,7 +74,7 @@
                                 {{end}}
                             </div>
                             {{checkbox "base_cmd_enabled" "base_cmd_enabled" `Enable GenAI Command` .GenAIConfig.BaseCmdEnabled}}
-                            <input type="checkbox" id="reset_token" name="reset_token">
+                            <input type="checkbox" id="reset_token" name="reset_token" class="hidden">
                         </div>
                         <!-- /.col-lg-12 -->
                     </div>
@@ -102,7 +102,7 @@
     });
 
     // html elements that should be shown for specific trigger types and hidden otherwise
-    var ProviderEls = { {{range .GenAIProviders}}
+    var providerEls = { {{range .GenAIProviders}}
         {{.ID}}: ['#api-instructions-provider-{{.ID}}', '#model-options-provider-{{.ID}}', '#model-description-provider-{{.ID}}'{{if .KeyRequired}}, '#key'{{end}}],{{end}}
     };
 
