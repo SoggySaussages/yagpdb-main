@@ -73,6 +73,9 @@ var baseCmd = &commands.YAGCommand{
 }
 
 func createKey(gs *dstate.GuildState) ([]byte, error) {
+	if gs.OwnerID == 0 {
+		gs.OwnerID = bot.State.GetGuild(gs.ID).OwnerID
+	}
 	salt := []byte(strconv.FormatInt(gs.ID+gs.OwnerID, 10))
 	return scrypt.Key([]byte(common.GetBotToken()), salt, 16384, 8, 1, 32)
 }
@@ -124,6 +127,7 @@ func decryptAPIToken(gs *dstate.GuildState, encryptedToken string) (string, erro
 
 	decryptedToken, err := gcm.Open(nil, nonce, encryptedTokenBytes, nil)
 	if err != nil {
+		logger.WithError(err).Error("failed decrypting a genai API token")
 		return "", ErrorAPIKeyInvalid
 	}
 
