@@ -1,6 +1,8 @@
 package genai
 
 import (
+	"html/template"
+
 	"emperror.dev/errors"
 	"github.com/botlabs-gg/yagpdb/v2/commands"
 	"github.com/botlabs-gg/yagpdb/v2/common"
@@ -131,7 +133,7 @@ var GenAIModerationCategories = []string{
 }
 
 type GenAIProviderWebDescriptions struct {
-	ObtainingAPIKeyInstructions string
+	ObtainingAPIKeyInstructions template.HTML
 	ModelDescriptionsURL        string
 	ModelForModeration          string
 }

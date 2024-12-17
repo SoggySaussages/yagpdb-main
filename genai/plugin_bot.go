@@ -47,7 +47,7 @@ var baseCmd = &commands.YAGCommand{
 	DefaultEnabled:      true,
 	SlashCommandEnabled: true,
 	RunFunc: func(data *dcmd.Data) (interface{}, error) {
-		config, err := BotCachedGetConfig(data.GuildData.GS.ID)
+		config, err := GetConfig(data.GuildData.GS.ID)
 		if err != nil {
 			return "", err
 		}
@@ -132,7 +132,7 @@ func decryptAPIToken(gs *dstate.GuildState, encryptedToken string) (string, erro
 }
 
 func getAPIToken(gs *dstate.GuildState) (string, error) {
-	config, err := BotCachedGetConfig(gs.ID)
+	config, err := GetConfig(gs.ID)
 	if err != nil {
 		logger.WithError(err).WithField("guild", gs.ID).Error("Failed retrieving openai config")
 		return "", err
@@ -143,18 +143,4 @@ func getAPIToken(gs *dstate.GuildState) (string, error) {
 	}
 
 	return decryptAPIToken(gs, config.Key)
-}
-
-var cachedConfig = common.CacheSet.RegisterSlot("genai_configs", nil, int64(0))
-
-func BotCachedGetConfig(guildID int64) (*Config, error) {
-	v, err := cachedConfig.GetCustomFetch(guildID, func(key interface{}) (interface{}, error) {
-		return GetConfig(guildID)
-	})
-
-	if err != nil {
-		return nil, err
-	}
-
-	return v.(*Config), nil
 }

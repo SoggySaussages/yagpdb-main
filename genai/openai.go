@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"html/template"
 	"reflect"
 	"slices"
 	"strings"
@@ -102,7 +103,7 @@ func (p GenAIProviderOpenAI) ComplexCompletion(gs *dstate.GuildState, input *Gen
 		}
 	}
 
-	config, err := BotCachedGetConfig(gs.ID)
+	config, err := GetConfig(gs.ID)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -194,7 +195,7 @@ func (p GenAIProviderOpenAI) ModerateMessage(gs *dstate.GuildState, message stri
 }
 
 var GenAIProviderOpenAIWebData = &GenAIProviderWebDescriptions{
-	ObtainingAPIKeyInstructions: `Step one: Create an account.
+	ObtainingAPIKeyInstructions: template.HTML(`Step one: Create an account.
 	<br>
 	Visit <a href="https://platform.openai.com/docs/guides/production-best-practices/api-keys#setting-up-your-organization">OpenAI's website</a> to do this.
 	<br>
@@ -216,7 +217,7 @@ var GenAIProviderOpenAIWebData = &GenAIProviderWebDescriptions{
 	<br>
 	Step five: Copy the API key to YAGPDB.
 	<br>
-	Click copy, then paste the new API key into the "API Key" field on this page.`,
+	Click copy, then paste the new API key into the "API Key" field on this page.`),
 	ModelDescriptionsURL: "https://platform.openai.com/docs/models",
 	ModelForModeration:   "omni-moderation-latest",
 }

@@ -41,25 +41,31 @@
                                     </option>
                                     {{end}}
                                 </select>
-                            </div>
-                            {{range .GenAIProviders}}
-                            <div id="provider-form-{{.ID}}">
-                                <label for="key-{{.ID}}">OpenAI API Key</label>
-                                <input id="key-{{.ID}}" type="password" class="form-control" name="key-{{.ID}}">
-                                <p>
+                                <label for="key">API Key</label>
+                                <input id="key" type="password" class="form-control" name="key">
+                                {{range .GenAIProviders}}
+                                <p id="api-instructions-provider-{{.ID}}">
                                     {{.WebData.ObtainingAPIKeyInstructions}}
                                 </p>
-                                <select class="form-control" id="model-dropdown-{{.ID}}" name="model-{{.ID}}">
-                                    {{range $k, $v := .ModelMap}}
-                                    <option value="{{$v}}" {{if eq $v $dot.GenAIConfig.Model}}selected{{end}}>{{$k}}
-                                    </option>
+                                {{end}}
+                                <select class="form-control" id="model-dropdown" name="model">
+                                    {{range .GenAIProviders}}
+                                    <optgroup id="model-options-provider-{{.ID}}" label="{{.String}}">
+                                        {{range $k, $v := .ModelMap}}
+                                        <option value="{{$v}}" {{if eq $v $dot.GenAIConfig.Model}}selected{{end}}>{{$k}}
+                                        </option>
+                                        {{end}}
+                                    </optgroup>
                                     {{end}}
                                 </select>
-                                <p><a href="{{.WebData.ModelDescriptionsURL}}">OpenAI's Model List</a></p>
-                                <p>Note: Moderation with OpenAI uses the following model: <code>{{.WebData.ModelForModeration}}</code></p>
+                                {{range .GenAIProviders}}
+                                <div id="model-description-provider-{{.ID}}">
+                                    <p><a href="{{.WebData.ModelDescriptionsURL}}">OpenAI's Model List</a></p>
+                                    <p>Note: Moderation with OpenAI uses the following model: <code>{{.WebData.ModelForModeration}}</code></p>
+                                </div>
+                                {{end}}
                             </div>
-                            {{end}}
-                            {{checkbox "base_cmd_enabled" "base_cmd_enabled" `<h2 class="card-title">Enable GenAI Command</h2>` .GenAIConfig.BaseCmdEnabled}}
+                            {{checkbox "base_cmd_enabled" "base_cmd_enabled" `Enable GenAI Command` .GenAIConfig.BaseCmdEnabled}}
                         </div>
                         <!-- /.col-lg-12 -->
                     </div>
@@ -87,17 +93,17 @@
     });
 
     // html elements that should be shown for specific trigger types and hidden otherwise
-    var triggerTypeEls = { {{range .GenAIProviders}}
-        {{.ID}}: ['#provider-form-{{.ID}}'],{{end}}
+    var ProviderEls = { {{range .GenAIProviders}}
+        {{.ID}}: ['#api-instructions-provider-{{.ID}}', '#model-options-provider-{{.ID}}', '#model-description-provider-{{.ID}}'],{{end}}
     };
 
     function providerChanged() {
-        const curTriggerType = $('#provider-dropdown').val();
+        const curProvider = $('#provider-dropdown').val();
 
         const elsToHide = [];
         const elsToShow = [];
-        for (const [t, els] of Object.entries(triggerTypeEls)) {
-            if (t === curTriggerType) elsToShow.push(...els);
+        for (const [t, els] of Object.entries(providerEls)) {
+            if (t === curProvider) elsToShow.push(...els);
             else elsToHide.push(...els);
         }
 
@@ -108,7 +114,9 @@
         // hide elements from other trigger types and only then show elements
         // for the current trigger type.
         for (const el of elsToHide) $(el).addClass('hidden');
+        for (const el of elsToHide) $(el).addClass('disabled');
         for (const el of elsToShow) $(el).removeClass('hidden');
+        for (const el of elsToShow) $(el).removeClass('disabled');
     }
 </script>
 
