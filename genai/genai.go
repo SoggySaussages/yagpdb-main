@@ -46,7 +46,7 @@ func (p *Plugin) UpdateFeatureFlags(guildID int64) ([]string, error) {
 	}
 
 	var flags []string
-	if config.Enabled && config.Key != "" {
+	if config.Enabled && config.Key != nil {
 		flags = append(flags, featureFlagEnabled)
 	}
 
@@ -169,7 +169,7 @@ type Config struct {
 	Model string `json:"model" schema:"model"`
 
 	// The encrypted key for the selected API
-	Key string `json:"key" schema:"key"`
+	Key []byte `json:"key" schema:"key"`
 
 	// Whether the basic genai command is enabled or not
 	BaseCmdEnabled bool `json:"base_cmd_enabled" schema:"base_cmd_enabled"`

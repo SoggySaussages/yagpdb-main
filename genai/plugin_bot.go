@@ -39,7 +39,7 @@ var baseCmd = &commands.YAGCommand{
 	Aliases:     []string{"ai"},
 	Description: "Uses your configured Generative AI provider to respond to the prompt",
 	Arguments: []*dcmd.ArgDef{
-		&dcmd.ArgDef{Name: "Prompt", Type: dcmd.String}},
+		{Name: "Prompt", Type: dcmd.String}},
 	RequiredArgs:        1,
 	Cooldown:            5,
 	CmdCategory:         commands.CategoryGeneral,
@@ -60,7 +60,7 @@ var baseCmd = &commands.YAGCommand{
 		}
 
 		provider := GenAIProviderFromID(config.Provider)
-		if provider.KeyRequired() && config.Key == "" {
+		if provider.KeyRequired() && config.Key == nil {
 			return "", commands.NewUserErrorf("No API key set for %s. It can be enabled at <%s>", provider.String(), genaiConfigPage)
 		}
 
@@ -78,36 +78,36 @@ func createKey(gs *dstate.GuildState) ([]byte, error) {
 	return scrypt.Key([]byte(common.GetBotToken()), salt, 16384, 8, 1, 32)
 }
 
-func encryptAPIToken(gs *dstate.GuildState, token string) (string, error) {
+func encryptAPIToken(gs *dstate.GuildState, token string) ([]byte, error) {
 	key, err := createKey(gs)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	logger.Info(key)
 
 	blockCipher, err := aes.NewCipher(key)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	gcm, err := cipher.NewGCM(blockCipher)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	nonce := make([]byte, gcm.NonceSize())
 	if _, err = rand.Read(nonce); err != nil {
-		return "", err
+		return nil, err
 	}
 
 	cypheredToken := gcm.Seal(nonce, nonce, []byte(token), nil)
 	logger.Info(cypheredToken)
 	logger.Info(nonce)
 
-	return string(cypheredToken), nil
+	return cypheredToken, nil
 }
 
-func decryptAPIToken(gs *dstate.GuildState, encryptedToken string) (string, error) {
+func decryptAPIToken(gs *dstate.GuildState, encryptedToken []byte) (string, error) {
 	key, err := createKey(gs)
 	if err != nil {
 		return "", err
@@ -124,12 +124,11 @@ func decryptAPIToken(gs *dstate.GuildState, encryptedToken string) (string, erro
 		return "", err
 	}
 
-	encryptedTokenBytes := []byte(encryptedToken)
-	logger.Info(encryptedTokenBytes)
-	nonce, encryptedTokenBytes := encryptedTokenBytes[:gcm.NonceSize()], encryptedTokenBytes[gcm.NonceSize():]
+	logger.Info(encryptedToken)
+	nonce, encryptedToken := encryptedToken[:gcm.NonceSize()], encryptedToken[gcm.NonceSize():]
 	logger.Info(nonce)
 
-	decryptedToken, err := gcm.Open(nil, nonce, encryptedTokenBytes, nil)
+	decryptedToken, err := gcm.Open(nil, nonce, encryptedToken, nil)
 	logger.Info(string(decryptedToken))
 	if err != nil {
 		logger.WithError(err).Error("failed decrypting a genai API token")

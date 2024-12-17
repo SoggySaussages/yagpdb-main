@@ -1,6 +1,7 @@
 package genai
 
 import (
+	"bytes"
 	"context"
 	_ "embed"
 	"fmt"
@@ -71,8 +72,8 @@ func baseData(inner http.Handler) http.Handler {
 			web.LogIgnoreErr(web.Templates.ExecuteTemplate(w, "cp_genai", tmpl))
 			return
 		}
-		if config.Key != "" {
-			config.Key = "key-hidden-for-security"
+		if config.Key != nil {
+			tmpl["KeySet"] = true
 		}
 		tmpl["GenAIConfig"] = config
 		tmpl["GenAIProviders"] = GenAIProviders
@@ -117,16 +118,15 @@ func HandlePostGenAI(w http.ResponseWriter, r *http.Request) interface{} {
 		}
 	}
 
-	keyChanged := newConf.Key != conf.Key && newConf.Key != ""
+	keyChanged := bytes.Equal(newConf.Key, conf.Key) && newConf.Key != nil
 	saveNewKey = provider.KeyRequired() && (formData.ResetToken || keyChanged)
 	if !saveNewKey {
 		newConf.Key = conf.Key
 	}
 
-	if newConf.Key != "" {
+	if newConf.Key != nil {
 		// Ensure the "reset token" button appears on the webpage
-		newConfFakeKey.Key = "key-hidden-for-security"
-		tmpl["GenAIConfig"] = &newConfFakeKey
+		tmpl["KeySet"] = true
 	}
 
 	err = newConf.Save(guild.ID)
