@@ -75,7 +75,7 @@ var baseCmd = &commands.YAGCommand{
 
 func createKey(gs *dstate.GuildState) ([]byte, error) {
 	salt := []byte(strconv.FormatInt(gs.ID+gs.OwnerID, 10))
-	return scrypt.Key([]byte(common.GetBotToken()), salt, 1048576, 8, 1, 32)
+	return scrypt.Key([]byte(common.GetBotToken()), salt, 16384, 8, 1, 32)
 }
 
 func encryptAPIToken(gs *dstate.GuildState, token string) (string, error) {
