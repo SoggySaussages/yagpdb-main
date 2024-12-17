@@ -118,7 +118,7 @@ func HandlePostGenAI(w http.ResponseWriter, r *http.Request) interface{} {
 		}
 	}
 
-	keyChanged := bytes.Equal(newConf.Key, conf.Key) && newConf.Key != nil
+	keyChanged := !bytes.Equal(newConf.Key, conf.Key) && newConf.Key != nil
 	saveNewKey = provider.KeyRequired() && (formData.ResetToken || keyChanged)
 	if !saveNewKey {
 		newConf.Key = conf.Key
