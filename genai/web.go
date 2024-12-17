@@ -96,9 +96,6 @@ func HandlePostGenAI(w http.ResponseWriter, r *http.Request) interface{} {
 		BaseCmdEnabled: formData.BaseCmdEnabled,
 	}
 	newConfFakeKey := *newConf
-	if formData.Key != "" {
-		newConfFakeKey.Key = "key-hidden-for-security"
-	}
 
 	tmpl["GenAIConfig"] = &newConfFakeKey
 
@@ -124,6 +121,12 @@ func HandlePostGenAI(w http.ResponseWriter, r *http.Request) interface{} {
 	saveNewKey = provider.KeyRequired() && (formData.ResetToken || keyChanged)
 	if !saveNewKey {
 		newConf.Key = conf.Key
+	}
+
+	if newConf.Key != "" {
+		// Ensure the "reset token" button appears on the webpage
+		newConfFakeKey.Key = "key-hidden-for-security"
+		tmpl["GenAIConfig"] = &newConfFakeKey
 	}
 
 	err = newConf.Save(guild.ID)
