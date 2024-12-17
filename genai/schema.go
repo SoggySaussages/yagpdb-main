@@ -1,6 +1,16 @@
 package genai
 
 var DBSchemas = []string{`
+CREATE TABLE IF NOT EXISTS genai_configs (
+	guild_id BIGINT PRIMARY KEY,
+
+	enabled BOOL NOT NULL,
+	provider INT NOT NULL,
+	model TEXT NOT NULL,
+	key TEXT NOT NULL,
+	base_cmd_enabled BOOL NOT NULL
+);
+`, `
 CREATE TABLE IF NOT EXISTS genai_commands (
 	id BIGINT NOT NULL,
 	guild_id BIGINT NOT NULL,

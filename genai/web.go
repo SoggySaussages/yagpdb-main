@@ -23,6 +23,15 @@ var PageHTML string
 
 type ConextKey int
 
+type FormData struct {
+	Enabled        bool            `json:"enabled" schema:"enabled"`
+	Provider       GenAIProviderID `json:"provider" schema:"provider"`
+	Model          string          `json:"model" schema:"model"`
+	Key            string          `json:"key" schema:"key"`
+	BaseCmdEnabled bool            `json:"base_cmd_enabled" schema:"base_cmd_enabled"`
+	ResetToken     bool            `json:"reset_token" schema:"reset_token"`
+}
+
 const (
 	ConextKeyConfig ConextKey = iota
 )
@@ -62,6 +71,7 @@ func baseData(inner http.Handler) http.Handler {
 			web.LogIgnoreErr(web.Templates.ExecuteTemplate(w, "cp_genai", tmpl))
 			return
 		}
+		config.Key = "key-hidden-for-security"
 		tmpl["GenAIConfig"] = config
 		tmpl["GenAIProviders"] = GenAIProviders
 		inner.ServeHTTP(w, r.WithContext(context.WithValue(r.Context(), ConextKeyConfig, config)))
@@ -76,23 +86,37 @@ func HandlePostGenAI(w http.ResponseWriter, r *http.Request) interface{} {
 	tmpl["VisibleURL"] = "/manage/" + discordgo.StrID(guild.ID) + "/genai/"
 
 	ok := ctx.Value(common.ContextKeyFormOk).(bool)
-	newConf := ctx.Value(common.ContextKeyParsedForm).(*Config)
-	newConfNoKey := *newConf
-	newConfNoKey.Key = ""
+	formData := ctx.Value(common.ContextKeyParsedForm).(*FormData)
+	newConf := &Config{
+		Enabled:        formData.Enabled,
+		Provider:       formData.Provider,
+		Model:          formData.Model,
+		BaseCmdEnabled: formData.BaseCmdEnabled,
+	}
+	newConfFakeKey := *newConf
+	newConfFakeKey.Key = "key-hidden-for-security"
 
-	tmpl["GenAIConfig"] = newConfNoKey
+	tmpl["GenAIConfig"] = newConfFakeKey
 
 	if !ok {
 		return tmpl
 	}
 
-	var err error
+	var saveNewKey bool
 	provider := GenAIProviderFromID(newConf.Provider)
-	if provider.KeyRequired() {
+	conf, err := GetConfig(guild.ID)
+
+	if newConf.Key != "" {
 		newConf.Key, err = encryptAPIToken(&dstate.GuildState{ID: guild.ID, OwnerID: guild.OwnerID}, newConf.Key)
 		if web.CheckErr(tmpl, err, "Failed encrypting your API token to save", web.CtxLogger(ctx).Error) {
 			return tmpl
 		}
+	}
+
+	keyChanged := newConf.Key != conf.Key && newConf.Key != ""
+	saveNewKey = provider.KeyRequired() && (formData.ResetToken || keyChanged)
+	if !saveNewKey {
+		newConf.Key = conf.Key
 	}
 
 	err = newConf.Save(guild.ID)
@@ -120,7 +144,7 @@ var _ web.PluginWithServerHomeWidget = (*Plugin)(nil)
 func (p *Plugin) LoadServerHomeWidget(w http.ResponseWriter, r *http.Request) (web.TemplateData, error) {
 	ag, templateData := web.GetBaseCPContextData(r.Context())
 
-	templateData["WidgetTitle"] = "GenAI"
+	templateData["WidgetTitle"] = "Generative AI"
 	templateData["SettingsPath"] = "/genai"
 
 	config, err := GetConfig(ag.ID)
@@ -130,8 +154,8 @@ func (p *Plugin) LoadServerHomeWidget(w http.ResponseWriter, r *http.Request) (w
 
 	format := `<ul>
 	<li>GenAI status: %s</li>
-	<li>GenAI provider: <code>%s</code>%s</li>
-	<li>GenAI model: <code>#%s</code>%s</li>
+	<li>GenAI provider: <code>%s</code></li>
+	<li>GenAI model: <code>#%s</code></li>
 	<li>GenAI base command: <code>#%s</code>%s</li>
 </ul>`
 
@@ -148,7 +172,7 @@ func (p *Plugin) LoadServerHomeWidget(w http.ResponseWriter, r *http.Request) (w
 	if config.BaseCmdEnabled {
 		baseCmdStr = "enabled"
 	}
-	templateData["WidgetBody"] = template.HTML(fmt.Sprintf(format, status, provider.String(), web.Indicator(true), config.Model, web.Indicator(true), baseCmdStr, web.Indicator(config.BaseCmdEnabled)))
+	templateData["WidgetBody"] = template.HTML(fmt.Sprintf(format, status, provider.String(), config.Model, baseCmdStr, web.Indicator(config.BaseCmdEnabled)))
 
 	return templateData, nil
 }

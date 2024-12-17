@@ -26,6 +26,8 @@ func (p *Plugin) PluginInfo() *common.PluginInfo {
 var logger = common.GetPluginLogger(&Plugin{})
 
 func RegisterPlugin() {
+	common.InitSchemas("genai", DBSchemas...)
+
 	plugin := &Plugin{}
 	common.RegisterPlugin(plugin)
 }

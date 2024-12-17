@@ -23,7 +23,6 @@ func (p *Plugin) AddCommands() {
 }
 
 func (p *Plugin) BotInit() {
-
 }
 
 func GenAIProviderFromID(id GenAIProviderID) GenAIProvider {
