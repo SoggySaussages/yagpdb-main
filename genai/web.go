@@ -96,9 +96,11 @@ func HandlePostGenAI(w http.ResponseWriter, r *http.Request) interface{} {
 		BaseCmdEnabled: formData.BaseCmdEnabled,
 	}
 	newConfFakeKey := *newConf
-	newConfFakeKey.Key = "key-hidden-for-security"
+	if formData.Key != "" {
+		newConfFakeKey.Key = "key-hidden-for-security"
+	}
 
-	tmpl["GenAIConfig"] = newConfFakeKey
+	tmpl["GenAIConfig"] = &newConfFakeKey
 
 	if !ok {
 		return tmpl
@@ -111,8 +113,8 @@ func HandlePostGenAI(w http.ResponseWriter, r *http.Request) interface{} {
 		conf = &Config{}
 	}
 
-	if newConf.Key != "" {
-		newConf.Key, err = encryptAPIToken(&dstate.GuildState{ID: guild.ID, OwnerID: guild.OwnerID}, newConf.Key)
+	if formData.Key != "" {
+		newConf.Key, err = encryptAPIToken(&dstate.GuildState{ID: guild.ID, OwnerID: guild.OwnerID}, formData.Key)
 		if web.CheckErr(tmpl, err, "Failed encrypting your API token to save", web.CtxLogger(ctx).Error) {
 			return tmpl
 		}

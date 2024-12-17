@@ -61,7 +61,7 @@ var baseCmd = &commands.YAGCommand{
 
 		provider := GenAIProviderFromID(config.Provider)
 		if provider.KeyRequired() && config.Key == "" {
-			return "", commands.NewUserErrorf("No API key set for . It can be enabled at <%s>", genaiConfigPage)
+			return "", commands.NewUserErrorf("No API key set for %s. It can be enabled at <%s>", provider.String(), genaiConfigPage)
 		}
 
 		response, _, err := provider.BasicCompletion(&data.GuildData.GS.GuildState, "", data.Args[0].Str(), 512, false)
