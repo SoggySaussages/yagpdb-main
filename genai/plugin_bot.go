@@ -73,9 +73,10 @@ var baseCmd = &commands.YAGCommand{
 }
 
 func createKey(gs *dstate.GuildState) ([]byte, error) {
-	if gs.OwnerID == 0 {
-		gs.OwnerID = bot.State.GetGuild(gs.ID).OwnerID
-	}
+	//	if gs.OwnerID == 0 {
+	//		gs.OwnerID = bot.State.GetGuild(gs.ID).OwnerID
+	//	}
+	logger.Infof("%d, %d, %s.", gs.ID, gs.OwnerID, common.GetBotToken())
 	salt := []byte(strconv.FormatInt(gs.ID+gs.OwnerID, 10))
 	return scrypt.Key([]byte(common.GetBotToken()), salt, 16384, 8, 1, 32)
 }
@@ -85,6 +86,7 @@ func encryptAPIToken(gs *dstate.GuildState, token string) (string, error) {
 	if err != nil {
 		return "", err
 	}
+	logger.Info(key)
 
 	blockCipher, err := aes.NewCipher(key)
 	if err != nil {
@@ -100,6 +102,7 @@ func encryptAPIToken(gs *dstate.GuildState, token string) (string, error) {
 	if _, err = rand.Read(nonce); err != nil {
 		return "", err
 	}
+	logger.Info(string(nonce))
 
 	cypheredToken := gcm.Seal(nonce, nonce, []byte(token), nil)
 
@@ -111,6 +114,7 @@ func decryptAPIToken(gs *dstate.GuildState, encryptedToken string) (string, erro
 	if err != nil {
 		return "", err
 	}
+	logger.Info(key)
 
 	blockCipher, err := aes.NewCipher(key)
 	if err != nil {
@@ -124,8 +128,10 @@ func decryptAPIToken(gs *dstate.GuildState, encryptedToken string) (string, erro
 
 	encryptedTokenBytes := []byte(encryptedToken)
 	nonce, encryptedTokenBytes := encryptedTokenBytes[:gcm.NonceSize()], encryptedTokenBytes[gcm.NonceSize():]
+	logger.Info(string(nonce))
 
 	decryptedToken, err := gcm.Open(nil, nonce, encryptedTokenBytes, nil)
+	logger.Info(string(decryptedToken))
 	if err != nil {
 		logger.WithError(err).Error("failed decrypting a genai API token")
 		return "", ErrorAPIKeyInvalid
