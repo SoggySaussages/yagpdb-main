@@ -73,9 +73,6 @@ var baseCmd = &commands.YAGCommand{
 }
 
 func createKey(gs *dstate.GuildState) ([]byte, error) {
-	//	if gs.OwnerID == 0 {
-	//		gs.OwnerID = bot.State.GetGuild(gs.ID).OwnerID
-	//	}
 	logger.Infof("%d, %d, %s.", gs.ID, gs.OwnerID, common.GetBotToken())
 	salt := []byte(strconv.FormatInt(gs.ID+gs.OwnerID, 10))
 	return scrypt.Key([]byte(common.GetBotToken()), salt, 16384, 8, 1, 32)
@@ -102,9 +99,10 @@ func encryptAPIToken(gs *dstate.GuildState, token string) (string, error) {
 	if _, err = rand.Read(nonce); err != nil {
 		return "", err
 	}
-	logger.Info(nonce)
 
 	cypheredToken := gcm.Seal(nonce, nonce, []byte(token), nil)
+	logger.Info(cypheredToken)
+	logger.Info(nonce)
 
 	return string(cypheredToken), nil
 }
@@ -127,6 +125,7 @@ func decryptAPIToken(gs *dstate.GuildState, encryptedToken string) (string, erro
 	}
 
 	encryptedTokenBytes := []byte(encryptedToken)
+	logger.Info(encryptedTokenBytes)
 	nonce, encryptedTokenBytes := encryptedTokenBytes[:gcm.NonceSize()], encryptedTokenBytes[gcm.NonceSize():]
 	logger.Info(nonce)
 
