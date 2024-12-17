@@ -102,7 +102,7 @@ func encryptAPIToken(gs *dstate.GuildState, token string) (string, error) {
 	if _, err = rand.Read(nonce); err != nil {
 		return "", err
 	}
-	logger.Info(string(nonce))
+	logger.Info(nonce)
 
 	cypheredToken := gcm.Seal(nonce, nonce, []byte(token), nil)
 
@@ -128,7 +128,7 @@ func decryptAPIToken(gs *dstate.GuildState, encryptedToken string) (string, erro
 
 	encryptedTokenBytes := []byte(encryptedToken)
 	nonce, encryptedTokenBytes := encryptedTokenBytes[:gcm.NonceSize()], encryptedTokenBytes[gcm.NonceSize():]
-	logger.Info(string(nonce))
+	logger.Info(nonce)
 
 	decryptedToken, err := gcm.Open(nil, nonce, encryptedTokenBytes, nil)
 	logger.Info(string(decryptedToken))
