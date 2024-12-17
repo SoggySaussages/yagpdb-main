@@ -73,7 +73,6 @@ var baseCmd = &commands.YAGCommand{
 }
 
 func createKey(gs *dstate.GuildState) ([]byte, error) {
-	logger.Infof("%d, %d, %s.", gs.ID, gs.OwnerID, common.GetBotToken())
 	salt := []byte(strconv.FormatInt(gs.ID+gs.OwnerID, 10))
 	return scrypt.Key([]byte(common.GetBotToken()), salt, 16384, 8, 1, 32)
 }
@@ -83,7 +82,6 @@ func encryptAPIToken(gs *dstate.GuildState, token string) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	logger.Info(key)
 
 	blockCipher, err := aes.NewCipher(key)
 	if err != nil {
@@ -101,8 +99,6 @@ func encryptAPIToken(gs *dstate.GuildState, token string) ([]byte, error) {
 	}
 
 	cypheredToken := gcm.Seal(nonce, nonce, []byte(token), nil)
-	logger.Info(cypheredToken)
-	logger.Info(nonce)
 
 	return cypheredToken, nil
 }
@@ -112,7 +108,6 @@ func decryptAPIToken(gs *dstate.GuildState, encryptedToken []byte) (string, erro
 	if err != nil {
 		return "", err
 	}
-	logger.Info(key)
 
 	blockCipher, err := aes.NewCipher(key)
 	if err != nil {
@@ -124,12 +119,9 @@ func decryptAPIToken(gs *dstate.GuildState, encryptedToken []byte) (string, erro
 		return "", err
 	}
 
-	logger.Info(encryptedToken)
 	nonce, encryptedToken := encryptedToken[:gcm.NonceSize()], encryptedToken[gcm.NonceSize():]
-	logger.Info(nonce)
 
 	decryptedToken, err := gcm.Open(nil, nonce, encryptedToken, nil)
-	logger.Info(string(decryptedToken))
 	if err != nil {
 		logger.WithError(err).Error("failed decrypting a genai API token")
 		return "", ErrorAPIKeyInvalid
