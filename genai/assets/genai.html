@@ -41,13 +41,15 @@
                                     </option>
                                     {{end}}
                                 </select>
-                                <div id="key-reset-button"{{if eq .GenAIConfig.Key ""}} class="hidden"{{end}}>
-                                    <button onclick="DisableToken();" class="btn btn-danger btn-lg btn-block">Reset API Token</button>
-                                    <p>Note: This will <strong>not</strong> reset your token on {{.GenAIConfig.String}}'s end, meaning your token will still be fully usable by anyone who has it until you do so. Visit their API Dashboard to delete your API token.</p>
-                                </div>
-                                <div id="key-input-field"{{if ne .GenAIConfig.Key ""}} class="hidden"{{end}}>
-                                    <label for="key">API Key</label>
-                                    <input id="key" type="password" class="form-control" name="key">
+                                <div id="key">
+                                    <div id="key-reset-button"{{if eq .GenAIConfig.Key ""}} class="hidden"{{end}}>
+                                        <button onclick="DisableToken();" class="btn btn-danger btn-lg btn-block">Reset API Token</button>
+                                        <p>Note: This will <strong>not</strong> reset your token on {{(index .GenAIProviders .GenAIConfig.Provider).String}}'s end, meaning your token will still be fully usable by anyone who has it until you do so. Visit their API Dashboard to delete your API token.</p>
+                                    </div>
+                                    <div id="key-input-field"{{if ne .GenAIConfig.Key ""}} class="hidden"{{end}}>
+                                        <label for="key">API Key</label>
+                                        <input id="key" type="password" class="form-control" name="key">
+                                    </div>
                                 </div>
                                 {{range .GenAIProviders}}
                                 <p id="api-instructions-provider-{{.ID}}">
