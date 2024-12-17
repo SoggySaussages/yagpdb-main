@@ -73,19 +73,20 @@ func tmplGenAIComplete(ctx *templates.Context) interface{} {
 }
 
 func tmplGenAICompleteComplex(ctx *templates.Context) interface{} {
-	return func(input *GenAIInput) (*GenAIResponse, *GenAIResponseUsage, error) {
+	return func(input *GenAIInput) (*GenAIResponse, error) {
 		if ctx.IncreaseCheckGenericAPICall() {
-			return nil, nil, templates.ErrTooManyAPICalls
+			return nil, templates.ErrTooManyAPICalls
 		}
 
 		config, err := GetConfig(ctx.GS.ID)
 		if err != nil {
-			return nil, nil, err
+			return nil, err
 		}
 
 		provider := GenAIProviderFromID(config.Provider)
 		input.BotSystemMessage = BotSystemMessagePromptGeneric + "\n" + BotSystemMessagePromptAppendNonNSFW
-		return provider.ComplexCompletion(&dstate.GuildState{ID: ctx.GS.ID, OwnerID: ctx.GS.OwnerID}, input)
+		resp, _, err := provider.ComplexCompletion(&dstate.GuildState{ID: ctx.GS.ID, OwnerID: ctx.GS.OwnerID}, input)
+		return resp, err
 	}
 }
 
