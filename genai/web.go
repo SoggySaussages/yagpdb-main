@@ -24,12 +24,12 @@ var PageHTML string
 type ConextKey int
 
 type FormData struct {
-	Enabled        bool            `json:"enabled" schema:"enabled"`
-	Provider       GenAIProviderID `json:"provider" schema:"provider"`
-	Model          string          `json:"model" schema:"model"`
-	Key            string          `json:"key" schema:"key"`
-	BaseCmdEnabled bool            `json:"base_cmd_enabled" schema:"base_cmd_enabled"`
-	ResetToken     bool            `json:"reset_token" schema:"reset_token"`
+	Enabled        bool   `json:"enabled" schema:"enabled"`
+	Provider       uint   `json:"provider" schema:"provider"`
+	Model          string `json:"model" schema:"model"`
+	Key            string `json:"key" schema:"key"`
+	BaseCmdEnabled bool   `json:"base_cmd_enabled" schema:"base_cmd_enabled"`
+	ResetToken     bool   `json:"reset_token" schema:"reset_token"`
 }
 
 const (
@@ -43,7 +43,7 @@ func (p *Plugin) InitWeb() {
 	web.AddSidebarItem(web.SidebarCategoryGenAI, &web.SidebarItem{
 		Name: "General",
 		URL:  "genai",
-		Icon: "fas fa-video",
+		Icon: "fas fa-cog",
 	})
 
 	genaiMux := goji.SubMux()
@@ -71,7 +71,9 @@ func baseData(inner http.Handler) http.Handler {
 			web.LogIgnoreErr(web.Templates.ExecuteTemplate(w, "cp_genai", tmpl))
 			return
 		}
-		config.Key = "key-hidden-for-security"
+		if config.Key != "" {
+			config.Key = "key-hidden-for-security"
+		}
 		tmpl["GenAIConfig"] = config
 		tmpl["GenAIProviders"] = GenAIProviders
 		inner.ServeHTTP(w, r.WithContext(context.WithValue(r.Context(), ConextKeyConfig, config)))
@@ -89,7 +91,7 @@ func HandlePostGenAI(w http.ResponseWriter, r *http.Request) interface{} {
 	formData := ctx.Value(common.ContextKeyParsedForm).(*FormData)
 	newConf := &Config{
 		Enabled:        formData.Enabled,
-		Provider:       formData.Provider,
+		Provider:       GenAIProviderID(formData.Provider),
 		Model:          formData.Model,
 		BaseCmdEnabled: formData.BaseCmdEnabled,
 	}
@@ -105,6 +107,9 @@ func HandlePostGenAI(w http.ResponseWriter, r *http.Request) interface{} {
 	var saveNewKey bool
 	provider := GenAIProviderFromID(newConf.Provider)
 	conf, err := GetConfig(guild.ID)
+	if err != nil {
+		conf = &Config{}
+	}
 
 	if newConf.Key != "" {
 		newConf.Key, err = encryptAPIToken(&dstate.GuildState{ID: guild.ID, OwnerID: guild.OwnerID}, newConf.Key)

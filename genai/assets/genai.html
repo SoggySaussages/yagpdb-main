@@ -41,8 +41,14 @@
                                     </option>
                                     {{end}}
                                 </select>
-                                <label for="key">API Key</label>
-                                <input id="key" type="password" class="form-control" name="key">
+                                <div id="key-reset-button"{{if eq .GenAIConfig.Key ""}} class="hidden"{{end}}>
+                                    <button onclick="DisableToken();" class="btn btn-danger btn-lg btn-block">Reset API Token</button>
+                                    <p>Note: This will <strong>not</strong> reset your token on {{.GenAIConfig.String}}'s end, meaning your token will still be fully usable by anyone who has it until you do so. Visit their API Dashboard to delete your API token.</p>
+                                </div>
+                                <div id="key-input-field"{{if ne .GenAIConfig.Key ""}} class="hidden"{{end}}>
+                                    <label for="key">API Key</label>
+                                    <input id="key" type="password" class="form-control" name="key">
+                                </div>
                                 {{range .GenAIProviders}}
                                 <p id="api-instructions-provider-{{.ID}}">
                                     {{.WebData.ObtainingAPIKeyInstructions}}
@@ -66,6 +72,7 @@
                                 {{end}}
                             </div>
                             {{checkbox "base_cmd_enabled" "base_cmd_enabled" `Enable GenAI Command` .GenAIConfig.BaseCmdEnabled}}
+                            <input type="checkbox" id="reset_token" name="reset_token">
                         </div>
                         <!-- /.col-lg-12 -->
                     </div>
@@ -94,7 +101,7 @@
 
     // html elements that should be shown for specific trigger types and hidden otherwise
     var ProviderEls = { {{range .GenAIProviders}}
-        {{.ID}}: ['#api-instructions-provider-{{.ID}}', '#model-options-provider-{{.ID}}', '#model-description-provider-{{.ID}}'],{{end}}
+        {{.ID}}: ['#api-instructions-provider-{{.ID}}', '#model-options-provider-{{.ID}}', '#model-description-provider-{{.ID}}'{{if .KeyRequired}}, '#key'{{end}}],{{end}}
     };
 
     function providerChanged() {
@@ -117,6 +124,12 @@
         for (const el of elsToHide) $(el).addClass('disabled');
         for (const el of elsToShow) $(el).removeClass('hidden');
         for (const el of elsToShow) $(el).removeClass('disabled');
+    };
+
+    function disableToken() {
+        $('#key-reset-button').addClass('hidden')
+        $('#key-input-field').removeClass('hidden')
+        $('#reset_token').prop('checked', true)
     }
 </script>
 

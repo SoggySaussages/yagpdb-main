@@ -17,7 +17,7 @@ type Plugin struct{}
 
 func (p *Plugin) PluginInfo() *common.PluginInfo {
 	return &common.PluginInfo{
-		Name:     "General Generative AI",
+		Name:     "Generative AI",
 		SysName:  "genai",
 		Category: common.PluginCategoryMisc,
 	}
