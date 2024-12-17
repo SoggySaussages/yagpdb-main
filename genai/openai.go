@@ -195,7 +195,7 @@ func (p GenAIProviderOpenAI) ModerateMessage(gs *dstate.GuildState, message stri
 
 	for i := 0; i < catScores.NumField(); i++ {
 		category := typed.Field(i).Name
-		if !slices.Contains(availableCategories, category) {
+		if !slices.Contains(availableCategories, strings.ToLower(category)) {
 			continue
 		}
 
