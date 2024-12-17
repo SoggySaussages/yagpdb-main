@@ -5,6 +5,8 @@ package models
 
 var TableNames = struct {
 	GenaiCommands string
+	GenaiConfigs  string
 }{
 	GenaiCommands: "genai_commands",
+	GenaiConfigs:  "genai_configs",
 }
