@@ -70,11 +70,17 @@ func (p GenAIProviderOpenAI) BasicCompletion(gs *dstate.GuildState, systemMsg, u
 var ModelsNotSupportingSystemRoleMessages = []string{openai.ChatModelO1Mini, openai.ChatModelO1Preview}
 
 func (p GenAIProviderOpenAI) ComplexCompletion(gs *dstate.GuildState, input *GenAIInput) (*GenAIResponse, *GenAIResponseUsage, error) {
-	messages := []openai.ChatCompletionMessageParamUnion{openai.SystemMessage(input.BotSystemMessage)}
+	messages := []openai.ChatCompletionMessageParamUnion{}
 
 	config, err := GetConfig(gs.ID)
 	if err != nil {
 		return nil, nil, err
+	}
+
+	if slices.Contains(ModelsNotSupportingSystemRoleMessages, config.Model) {
+		messages = append(messages, openai.UserMessage(input.BotSystemMessage))
+	} else {
+		messages = append(messages, openai.SystemMessage(input.BotSystemMessage))
 	}
 
 	if input.SystemMessage != "" {
