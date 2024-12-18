@@ -27,7 +27,7 @@ type GenaiConfig struct {
 	Enabled        bool   `boil:"enabled" json:"enabled" toml:"enabled" yaml:"enabled"`
 	Provider       int    `boil:"provider" json:"provider" toml:"provider" yaml:"provider"`
 	Model          string `boil:"model" json:"model" toml:"model" yaml:"model"`
-	Key            string `boil:"key" json:"key" toml:"key" yaml:"key"`
+	Key            []byte `boil:"key" json:"key" toml:"key" yaml:"key"`
 	BaseCMDEnabled bool   `boil:"base_cmd_enabled" json:"base_cmd_enabled" toml:"base_cmd_enabled" yaml:"base_cmd_enabled"`
 
 	R *genaiConfigR `boil:"-" json:"-" toml:"-" yaml:"-"`
@@ -68,19 +68,28 @@ var GenaiConfigTableColumns = struct {
 
 // Generated where
 
+type whereHelper__byte struct{ field string }
+
+func (w whereHelper__byte) EQ(x []byte) qm.QueryMod  { return qmhelper.Where(w.field, qmhelper.EQ, x) }
+func (w whereHelper__byte) NEQ(x []byte) qm.QueryMod { return qmhelper.Where(w.field, qmhelper.NEQ, x) }
+func (w whereHelper__byte) LT(x []byte) qm.QueryMod  { return qmhelper.Where(w.field, qmhelper.LT, x) }
+func (w whereHelper__byte) LTE(x []byte) qm.QueryMod { return qmhelper.Where(w.field, qmhelper.LTE, x) }
+func (w whereHelper__byte) GT(x []byte) qm.QueryMod  { return qmhelper.Where(w.field, qmhelper.GT, x) }
+func (w whereHelper__byte) GTE(x []byte) qm.QueryMod { return qmhelper.Where(w.field, qmhelper.GTE, x) }
+
 var GenaiConfigWhere = struct {
 	GuildID        whereHelperint64
 	Enabled        whereHelperbool
 	Provider       whereHelperint
 	Model          whereHelperstring
-	Key            whereHelperstring
+	Key            whereHelper__byte
 	BaseCMDEnabled whereHelperbool
 }{
 	GuildID:        whereHelperint64{field: "\"genai_configs\".\"guild_id\""},
 	Enabled:        whereHelperbool{field: "\"genai_configs\".\"enabled\""},
 	Provider:       whereHelperint{field: "\"genai_configs\".\"provider\""},
 	Model:          whereHelperstring{field: "\"genai_configs\".\"model\""},
-	Key:            whereHelperstring{field: "\"genai_configs\".\"key\""},
+	Key:            whereHelper__byte{field: "\"genai_configs\".\"key\""},
 	BaseCMDEnabled: whereHelperbool{field: "\"genai_configs\".\"base_cmd_enabled\""},
 }
 
