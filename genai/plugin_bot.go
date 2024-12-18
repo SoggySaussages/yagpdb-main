@@ -6,6 +6,7 @@ import (
 	"crypto/rand"
 	"strconv"
 
+	"github.com/botlabs-gg/yagpdb/v2/automod"
 	"github.com/botlabs-gg/yagpdb/v2/bot"
 	"github.com/botlabs-gg/yagpdb/v2/commands"
 	"github.com/botlabs-gg/yagpdb/v2/common"
@@ -23,6 +24,11 @@ func (p *Plugin) AddCommands() {
 }
 
 func (p *Plugin) BotInit() {
+	generateFormattedModCategoryList()
+
+	// add automod trigger
+	automod.RulePartMap[39] = &GenAIAutomodTrigger{}
+	automod.InverseRulePartMap[automod.RulePartMap[39]] = 39
 }
 
 func GenAIProviderFromID(id GenAIProviderID) GenAIProvider {

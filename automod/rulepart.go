@@ -51,6 +51,7 @@ var RulePartMap = map[int]RulePart{
 	36: &SlowmodeTrigger{Links: true, ChannelBased: false},
 	37: &SlowmodeTrigger{Links: true, ChannelBased: true},
 	38: &AutomodExecution{},
+	// 39: &GenAIAutomodTrigger{},
 
 	// Conditions 2xx
 	200: &MemberRolesCondition{Blacklist: true},
@@ -128,7 +129,13 @@ const (
 	SettingTypeString                 = "string"
 	SettingTypeBool                   = "bool"
 	SettingTypeList                   = "list"
+	SettingTypeMultiOptionsCustom     = "multi_options_custom"
 )
+
+type SettingTypeOptionsCustomOption struct {
+	Name  string
+	Value string
+}
 
 type SettingDef struct {
 	Name        string
@@ -137,6 +144,9 @@ type SettingDef struct {
 	Min, Max    int
 	Default     interface{} `json:",omitempty"`
 	Placeholder string      `json:",omitempty"`
+
+	// Only supported when Kind == SettingType(Multi)OptionsCustom
+	Options []SettingTypeOptionsCustomOption
 }
 
 type RulePartType int

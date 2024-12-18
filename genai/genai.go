@@ -2,6 +2,7 @@ package genai
 
 import (
 	"html/template"
+	"strings"
 
 	"emperror.dev/errors"
 	"github.com/botlabs-gg/yagpdb/v2/commands"
@@ -125,13 +126,27 @@ var GenAIModerationCategories = []string{
 	"hate threatening",
 	"illicit",
 	"illicit violent",
-	"self harm",
-	"self harm intent",
-	"self harm instructions",
+	"self-harm",
+	"self-harm intent",
+	"self-harm instructions",
 	"sexual",
 	"sexual minors",
 	"violence",
 	"violence graphic",
+}
+
+// generated at runtime, categories in format "Self-Harm - Intent"
+var GenAIModerationCategoriesFormatted []string
+
+func generateFormattedModCategoryList() {
+	for _, c := range GenAIModerationCategories {
+		words := strings.Split(c, " ")
+		formatted := words[0]
+		if len(words) > 1 {
+			formatted += " - " + words[1]
+		}
+		GenAIModerationCategoriesFormatted = append(GenAIModerationCategoriesFormatted, strings.Title(formatted))
+	}
 }
 
 type GenAIProviderWebDescriptions struct {
