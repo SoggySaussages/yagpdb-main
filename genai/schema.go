@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS genai_configs (
 	enabled BOOL NOT NULL,
 	provider INT NOT NULL,
 	model TEXT NOT NULL,
-	key TEXT NOT NULL,
+	key BYTEA NOT NULL,
 	base_cmd_enabled BOOL NOT NULL
 );
 `, `
