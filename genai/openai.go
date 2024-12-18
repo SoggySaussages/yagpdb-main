@@ -49,10 +49,14 @@ func (p GenAIProviderOpenAI) KeyRequired() bool {
 }
 
 // ~ accurate for English text as of Dec 2024
-const CharacterCountToTokenRatioOpenAI = int64(4 / 1)
+const CharacterCountToTokenRatioOpenAI = 4 / 1
+
+func (p GenAIProviderOpenAI) CharacterTokenRatio() int {
+	return CharacterCountToTokenRatioOpenAI
+}
 
 func (p GenAIProviderOpenAI) EstimateTokens(combinedInput string, maxTokens int64) (inputEstimatedTokens, outputMaxTokens int64) {
-	inputEstimatedTokens = int64(len(combinedInput)) / CharacterCountToTokenRatioOpenAI
+	inputEstimatedTokens = int64(len(combinedInput) / CharacterCountToTokenRatioOpenAI)
 	outputMaxTokens = maxTokens - inputEstimatedTokens
 	return
 }

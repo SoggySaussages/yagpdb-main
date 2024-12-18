@@ -162,6 +162,7 @@ type GenAIProvider interface {
 	ModelMap() *GenAIProviderModelMap
 	KeyRequired() bool
 
+	CharacterTokenRatio() int
 	EstimateTokens(combinedInput string, maxTokens int64) (inputEstimatedTokens, outputMaxCharacters int64)
 
 	BasicCompletion(gs *dstate.GuildState, systemMsg, userMsg string, maxTokens int64, nsfw bool) (*GenAIResponse, *GenAIResponseUsage, error)

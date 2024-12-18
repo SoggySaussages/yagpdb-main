@@ -11,6 +11,7 @@ import (
 
 type GenAIAutomodTriggerData struct {
 	Threshold  int
+	MaxTokens  int
 	Categories []string
 }
 
@@ -46,7 +47,7 @@ func (mc *GenAIAutomodTrigger) UserSettings() []*automod.SettingDef {
 		},
 		{
 			Name:    "Max Tokens per Message",
-			Key:     "Threshold",
+			Key:     "MaxTokens",
 			Kind:    automod.SettingTypeInt,
 			Default: 512,
 			Min:     1,
@@ -61,7 +62,8 @@ func (mc *GenAIAutomodTrigger) UserSettings() []*automod.SettingDef {
 	for i, s := range GenAIModerationCategories {
 		catSettings.Options = append(catSettings.Options, automod.SettingTypeOptionsCustomOption{
 			Name:  GenAIModerationCategoriesFormatted[i],
-			Value: strings.ReplaceAll(s, " ", "-")})
+			Value: strings.ReplaceAll(s, " ", "-"),
+		})
 	}
 	return append(settings, catSettings)
 }
@@ -73,12 +75,23 @@ func (mc *GenAIAutomodTrigger) CheckMessage(triggerCtx *automod.TriggerContext, 
 		return false, err
 	}
 
-	g, err := common.BotSession.Guild(cs.GuildID)
+	provider := GenAIProviderFromID(config.Provider)
+
+	g, err := common.BotSession.State.Guild(cs.GuildID)
 	if err != nil {
 		return false, err
 	}
 
-	categories, _, err := GenAIProviderFromID(config.Provider).ModerateMessage(dstate.GuildStateFromDgo(g), m.Content)
+	content := m.Content
+	maxContentLength := dataCast.MaxTokens * provider.CharacterTokenRatio()
+	if len(content) > maxContentLength {
+		content = content[:maxContentLength]
+	}
+
+	categories, _, err := provider.ModerateMessage(dstate.GuildStateFromDgo(g), content)
+	if err != nil {
+		return false, err
+	}
 	for _, c := range dataCast.Categories {
 		if (*categories)[c]*100 > float64(dataCast.Threshold) {
 			return true, nil
