@@ -4,6 +4,7 @@ import (
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
+	"sort"
 	"strconv"
 
 	"github.com/botlabs-gg/yagpdb/v2/automod"
@@ -29,6 +30,13 @@ func (p *Plugin) BotInit() {
 	// add automod trigger
 	automod.RulePartMap[39] = &GenAIAutomodTrigger{}
 	automod.InverseRulePartMap[automod.RulePartMap[39]] = 39
+	automod.RulePartList = append(automod.RulePartList, &automod.RulePartPair{
+		ID:   39,
+		Part: automod.RulePartMap[39],
+	})
+	sort.Slice(automod.RulePartList, func(i, j int) bool {
+		return automod.RulePartList[i].ID < automod.RulePartList[j].ID
+	})
 }
 
 func GenAIProviderFromID(id GenAIProviderID) GenAIProvider {
