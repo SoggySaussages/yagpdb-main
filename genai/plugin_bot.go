@@ -39,9 +39,9 @@ func (p *Plugin) BotInit() {
 	})
 }
 
-func GenAIProviderFromID(id GenAIProviderID) GenAIProvider {
+func GenAIProviderFromID(id int) GenAIProvider {
 	for _, p := range GenAIProviders {
-		if p.ID() == id {
+		if p.ID() == GenAIProviderID(id) {
 			return p
 		}
 	}
@@ -69,7 +69,7 @@ var baseCmd = &commands.YAGCommand{
 		if !config.Enabled {
 			return "", commands.NewUserErrorf("Generative AI is disabled on this server. It can be enabled at <%s>", genaiConfigPage)
 		}
-		if !config.BaseCmdEnabled {
+		if !config.BaseCMDEnabled {
 			return "", commands.NewUserErrorf("The **genai** command is disabled on this server. It can be enabled at <%s>", genaiConfigPage)
 		}
 
