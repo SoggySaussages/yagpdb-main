@@ -126,7 +126,7 @@ func HandlePostGenAI(w http.ResponseWriter, r *http.Request) interface{} {
 	saveNewKey = provider.KeyRequired() && (formData.ResetToken || keyChanged)
 	if saveNewKey {
 		if len(newConf.Key) > 0 {
-			if web.CheckErr(tmpl, provider.ValidateAPIToken(partialGuildState, string(newConf.Key)), "Your API token is invalid.", web.CtxLogger(ctx).Error) {
+			if web.CheckErr(tmpl, provider.ValidateAPIToken(partialGuildState, string(formData.Key)), "Your API token is invalid.", web.CtxLogger(ctx).Error) {
 				return tmpl
 			}
 		}
