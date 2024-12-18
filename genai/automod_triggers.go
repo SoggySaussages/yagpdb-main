@@ -4,7 +4,7 @@ import (
 	"strings"
 
 	"github.com/botlabs-gg/yagpdb/v2/automod"
-	"github.com/botlabs-gg/yagpdb/v2/common"
+	"github.com/botlabs-gg/yagpdb/v2/bot"
 	"github.com/botlabs-gg/yagpdb/v2/lib/discordgo"
 	"github.com/botlabs-gg/yagpdb/v2/lib/dstate"
 )
@@ -77,8 +77,8 @@ func (mc *GenAIAutomodTrigger) CheckMessage(triggerCtx *automod.TriggerContext, 
 
 	provider := GenAIProviderFromID(config.Provider)
 
-	g, err := common.BotSession.State.Guild(cs.GuildID)
-	if err != nil {
+	g := bot.State.GetGuild(cs.GuildID)
+	if g == nil {
 		return false, err
 	}
 
@@ -88,7 +88,7 @@ func (mc *GenAIAutomodTrigger) CheckMessage(triggerCtx *automod.TriggerContext, 
 		content = content[:maxContentLength]
 	}
 
-	categories, _, err := provider.ModerateMessage(dstate.GuildStateFromDgo(g), content)
+	categories, _, err := provider.ModerateMessage(&dstate.GuildState{ID: g.ID, OwnerID: g.OwnerID}, content)
 	if err != nil {
 		return false, err
 	}
