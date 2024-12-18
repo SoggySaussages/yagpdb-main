@@ -74,6 +74,17 @@ func (p GenAIProviderOpenAI) BasicCompletion(gs *dstate.GuildState, systemMsg, u
 var ModelsNotSupportingSystemRoleMessages = []string{openai.ChatModelO1Mini, openai.ChatModelO1Preview}
 
 func (p GenAIProviderOpenAI) ComplexCompletion(gs *dstate.GuildState, input *GenAIInput) (*GenAIResponse, *GenAIResponseUsage, error) {
+	key, err := getAPIToken(gs)
+	if err != nil {
+		if err == ErrorNoAPIKey {
+			return &GenAIResponse{Content: "Please set your API key on the dashboard to use Generative AI."}, &GenAIResponseUsage{}, nil
+		}
+		if err == ErrorAPIKeyInvalid {
+			return &GenAIResponse{Content: err.Error()}, &GenAIResponseUsage{}, nil
+		}
+		return nil, nil, err
+	}
+
 	messages := []openai.ChatCompletionMessageParamUnion{}
 
 	config, err := GetConfig(gs.ID)
@@ -134,11 +145,6 @@ func (p GenAIProviderOpenAI) ComplexCompletion(gs *dstate.GuildState, input *Gen
 		requestParams.Tools = openai.F(tools)
 	}
 
-	key, err := getAPIToken(gs)
-	if err != nil {
-		return nil, nil, err
-	}
-
 	client := openai.NewClient(option.WithAPIKey(key))
 
 	chatCompletion, err := client.Chat.Completions.New(context.TODO(), requestParams)
@@ -173,6 +179,9 @@ func (p GenAIProviderOpenAI) ComplexCompletion(gs *dstate.GuildState, input *Gen
 func (p GenAIProviderOpenAI) ModerateMessage(gs *dstate.GuildState, message string) (*GenAIModerationCategoryProbability, *GenAIResponseUsage, error) {
 	key, err := getAPIToken(gs)
 	if err != nil {
+		if err == ErrorNoAPIKey || err == ErrorAPIKeyInvalid {
+			return &GenAIModerationCategoryProbability{}, nil, nil
+		}
 		return nil, nil, err
 	}
 

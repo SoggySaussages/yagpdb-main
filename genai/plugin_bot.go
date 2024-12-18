@@ -4,6 +4,7 @@ import (
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
+	"errors"
 	"sort"
 	"strconv"
 
@@ -144,6 +145,8 @@ func decryptAPIToken(gs *dstate.GuildState, encryptedToken []byte) (string, erro
 	return string(decryptedToken), nil
 }
 
+var ErrorNoAPIKey = errors.New("no API token set")
+
 func getAPIToken(gs *dstate.GuildState) (string, error) {
 	config, err := GetConfig(gs.ID)
 	if err != nil {
@@ -153,6 +156,10 @@ func getAPIToken(gs *dstate.GuildState) (string, error) {
 
 	if !config.Enabled {
 		return "", nil
+	}
+
+	if config.Key == nil {
+		return "", ErrorNoAPIKey
 	}
 
 	return decryptAPIToken(gs, config.Key)
