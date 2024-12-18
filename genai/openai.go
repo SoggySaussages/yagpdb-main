@@ -64,7 +64,7 @@ func (p GenAIProviderOpenAI) EstimateTokens(combinedInput string, maxTokens int6
 func (p GenAIProviderOpenAI) ValidateAPIToken(gs *dstate.GuildState, token string) error {
 	// make a really cheap (%0.02 of a cent) call to test the key
 	client := openai.NewClient(option.WithAPIKey(token))
-	_, err := client.Chat.Completions.New(context.Background(), openai.ChatCompletionNewParams{
+	_, err := client.Chat.Completions.New(context.TODO(), openai.ChatCompletionNewParams{
 		Messages:            openai.F([]openai.ChatCompletionMessageParamUnion{openai.UserMessage("1")}),
 		Model:               openai.F(p.DefaultModel()),
 		MaxCompletionTokens: openai.Int(1),
@@ -158,7 +158,7 @@ func (p GenAIProviderOpenAI) ComplexCompletion(gs *dstate.GuildState, input *Gen
 
 	client := openai.NewClient(option.WithAPIKey(key))
 
-	chatCompletion, err := client.Chat.Completions.New(context.Background(), requestParams)
+	chatCompletion, err := client.Chat.Completions.New(context.TODO(), requestParams)
 	if err != nil {
 		return nil, nil, err
 	}
