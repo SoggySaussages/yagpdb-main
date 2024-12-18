@@ -93,7 +93,8 @@ func (mc *GenAIAutomodTrigger) CheckMessage(triggerCtx *automod.TriggerContext, 
 		return false, err
 	}
 	for _, c := range dataCast.Categories {
-		if (*categories)[c]*100 > float64(dataCast.Threshold) {
+		pascalCaseCatName := strings.ReplaceAll(strings.Title(strings.ReplaceAll(c, "-", " ")), " ", "")
+		if (*categories)[pascalCaseCatName]*100 > float64(dataCast.Threshold) {
 			return true, nil
 		}
 	}
