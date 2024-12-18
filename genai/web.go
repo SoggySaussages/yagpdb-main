@@ -128,6 +128,7 @@ func HandlePostGenAI(w http.ResponseWriter, r *http.Request) interface{} {
 	}
 
 	if conf.GuildID == 0 { // config has never been saved
+		newConf.GuildID = guild.ID
 		err = newConf.InsertG(r.Context(), boil.Infer())
 	} else {
 		_, err = newConf.UpdateG(ctx, boil.Blacklist(blacklistColumns...))
