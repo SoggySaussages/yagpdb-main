@@ -73,7 +73,7 @@ func baseData(inner http.Handler) http.Handler {
 			web.LogIgnoreErr(web.Templates.ExecuteTemplate(w, "cp_genai", tmpl))
 			return
 		}
-		if config.Key != nil {
+		if len(config.Key) > 0 {
 			tmpl["KeySet"] = true
 		}
 		tmpl["GenAIConfig"] = config
@@ -121,7 +121,7 @@ func HandlePostGenAI(w http.ResponseWriter, r *http.Request) interface{} {
 	}
 
 	blacklistColumns := []string{}
-	keyChanged := !bytes.Equal(newConf.Key, conf.Key) && newConf.Key != nil
+	keyChanged := !bytes.Equal(newConf.Key, conf.Key) && len(newConf.Key) > 0
 	saveNewKey = provider.KeyRequired() && (formData.ResetToken || keyChanged)
 	if !saveNewKey {
 		newConf.Key = conf.Key
@@ -142,7 +142,7 @@ func HandlePostGenAI(w http.ResponseWriter, r *http.Request) interface{} {
 		web.CtxLogger(ctx).WithError(err).Error("failed updating feature flags")
 	}
 
-	if newConf.Key != nil {
+	if len(newConf.Key) > 0 {
 		// Ensure the "reset token" button appears on the webpage
 		tmpl["KeySet"] = true
 	}

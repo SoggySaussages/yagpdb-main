@@ -49,7 +49,7 @@ func (p *Plugin) UpdateFeatureFlags(guildID int64) ([]string, error) {
 	}
 
 	var flags []string
-	if config.Enabled && config.Key != nil {
+	if config.Enabled && len(config.Key) > 0 {
 		flags = append(flags, featureFlagEnabled)
 	}
 

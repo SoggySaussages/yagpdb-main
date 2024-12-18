@@ -75,7 +75,7 @@ var baseCmd = &commands.YAGCommand{
 		}
 
 		provider := GenAIProviderFromID(config.Provider)
-		if provider.KeyRequired() && config.Key == nil {
+		if provider.KeyRequired() && len(config.Key) == 0 {
 			return "", commands.NewUserErrorf("No API key set for %s. It can be enabled at <%s>", provider.String(), genaiConfigPage)
 		}
 
@@ -158,7 +158,7 @@ func getAPIToken(gs *dstate.GuildState) (string, error) {
 		return "", nil
 	}
 
-	if config.Key == nil {
+	if len(config.Key) == 0 {
 		return "", ErrorNoAPIKey
 	}
 
