@@ -1,6 +1,8 @@
 package genai
 
 import (
+	"context"
+	"database/sql"
 	"html/template"
 	"strings"
 
@@ -8,7 +10,7 @@ import (
 	"github.com/botlabs-gg/yagpdb/v2/commands"
 	"github.com/botlabs-gg/yagpdb/v2/common"
 	"github.com/botlabs-gg/yagpdb/v2/common/featureflags"
-	"github.com/botlabs-gg/yagpdb/v2/lib/discordgo"
+	"github.com/botlabs-gg/yagpdb/v2/genai/models"
 	"github.com/botlabs-gg/yagpdb/v2/lib/dstate"
 )
 
@@ -174,39 +176,19 @@ type GenAIProvider interface {
 
 var GenAIProviders = []GenAIProvider{GenAIProviderOpenAI{}}
 
-type Config struct {
-	// Whether genai is enabled or not
-	Enabled bool `json:"enabled" schema:"enabled"`
-
-	// The selected provider of genai (such as openai)
-	Provider GenAIProviderID `json:"provider" schema:"provider"`
-
-	// The selected model from the provider (such as gpt-4)
-	Model string `json:"model" schema:"model"`
-
-	// The encrypted key for the selected API
-	Key []byte `json:"key" schema:"key"`
-
-	// Whether the basic genai command is enabled or not
-	BaseCmdEnabled bool `json:"base_cmd_enabled" schema:"base_cmd_enabled"`
-}
-
-func (c *Config) Save(guildID int64) error {
-	return common.SetRedisJson("genai_config:"+discordgo.StrID(guildID), c)
-}
-
-var DefaultConfig = &Config{
+var DefaultConfig = models.GenaiConfig{
 	Enabled:  false,
-	Provider: GenAIProviders[0].ID(),
+	Provider: int(GenAIProviders[0].ID()),
 	Model:    GenAIProviders[0].DefaultModel(),
 }
 
 // Returns the guild's conifg, or the default one if not set
-func GetConfig(guildID int64) (*Config, error) {
-	var config *Config
-	err := common.GetRedisJson("genai_config:"+discordgo.StrID(guildID), &config)
-	if err == nil && config == nil {
-		return DefaultConfig, nil
+func GetConfig(guildID int64) (*models.GenaiConfig, error) {
+	config, err := models.GenaiConfigs(
+		models.GenaiConfigWhere.GuildID.EQ(guildID)).OneG(context.Background())
+	if err == sql.ErrNoRows {
+		confCopy := DefaultConfig
+		return &confCopy, nil
 	}
 
 	return config, err

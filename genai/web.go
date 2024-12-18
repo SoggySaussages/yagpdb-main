@@ -11,10 +11,11 @@ import (
 	"github.com/botlabs-gg/yagpdb/v2/common"
 	"github.com/botlabs-gg/yagpdb/v2/common/cplogs"
 	"github.com/botlabs-gg/yagpdb/v2/common/featureflags"
-	"github.com/botlabs-gg/yagpdb/v2/common/pubsub"
+	"github.com/botlabs-gg/yagpdb/v2/genai/models"
 	"github.com/botlabs-gg/yagpdb/v2/lib/discordgo"
 	"github.com/botlabs-gg/yagpdb/v2/lib/dstate"
 	"github.com/botlabs-gg/yagpdb/v2/web"
+	"github.com/volatiletech/sqlboiler/v4/boil"
 	"goji.io"
 	"goji.io/pat"
 )
@@ -26,7 +27,7 @@ type ConextKey int
 
 type FormData struct {
 	Enabled        bool   `json:"enabled" schema:"enabled"`
-	Provider       uint   `json:"provider" schema:"provider"`
+	Provider       int    `json:"provider" schema:"provider"`
 	Model          string `json:"model" schema:"model"`
 	Key            string `json:"key" schema:"key"`
 	BaseCmdEnabled bool   `json:"base_cmd_enabled" schema:"base_cmd_enabled"`
@@ -90,11 +91,11 @@ func HandlePostGenAI(w http.ResponseWriter, r *http.Request) interface{} {
 
 	ok := ctx.Value(common.ContextKeyFormOk).(bool)
 	formData := ctx.Value(common.ContextKeyParsedForm).(*FormData)
-	newConf := &Config{
+	newConf := &models.GenaiConfig{
 		Enabled:        formData.Enabled,
-		Provider:       GenAIProviderID(formData.Provider),
+		Provider:       formData.Provider,
 		Model:          formData.Model,
-		BaseCmdEnabled: formData.BaseCmdEnabled,
+		BaseCMDEnabled: formData.BaseCmdEnabled,
 	}
 	newConfFakeKey := *newConf
 
@@ -108,7 +109,7 @@ func HandlePostGenAI(w http.ResponseWriter, r *http.Request) interface{} {
 	provider := GenAIProviderFromID(newConf.Provider)
 	conf, err := GetConfig(guild.ID)
 	if err != nil {
-		conf = &Config{}
+		conf = &models.GenaiConfig{}
 	}
 
 	if formData.Key != "" {
@@ -118,18 +119,19 @@ func HandlePostGenAI(w http.ResponseWriter, r *http.Request) interface{} {
 		}
 	}
 
+	blacklistColumns := []string{}
 	keyChanged := !bytes.Equal(newConf.Key, conf.Key) && newConf.Key != nil
 	saveNewKey = provider.KeyRequired() && (formData.ResetToken || keyChanged)
 	if !saveNewKey {
 		newConf.Key = conf.Key
+		blacklistColumns = append(blacklistColumns, "key")
 	}
 
-	if newConf.Key != nil {
-		// Ensure the "reset token" button appears on the webpage
-		tmpl["KeySet"] = true
+	if conf.GuildID == 0 { // config has never been saved
+		err = newConf.InsertG(r.Context(), boil.Infer())
+	} else {
+		_, err = newConf.UpdateG(ctx, boil.Blacklist(blacklistColumns...))
 	}
-
-	err = newConf.Save(guild.ID)
 	if web.CheckErr(tmpl, err, "Failed saving config :'(", web.CtxLogger(ctx).Error) {
 		return tmpl
 	}
@@ -139,9 +141,9 @@ func HandlePostGenAI(w http.ResponseWriter, r *http.Request) interface{} {
 		web.CtxLogger(ctx).WithError(err).Error("failed updating feature flags")
 	}
 
-	err = pubsub.Publish("update_genai", guild.ID, nil)
-	if err != nil {
-		web.CtxLogger(ctx).WithError(err).Error("Failed sending update genai event")
+	if newConf.Key != nil {
+		// Ensure the "reset token" button appears on the webpage
+		tmpl["KeySet"] = true
 	}
 
 	go cplogs.RetryAddEntry(web.NewLogEntryFromContext(r.Context(), panelLogKey))
@@ -179,10 +181,10 @@ func (p *Plugin) LoadServerHomeWidget(w http.ResponseWriter, r *http.Request) (w
 
 	provider := GenAIProviderFromID(config.Provider)
 	baseCmdStr := "disabled"
-	if config.BaseCmdEnabled {
+	if config.BaseCMDEnabled {
 		baseCmdStr = "enabled"
 	}
-	templateData["WidgetBody"] = template.HTML(fmt.Sprintf(format, status, provider.String(), config.Model, baseCmdStr, web.Indicator(config.BaseCmdEnabled)))
+	templateData["WidgetBody"] = template.HTML(fmt.Sprintf(format, status, provider.String(), config.Model, baseCmdStr, web.Indicator(config.BaseCMDEnabled)))
 
 	return templateData, nil
 }
