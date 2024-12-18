@@ -92,6 +92,7 @@ func HandlePostGenAI(w http.ResponseWriter, r *http.Request) interface{} {
 	ok := ctx.Value(common.ContextKeyFormOk).(bool)
 	formData := ctx.Value(common.ContextKeyParsedForm).(*FormData)
 	newConf := &models.GenaiConfig{
+		GuildID:        guild.ID,
 		Enabled:        formData.Enabled,
 		Provider:       formData.Provider,
 		Model:          formData.Model,
@@ -128,7 +129,6 @@ func HandlePostGenAI(w http.ResponseWriter, r *http.Request) interface{} {
 	}
 
 	if conf.GuildID == 0 { // config has never been saved
-		newConf.GuildID = guild.ID
 		err = newConf.InsertG(r.Context(), boil.Infer())
 	} else {
 		_, err = newConf.UpdateG(ctx, boil.Blacklist(blacklistColumns...))
