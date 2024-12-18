@@ -149,10 +149,8 @@ func HandlePostGenAI(w http.ResponseWriter, r *http.Request) interface{} {
 		web.CtxLogger(ctx).WithError(err).Error("failed updating feature flags")
 	}
 
-	if len(newConf.Key) > 0 {
-		// Ensure the "reset token" button appears on the webpage
-		tmpl["KeySet"] = true
-	}
+	// Ensure the "reset token" button appears on the webpage
+	tmpl["KeySet"] = len(newConf.Key) > 0
 
 	go cplogs.RetryAddEntry(web.NewLogEntryFromContext(r.Context(), panelLogKey))
 
