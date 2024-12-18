@@ -90,7 +90,8 @@ func (mc *GenAIAutomodTrigger) CheckMessage(triggerCtx *automod.TriggerContext, 
 
 	categories, _, err := provider.ModerateMessage(&dstate.GuildState{ID: g.ID, OwnerID: g.OwnerID}, content)
 	if err != nil {
-		return false, err
+		logger.WithError(err).Error("GenAI Automod trigger API error")
+		return false, nil
 	}
 	for _, c := range dataCast.Categories {
 		pascalCaseCatName := strings.ReplaceAll(strings.Title(strings.ReplaceAll(c, "-", " ")), " ", "")

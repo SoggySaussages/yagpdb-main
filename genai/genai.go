@@ -167,6 +167,7 @@ type GenAIProvider interface {
 	CharacterTokenRatio() int
 	EstimateTokens(combinedInput string, maxTokens int64) (inputEstimatedTokens, outputMaxCharacters int64)
 
+	ValidateAPIToken(gs *dstate.GuildState, token string) error
 	BasicCompletion(gs *dstate.GuildState, systemMsg, userMsg string, maxTokens int64, nsfw bool) (*GenAIResponse, *GenAIResponseUsage, error)
 	ComplexCompletion(gs *dstate.GuildState, input *GenAIInput) (*GenAIResponse, *GenAIResponseUsage, error)
 	ModerateMessage(gs *dstate.GuildState, message string) (*GenAIModerationCategoryProbability, *GenAIResponseUsage, error)

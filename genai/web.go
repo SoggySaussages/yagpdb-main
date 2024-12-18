@@ -113,8 +113,9 @@ func HandlePostGenAI(w http.ResponseWriter, r *http.Request) interface{} {
 		conf = &models.GenaiConfig{}
 	}
 
+	partialGuildState := &dstate.GuildState{ID: guild.ID, OwnerID: guild.OwnerID}
 	if formData.Key != "" {
-		newConf.Key, err = encryptAPIToken(&dstate.GuildState{ID: guild.ID, OwnerID: guild.OwnerID}, formData.Key)
+		newConf.Key, err = encryptAPIToken(partialGuildState, formData.Key)
 		if web.CheckErr(tmpl, err, "Failed encrypting your API token to save", web.CtxLogger(ctx).Error) {
 			return tmpl
 		}
@@ -123,7 +124,13 @@ func HandlePostGenAI(w http.ResponseWriter, r *http.Request) interface{} {
 	blacklistColumns := []string{}
 	keyChanged := !bytes.Equal(newConf.Key, conf.Key) && len(newConf.Key) > 0
 	saveNewKey = provider.KeyRequired() && (formData.ResetToken || keyChanged)
-	if !saveNewKey {
+	if saveNewKey {
+		if len(newConf.Key) > 0 {
+			if web.CheckErr(tmpl, provider.ValidateAPIToken(partialGuildState, string(newConf.Key)), fmt.Sprintf("Your API token is invalid. %s responded with: %s", provider, err.Error()), web.CtxLogger(ctx).Error) {
+				return tmpl
+			}
+		}
+	} else {
 		newConf.Key = conf.Key
 		blacklistColumns = append(blacklistColumns, "key")
 	}
