@@ -108,7 +108,9 @@
                         name="max_tokens">
                     </div>
                     <div class="form-group col-md-6">
-                        {{checkbox "allow_input" (joinStr "" "allow_input-" .Command.ID) "Append user's command input to the prompt?" .Command.AllowInput}}
+                        {{$allowInput := false}}
+                        {{if .Command}}{{$allowInput = .Command.AllowInput}}{{end}}
+                        {{checkbox "allow_input" (joinStr "" "allow_input-" {{$idOrNew}}) "Append user's command input to the prompt?" $allowInput}}
                     </div>
                 </div>
             
