@@ -73,9 +73,14 @@ func tmplGenAIComplete(ctx *templates.Context) interface{} {
 }
 
 func tmplGenAICompleteComplex(ctx *templates.Context) interface{} {
-	return func(input *GenAIInput) (*GenAIResponse, error) {
+	return func(inputInterface interface{}) (*GenAIResponse, error) {
 		if ctx.IncreaseCheckGenericAPICall() {
 			return nil, templates.ErrTooManyAPICalls
+		}
+
+		input, err := CreateGenAIInput(inputInterface)
+		if err != nil {
+			return nil, err
 		}
 
 		config, err := GetConfig(ctx.GS.ID)
