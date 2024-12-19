@@ -96,8 +96,6 @@ var baseCmd = &commands.YAGCommand{
 	},
 }
 
-var cachedCommandsMessage = common.CacheSet.RegisterSlot("custom_genai_commands", nil, int64(0))
-
 func HandleMessageCreate(evt *eventsystem.EventData) {
 	mc := evt.MessageCreate()
 	cs := evt.CSOrThread()
@@ -130,21 +128,12 @@ func HandleMessageCreate(evt *eventsystem.EventData) {
 	member := dstate.MemberStateFromMember(mc.Member)
 	member.GuildID = evt.GS.ID
 
-	v, err := cachedCommandsMessage.GetCustomFetch(evt.GS.ID, func(key interface{}) (interface{}, error) {
-		var cmds []*models.GenaiCommand
-		var err error
-
-		cmds, err = models.GenaiCommands(
-			models.GenaiCommandWhere.GuildID.EQ(evt.GS.ID)).AllG(evt.Context())
-
-		return cmds, err
-	})
+	cmds, err := models.GenaiCommands(
+		models.GenaiCommandWhere.GuildID.EQ(evt.GS.ID)).AllG(evt.Context())
 	if err != nil {
 		logger.Error(err)
 		return
 	}
-
-	cmds := v.([]*models.GenaiCommand)
 
 	prefix, err := commands.GetCommandPrefixBotEvt(evt)
 	if err != nil {
