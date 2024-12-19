@@ -93,10 +93,10 @@ func (p *Plugin) InitWeb() {
 		URL:  "genai/commands",
 		Icon: "fas fa-terminal",
 	})
-	getHandler := web.RenderHandler(HandleCommands, "cp_genai_commands")
+	getHandler := web.ControllerHandler(HandleCommands, "cp_genai_commands")
 
-	genaiMux.Handle(pat.Get("commands"), getHandler)
-	genaiMux.Handle(pat.Get("commands/"), getHandler)
+	genaiMux.Handle(pat.Get("/commands"), getHandler)
+	genaiMux.Handle(pat.Get("/commands/"), getHandler)
 
 	genaiMux.Handle(pat.Post("/command/new"),
 		web.ControllerPostHandler(HandleCreateCommand, getHandler, CommandFormData{}))
@@ -202,20 +202,20 @@ func HandlePostGenAI(w http.ResponseWriter, r *http.Request) interface{} {
 }
 
 // Servers the command page with current config
-func HandleCommands(w http.ResponseWriter, r *http.Request) interface{} {
+func HandleCommands(w http.ResponseWriter, r *http.Request) (web.TemplateData, error) {
 	ctx := r.Context()
 	activeGuild, templateData := web.GetBaseCPContextData(ctx)
 
 	commands, err := models.GenaiConfigs(models.GenaiCommandWhere.GuildID.EQ(activeGuild.ID)).AllG(ctx)
 	if err != nil {
-		return templateData.AddAlerts(web.ErrorAlert(err.Error()))
+		return templateData, err
 	}
 
 	templateData["Commands"] = commands
 
 	templateData["VisibleURL"] = "/manage/" + discordgo.StrID(activeGuild.ID) + "/genai/commands"
 
-	return templateData
+	return templateData, nil
 }
 
 // Command handlers
