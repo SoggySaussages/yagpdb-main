@@ -13,7 +13,7 @@
     <div class="col-lg-12">
         <sction class="card {{if .GenAIConfig.Enabled}}card-featured card-featured-success{{end}}">
             <header class="card-header">
-                Custom Generative AI Commands
+                <h2 class="card-title">Custom Generative AI Commands</h2>
             </header>
             <div class="card-body">
                 <div class="row">
@@ -76,11 +76,13 @@
         </header>
         <div id="cmd-accordion-{{$idOrNew}}" class="collapse">
             <div class="card-body">
+                {{if .Command}}
                 <div class="form-row">
-                    {{if .Command}}
-                    {{checkbox "enabled" (joinStr "" "enabled-" .Command.ID) "Enable this Command" .Command.Enabled}}
-                    <hr />
-                    {{end}}
+                {{checkbox "enabled" (joinStr "" "enabled-" .Command.ID) "Enable this Command" .Command.Enabled}}
+                <hr />
+                </div>
+                {{end}}
+                <div class="form-row">
                     <div class="form-group col-md-6">
                         <label for="name-{{$idOrNew}}">Command Name</label>
                         <input type="text" class="form-control" id="name-{{$idOrNew}}" name="name" placeholder="funfact" value="{{if .Command}}{{index .Command.Triggers 0}}{{end}}">
@@ -95,55 +97,55 @@
                     <div class="form-group col-md-6">
                         <label for="prompt-{{$idOrNew}}">Command Prompt</label>
                         <input type="text" class="form-control" id="prompt-{{$idOrNew}}" name="prompt" placeholder="Give me a little-known fun fact" value="{{.Command.Prompt}}">
-                    
+                        <br>
                         <label for="max_tokens-{{$idOrNew}}">Max Response Tokens</label>
                         <input id="max_tokens_{{$idOrNew}}" type="number" min="1" max="512" class="form-control"
                         value="{{if .Command}}{{.Command.MaxTokens}}{{else}}128{{end}}"
-                        name="max_tokens">
+                        name="maxtokens">
                     </div>
                     <div class="form-group col-md-6">
                         {{$allowInput := false}}
                         {{if .Command}}{{$allowInput = .Command.AllowInput}}{{end}}
-                        {{checkbox "allow_input" (joinStr "" "allow_input-" $idOrNew) "Append user's command input to the prompt?" $allowInput}}
+                        {{checkbox "allowinput" (joinStr "" "allow_input-" $idOrNew) "Append user's command input to the prompt?" $allowInput}}
                     </div>
                 </div>
-            
+                <br>
                 <div class="form-row">
                     <div class="form-group col-md-6">
                         <div class="radio">
                             <label>
-                                <input id="require-channel-mode-" type="radio" name="channels_whitelist_mode" value="on"
+                                <input id="require-channel-mode-" type="radio" name="channelswhitelistmode" value="on"
                                     {{if .Command.ChannelsWhitelistMode}}checked{{end}}>
                                 Only run in the following channels and categories
                             </label>
                         </div>
                         <div class="radio">
                             <label>
-                                <input id="ignore-channel-mode-{{$idOrNew}}" type="radio" name="channels_whitelist_mode" value=""
+                                <input id="ignore-channel-mode-{{$idOrNew}}" type="radio" name="channelswhitelistmode" value=""
                                     {{if not .Command.ChannelsWhitelistMode}}checked{{end}}>
                                 Run in all channels and categories except for the following
                             </label>
                         </div>
+                        <label>Channels</label><br>
                         <select multiple="multiple" class="form-control" data-plugin-multiselect name="channels">
                             {{textChannelOptionsMulti .ActiveGuild.Channels .Command.Channels }}
                         </select><br>
-                        <label>Channels</label><br>
+                        <label>Categories</label><br>
                         <select multiple="multiple" class="form-control" data-plugin-multiselect name="categories">
                             {{catChannelOptionsMulti .ActiveGuild.Channels .Command.Channels}}
-                        </select><br>
-                        <label>Categories</label>
+                        </select>
                     </div>
                     <div class="form-group col-md-6">
                         <div class="radio">
                             <label>
-                                <input id="require-channel-mode-{{$idOrNew}}" type="radio" name="roles_whitelist_mode" value="on"
+                                <input id="require-channel-mode-{{$idOrNew}}" type="radio" name="roleswhitelistmode" value="on"
                                     {{if .Command.RolesWhitelistMode}}checked{{end}}>
                                 Only allow users with one or more of the following roles to use
                             </label>
                         </div>
                         <div class="radio">
                             <label>
-                                <input id="ignore-channel-mode-{{$idOrNew}}" type="radio" name="roles_whitelist_mode" value=""
+                                <input id="ignore-channel-mode-{{$idOrNew}}" type="radio" name="roleswhitelistmode" value=""
                                     {{if not .Command.RolesWhitelistMode}}checked{{end}}>
                                 Do not allow users with one or more of the following roles to use
                             </label>
@@ -160,13 +162,13 @@
                         <div class="input-group mb-3">
                             <span class="input-group-prepend">
                                 <span class="input-group-text">
-                                    <input type="checkbox" name="autodelete_trigger"
+                                    <input type="checkbox" name="autodeletetrigger"
                                         {{if .Command.AutodeleteTrigger}}checked{{end}}>
                                 </span>
                             </span>
                             <input type="number" min="0" max="2678400" class="form-control" placeholder="Seconds..."
                                 value="{{if .Command}}{{.Command.AutodeleteTriggerDelay}}{{else}}10{{end}}"
-                                name="autodelete_trigger_delay">
+                                name="autodeletetriggerdelay">
                         </div>
                     </div>
                     <div class="form-group col-md-6">
@@ -174,13 +176,13 @@
                         <div class="input-group mb-3">
                             <span class="input-group-prepend">
                                 <span class="input-group-text">
-                                    <input type="checkbox" name="autodelete_response"
+                                    <input type="checkbox" name="autodeleteresponse"
                                         {{if .Command.AutodeleteResponse}}checked{{end}}>
                                 </span>
                             </span>
                             <input type="number" min="0" max="2678400" class="form-control" placeholder="Seconds..."
                                 value="{{if .Command}}{{.Command.AutodeleteResponseDelay}}{{else}}10{{end}}"
-                                name="autodelete_response_delay">
+                                name="autodeleteresponsedelay">
                         </div>
                     </div>
                 </div>

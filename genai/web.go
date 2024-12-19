@@ -286,7 +286,10 @@ func HandleCreateCommand(w http.ResponseWriter, r *http.Request) (web.TemplateDa
 
 	err = model.InsertG(r.Context(), boil.Infer())
 	if err == nil {
-		featureflags.MarkGuildDirty(activeGuild.ID)
+		err = featureflags.UpdatePluginFeatureFlags(activeGuild.ID, &Plugin{})
+		if err != nil {
+			web.CtxLogger(r.Context()).WithError(err).Error("failed updating feature flags")
+		}
 		//	go cplogs.RetryAddEntry(web.NewLogEntryFromContext(r.Context(), panelLogKeyNewChannelOverride))
 	}
 	return templateData, errors.WithMessage(err, "InsertG")
@@ -324,12 +327,18 @@ func HandleUpdateCommand(w http.ResponseWriter, r *http.Request, currentCommand 
 }
 
 func HandleDeleteCommand(w http.ResponseWriter, r *http.Request, currentOverride *models.GenaiCommand) (web.TemplateData, error) {
-	_, templateData := web.GetBaseCPContextData(r.Context())
+	activeGuild, templateData := web.GetBaseCPContextData(r.Context())
 
 	_, err := currentOverride.DeleteG(r.Context())
 	//	if rows > 0 {
 	//		go cplogs.RetryAddEntry(web.NewLogEntryFromContext(r.Context(), panelLogKeyRemovedChannelOverride))
 	//	}
+
+	ffErr := featureflags.UpdatePluginFeatureFlags(activeGuild.ID, &Plugin{})
+	if ffErr != nil {
+		web.CtxLogger(r.Context()).WithError(ffErr).Error("failed updating feature flags")
+	}
+
 	return templateData, errors.WithMessage(err, "DeleteG")
 }
 
