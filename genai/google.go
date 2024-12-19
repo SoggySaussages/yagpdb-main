@@ -7,8 +7,6 @@ import (
 
 	google "cloud.google.com/go/vertexai/genai"
 	"github.com/botlabs-gg/yagpdb/v2/lib/dstate"
-	"github.com/openai/openai-go"
-	"github.com/openai/openai-go/option"
 )
 
 type GenAIProviderGoogle struct{}
@@ -22,7 +20,7 @@ func (p GenAIProviderGoogle) String() string {
 }
 
 func (p GenAIProviderGoogle) DefaultModel() string {
-	return openai.ChatModelGPT4oMini // cheapest model as of Dec 2024
+	return "gemini-1.5-flash-002" // cheapest model as of Dec 2024
 }
 
 var GenAIModelMapGoogle = &GenAIProviderModelMap{
@@ -39,7 +37,7 @@ func (p GenAIProviderGoogle) KeyRequired() bool {
 	return true
 }
 
-// ~ accurate for English text as of Dec 2024
+// ~ accurate as of Dec 2024
 const CharacterCountToTokenRatioGoogle = 4 / 1
 
 func (p GenAIProviderGoogle) CharacterTokenRatio() int {
@@ -47,19 +45,35 @@ func (p GenAIProviderGoogle) CharacterTokenRatio() int {
 }
 
 func (p GenAIProviderGoogle) EstimateTokens(combinedInput string, maxTokens int64) (inputEstimatedTokens, outputMaxTokens int64) {
-	inputEstimatedTokens = int64(len(combinedInput) / CharacterCountToTokenRatioGoogle)
+	ctx := context.Background()
+	prompt := google.Text(combinedInput)
+
+	client, err := google.NewClient(context.Background(), "yagpdb-394902", "us-central1")
+	if err != nil {
+		return 0, 0
+	}
+	defer client.Close()
+
+	model := client.GenerativeModel(p.DefaultModel())
+
+	resp, err := model.CountTokens(ctx, prompt)
+	if err != nil {
+		return 0, 0
+	}
+
+	inputEstimatedTokens = int64(resp.TotalTokens)
 	outputMaxTokens = maxTokens - inputEstimatedTokens
 	return
 }
 
 func (p GenAIProviderGoogle) ValidateAPIToken(gs *dstate.GuildState, token string) error {
-	// make a really cheap (%0.02 of a cent) call to test the key
-	client := openai.NewClient(option.WithAPIKey(token))
-	_, err := client.Chat.Completions.New(context.Background(), openai.ChatCompletionNewParams{
-		Messages:            openai.F([]openai.ChatCompletionMessageParamUnion{openai.UserMessage("1")}),
-		Model:               openai.F(p.DefaultModel()),
-		MaxCompletionTokens: openai.Int(1),
-	})
+	client, err := google.NewClient(context.Background(), "yagpdb-394902", "us-central1")
+	if err != nil {
+		return fmt.Errorf("error creating client: %w", err)
+	}
+	gemini := client.GenerativeModel(p.DefaultModel())
+	gemini.SetMaxOutputTokens(1)
+	_, err = gemini.GenerateContent(context.Background(), google.Text("1"))
 	return err
 }
 
