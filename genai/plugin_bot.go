@@ -45,6 +45,8 @@ func (p *Plugin) BotInit() {
 	sort.Slice(automod.RulePartList, func(i, j int) bool {
 		return automod.RulePartList[i].ID < automod.RulePartList[j].ID
 	})
+
+	eventsystem.AddHandlerAsyncLastLegacy(p, bot.ConcurrentEventHandler(HandleMessageCreate), eventsystem.EventMessageCreate)
 }
 
 func GenAIProviderFromID(id int) GenAIProvider {
