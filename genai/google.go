@@ -2,11 +2,14 @@ package genai
 
 import (
 	"context"
+	"encoding/json"
+	"errors"
 	"fmt"
 	"html/template"
 
 	google "cloud.google.com/go/vertexai/genai"
 	"github.com/botlabs-gg/yagpdb/v2/lib/dstate"
+	"google.golang.org/api/option"
 )
 
 type GenAIProviderGoogle struct{}
@@ -44,30 +47,46 @@ func (p GenAIProviderGoogle) CharacterTokenRatio() int {
 	return CharacterCountToTokenRatioGoogle
 }
 
+type projectIDFromCredentials struct {
+	ProjectID string `json:"project_id"`
+}
+
+func (p GenAIProviderGoogle) getCredentials(gs *dstate.GuildState) (projectID string, credentials []byte) {
+	key, err := getAPIToken(gs)
+	if err != nil {
+		if err == ErrorNoAPIKey || err == ErrorAPIKeyInvalid {
+			return "", nil
+		}
+		logger.Error(err)
+		return "", nil
+	}
+
+	var projectIDStruct projectIDFromCredentials
+	err = json.Unmarshal([]byte(key), &projectID)
+	return projectIDStruct.ProjectID, []byte(key)
+}
+
 func (p GenAIProviderGoogle) EstimateTokens(combinedInput string, maxTokens int64) (inputEstimatedTokens, outputMaxTokens int64) {
-	ctx := context.Background()
-	prompt := google.Text(combinedInput)
-
-	client, err := google.NewClient(context.Background(), "yagpdb-394902", "us-central1")
-	if err != nil {
-		return 0, 0
-	}
-	defer client.Close()
-
-	model := client.GenerativeModel(p.DefaultModel())
-
-	resp, err := model.CountTokens(ctx, prompt)
-	if err != nil {
-		return 0, 0
-	}
-
-	inputEstimatedTokens = int64(resp.TotalTokens)
+	inputEstimatedTokens = int64(len(combinedInput) / CharacterCountToTokenRatioOpenAI)
 	outputMaxTokens = maxTokens - inputEstimatedTokens
 	return
 }
 
+func (p GenAIProviderGoogle) client(projectID string, credentials []byte) (*google.Client, error) {
+	if projectID == "" || len(credentials) == 0 {
+		return nil, errors.New("Your credentials are invalid.")
+	}
+	return google.NewClient(context.Background(), projectID, "us-central1", option.WithCredentialsJSON(credentials))
+}
+
 func (p GenAIProviderGoogle) ValidateAPIToken(gs *dstate.GuildState, token string) error {
-	client, err := google.NewClient(context.Background(), "yagpdb-394902", "us-central1")
+	projectIDStruct := projectIDFromCredentials{}
+	err := json.Unmarshal([]byte(token), &projectIDStruct)
+	if err != nil {
+		return fmt.Errorf("error unmarshalling to credentials file: %w", err)
+	}
+
+	client, err := p.client(projectIDStruct.ProjectID, []byte(token))
 	if err != nil {
 		return fmt.Errorf("error creating client: %w", err)
 	}
@@ -88,23 +107,15 @@ func (p GenAIProviderGoogle) BasicCompletion(gs *dstate.GuildState, systemMsg, u
 }
 
 func (p GenAIProviderGoogle) ComplexCompletion(gs *dstate.GuildState, input *GenAIInput) (*GenAIResponse, *GenAIResponseUsage, error) {
-	//	key, err := getAPIToken(gs)
-	//	if err != nil {
-	//		if err == ErrorNoAPIKey {
-	//			return &GenAIResponse{Content: "Please set your API key on the dashboard to use Generative AI."}, &GenAIResponseUsage{}, nil
-	//		}
-	//		if err == ErrorAPIKeyInvalid {
-	//			return &GenAIResponse{Content: err.Error()}, &GenAIResponseUsage{}, nil
-	//		}
-	//		return nil, nil, err
-	//	}
-
 	config, err := GetConfig(gs.ID)
 	if err != nil {
 		return nil, nil, err
 	}
+	if !config.Enabled {
+		return &GenAIResponse{}, &GenAIResponseUsage{}, err
+	}
 
-	client, err := google.NewClient(context.Background(), "yagpdb-394902", "us-central1")
+	client, err := p.client(p.getCredentials(gs))
 	if err != nil {
 		return nil, nil, fmt.Errorf("error creating client: %w", err)
 	}
@@ -218,7 +229,7 @@ func (p GenAIProviderGoogle) ModerateMessage(gs *dstate.GuildState, message stri
 		return nil, nil, err
 	}
 
-	client, err := google.NewClient(context.Background(), "yagpdb-394902", "us-central1")
+	client, err := p.client(p.getCredentials(gs))
 	if err != nil {
 		return nil, nil, fmt.Errorf("error creating client: %w", err)
 	}
