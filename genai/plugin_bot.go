@@ -102,7 +102,7 @@ func HandleMessageCreate(evt *eventsystem.EventData) {
 	mc := evt.MessageCreate()
 	cs := evt.CSOrThread()
 
-	if !evt.HasFeatureFlag(featureFlagCommandsEnabled) {
+	if !evt.HasFeatureFlag(featureFlagCommandsEnabled) || !evt.HasFeatureFlag(featureFlagEnabled) {
 		return
 	}
 
@@ -191,10 +191,10 @@ func HandleMessageCreate(evt *eventsystem.EventData) {
 
 		var triggersSafe []string
 		for _, t := range cmd.Triggers {
-			triggersSafe = append(triggersSafe, strings.TrimSpace(regexp.QuoteMeta(t)))
+			triggersSafe = append(triggersSafe, regexp.QuoteMeta(strings.TrimSpace(t)))
 		}
 
-		pattern := `\A(<@!?` + discordgo.StrID(common.BotUser.ID) + "> ?|" + regexp.QuoteMeta(prefix) + ")(" + regexp.QuoteMeta(strings.Join(triggersSafe, "|")) + `)(\z|[[:space:]])`
+		pattern := `(?mi)\A(<@!?` + discordgo.StrID(common.BotUser.ID) + "> ?|" + regexp.QuoteMeta(prefix) + ")(" + strings.Join(triggersSafe, "|") + `)(\z|[[:space:]])`
 		re, err := regexp.Compile(pattern)
 		if err != nil {
 			logger.Error(err)
