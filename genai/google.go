@@ -269,9 +269,7 @@ func (p GenAIProviderGoogle) ModerateMessage(gs *dstate.GuildState, message stri
 
 	if feedback == nil {
 		// no categories were high enough to be blocked by the "low" threshold
-		return &GenAIModerationCategoryProbability{}, &GenAIResponseUsage{
-			InputTokens:  int64(resp.UsageMetadata.PromptTokenCount),
-			OutputTokens: int64(resp.UsageMetadata.CandidatesTokenCount)}, nil
+		return &GenAIModerationCategoryProbability{}, &GenAIResponseUsage{}, nil
 	}
 
 	response := GenAIModerationCategoryProbability{}
@@ -288,9 +286,7 @@ func (p GenAIProviderGoogle) ModerateMessage(gs *dstate.GuildState, message stri
 		}
 	}
 
-	return &response, &GenAIResponseUsage{
-		InputTokens:  int64(resp.UsageMetadata.PromptTokenCount),
-		OutputTokens: int64(resp.UsageMetadata.CandidatesTokenCount)}, nil
+	return &response, &GenAIResponseUsage{}, nil
 }
 
 var GenAIProviderGoogleWebData = &GenAIProviderWebDescriptions{
