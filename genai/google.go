@@ -251,13 +251,28 @@ func (p GenAIProviderGoogle) ModerateMessage(gs *dstate.GuildState, message stri
 		{Category: google.HarmCategorySexuallyExplicit, Threshold: google.HarmBlockLowAndAbove},
 	}
 	resp, err := gemini.GenerateContent(context.Background(), google.Text(message))
-	if err != nil {
-		logger.Error(err)
-		return nil, nil, nil
-	}
 	logger.Infof("%#v", *resp)
+	if resp.PromptFeedback != nil {
+		logger.Info(json.Marshal(*resp.PromptFeedback))
+	}
 
-	if resp.PromptFeedback == nil {
+	var feedback *google.PromptFeedback
+
+	if err != nil {
+		blockedErr, ok := err.(*google.BlockedError)
+		if !ok {
+			logger.Error(err)
+			return nil, nil, nil
+		}
+
+		feedback = blockedErr.PromptFeedback
+	}
+
+	if resp.PromptFeedback != nil {
+		feedback = resp.PromptFeedback
+	}
+
+	if feedback == nil {
 		// no categories were high enough to be blocked by the "low" threshold
 		return &GenAIModerationCategoryProbability{}, &GenAIResponseUsage{
 			InputTokens:  int64(resp.UsageMetadata.PromptTokenCount),
@@ -265,7 +280,7 @@ func (p GenAIProviderGoogle) ModerateMessage(gs *dstate.GuildState, message stri
 	}
 
 	response := GenAIModerationCategoryProbability{}
-	for _, r := range resp.PromptFeedback.SafetyRatings {
+	for _, r := range feedback.SafetyRatings {
 		switch r.Category {
 		case google.HarmCategoryHateSpeech:
 			response["Hate"] = float64(r.ProbabilityScore)
