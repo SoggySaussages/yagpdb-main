@@ -53,7 +53,7 @@ func (p *Plugin) UpdateFeatureFlags(guildID int64) ([]string, error) {
 		flags = append(flags, featureFlagEnabled)
 	}
 
-	count, err := models.GenaiConfigs(
+	count, err := models.GenaiCommands(
 		models.GenaiCommandWhere.GuildID.EQ(guildID)).CountG(context.Background())
 	if err != nil {
 		return nil, errors.WithStackIf(err)

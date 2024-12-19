@@ -269,7 +269,7 @@ func HandleCreateCommand(w http.ResponseWriter, r *http.Request) (web.TemplateDa
 	model := &models.GenaiCommand{
 		ID:                      localID,
 		GuildID:                 activeGuild.ID,
-		Enabled:                 formData.Enabled,
+		Enabled:                 true,
 		Triggers:                triggers,
 		Prompt:                  formData.Prompt,
 		AllowInput:              formData.AllowInput,
