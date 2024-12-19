@@ -62,7 +62,7 @@
 {{end}}
 
 {{define "command-config"}}
-{{$idOrNew := new}}
+{{$idOrNew := "new"}}
 {{if .Command}}{{$idOrNew := .Command.ID}}{{end}}
 <form data-async-form method="POST"
     action="{{if .Command}}/manage/{{.ActiveGuild.ID}}/genai/commands/command/{{.Command.ID}}/update{{else}}/manage/{{.ActiveGuild.ID}}/genai/commands/command/new{{end}}">
