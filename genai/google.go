@@ -250,7 +250,7 @@ func (p GenAIProviderGoogle) ModerateMessage(gs *dstate.GuildState, message stri
 		{Category: google.HarmCategoryHarassment, Threshold: google.HarmBlockLowAndAbove},
 		{Category: google.HarmCategorySexuallyExplicit, Threshold: google.HarmBlockLowAndAbove},
 	}
-	resp, err := gemini.GenerateContent(context.Background(), google.Text(message))
+	_, err = gemini.GenerateContent(context.Background(), google.Text(message))
 
 	var feedback *google.PromptFeedback
 	if err != nil {
@@ -263,9 +263,9 @@ func (p GenAIProviderGoogle) ModerateMessage(gs *dstate.GuildState, message stri
 		feedback = blockedErr.PromptFeedback
 	}
 
-	if resp != nil && resp.PromptFeedback != nil {
-		feedback = resp.PromptFeedback
-	}
+	//	if resp != nil && resp.PromptFeedback != nil {
+	//		feedback = resp.PromptFeedback
+	//	}
 
 	if feedback == nil {
 		// no categories were high enough to be blocked by the "low" threshold
