@@ -56,7 +56,7 @@
 
 {{define "command-config"}}
 {{$idOrNew := "new"}}
-{{if .Command}}{{$idOrNew := print .Command.ID}}{{end}}
+{{if .Command}}{{$idOrNew = print .Command.ID}}{{end}}
 <form data-async-form method="POST"
     action="/manage/{{.ActiveGuild.ID}}/genai/commands/{{if .Command}}{{.Command.ID}}/update{{else}}new{{end}}">
 
@@ -114,7 +114,7 @@
                     <div class="form-group col-md-6">
                         <div class="radio">
                             <label>
-                                <input id="require-channel-mode-" type="radio" name="channelswhitelistmode" value="on"
+                                <input id="require-channel-mode-{{$idOrNew}}" type="radio" name="channelswhitelistmode" value="on"
                                     {{if .Command.ChannelsWhitelistMode}}checked{{end}}>
                                 Only run in the following channels and categories
                             </label>
