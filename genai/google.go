@@ -62,7 +62,7 @@ func (p GenAIProviderGoogle) getCredentials(gs *dstate.GuildState) (projectID st
 	}
 
 	var projectIDStruct projectIDFromCredentials
-	err = json.Unmarshal([]byte(key), &projectID)
+	json.Unmarshal([]byte(key), &projectIDStruct)
 	return projectIDStruct.ProjectID, []byte(key)
 }
 
