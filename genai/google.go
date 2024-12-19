@@ -184,8 +184,10 @@ func (p GenAIProviderGoogle) ComplexCompletion(gs *dstate.GuildState, input *Gen
 
 	resp, err := gemini.GenerateContent(context.Background(), prompt)
 	if err != nil {
+		logger.Error(err)
 		return nil, nil, fmt.Errorf("error generating content: %w", err)
 	}
+	fmt.Println(json.Marshal(resp))
 
 	choice := resp.Candidates[0]
 	var content string
@@ -243,6 +245,7 @@ func (p GenAIProviderGoogle) ModerateMessage(gs *dstate.GuildState, message stri
 	gemini.SetMaxOutputTokens(1)
 	resp, err := gemini.GenerateContent(context.Background(), google.Text(message))
 	if err != nil {
+		logger.Error(err)
 		return nil, nil, err
 	}
 
