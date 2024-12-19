@@ -251,13 +251,8 @@ func (p GenAIProviderGoogle) ModerateMessage(gs *dstate.GuildState, message stri
 		{Category: google.HarmCategorySexuallyExplicit, Threshold: google.HarmBlockLowAndAbove},
 	}
 	resp, err := gemini.GenerateContent(context.Background(), google.Text(message))
-	logger.Infof("%#v", *resp)
-	if resp.PromptFeedback != nil {
-		logger.Info(json.Marshal(*resp.PromptFeedback))
-	}
 
 	var feedback *google.PromptFeedback
-
 	if err != nil {
 		blockedErr, ok := err.(*google.BlockedError)
 		if !ok {
