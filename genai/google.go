@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"html/template"
+	"strconv"
 
 	google "cloud.google.com/go/vertexai/genai"
 	"github.com/botlabs-gg/yagpdb/v2/lib/dstate"
@@ -168,7 +169,7 @@ func (p GenAIProviderGoogle) ComplexCompletion(gs *dstate.GuildState, input *Gen
 
 			tools = append(tools, &google.FunctionDeclaration{
 				Name:        fn.Name,
-				Description: fn.Definition,
+				Description: fn.Description,
 				Parameters: &google.Schema{
 					Type:       google.TypeObject,
 					Properties: properties,
@@ -177,9 +178,9 @@ func (p GenAIProviderGoogle) ComplexCompletion(gs *dstate.GuildState, input *Gen
 	}
 
 	if len(tools) > 0 {
-		gemini.Tools = []*google.Tool{&google.Tool{
-			FunctionDeclarations: tools,
-		}}
+		gemini.Tools = []*google.Tool{
+			{FunctionDeclarations: tools},
+		}
 	}
 
 	resp, err := gemini.GenerateContent(context.Background(), prompt)
@@ -217,76 +218,35 @@ func (p GenAIProviderGoogle) ComplexCompletion(gs *dstate.GuildState, input *Gen
 }
 
 func (p GenAIProviderGoogle) ModerateMessage(gs *dstate.GuildState, message string) (*GenAIModerationCategoryProbability, *GenAIResponseUsage, error) {
-	//	key, err := getAPIToken(gs)
-	//	if err != nil {
-	//		if err == ErrorNoAPIKey || err == ErrorAPIKeyInvalid {
-	//			return &GenAIModerationCategoryProbability{}, nil, nil
-	//		}
-	//		return nil, nil, err
-	//	}
+	input := CustomModerateFunction
+	input.UserMessage = message
+	input.MaxTokens = 64
 
-	config, err := GetConfig(gs.ID)
+	r, u, err := p.ComplexCompletion(gs, &input)
 	if err != nil {
-		return nil, nil, err
+		logger.Error(err)
+		return &GenAIModerationCategoryProbability{}, u, nil
 	}
 
-	client, err := p.client(p.getCredentials(gs))
-	if err != nil {
-		return nil, nil, fmt.Errorf("error creating client: %w", err)
-	}
-	defer client.Close()
-
-	gemini := client.GenerativeModel(config.Model)
-	presencePenalty := float32(0.05)
-	gemini.GenerationConfig.PresencePenalty = &presencePenalty
-	gemini.SetTemperature(1.1)
-	gemini.GenerationConfig = google.GenerationConfig{}
-	gemini.SetMaxOutputTokens(1)
-	gemini.SafetySettings = []*google.SafetySetting{
-		// define a bunch of safety settings with low thresholds so we get the
-		// probability data in the response
-		{Category: google.HarmCategoryHateSpeech, Threshold: google.HarmBlockLowAndAbove},
-		{Category: google.HarmCategoryDangerousContent, Threshold: google.HarmBlockLowAndAbove},
-		{Category: google.HarmCategoryHarassment, Threshold: google.HarmBlockLowAndAbove},
-		{Category: google.HarmCategorySexuallyExplicit, Threshold: google.HarmBlockLowAndAbove},
-	}
-	_, err = gemini.GenerateContent(context.Background(), google.Text(message))
-
-	var feedback *google.PromptFeedback
-	if err != nil {
-		blockedErr, ok := err.(*google.BlockedError)
-		if !ok {
-			logger.Error(err)
-			return nil, nil, nil
-		}
-
-		feedback = blockedErr.PromptFeedback
+	if len(*r.Functions) == 0 {
+		return &GenAIModerationCategoryProbability{}, u, nil
 	}
 
-	//	if resp != nil && resp.PromptFeedback != nil {
-	//		feedback = resp.PromptFeedback
-	//	}
-
-	if feedback == nil {
-		// no categories were high enough to be blocked by the "low" threshold
-		return &GenAIModerationCategoryProbability{}, &GenAIResponseUsage{}, nil
+	modResp := (*r.Functions)[0]
+	if len(modResp.Arguments) == 0 {
+		return &GenAIModerationCategoryProbability{}, u, nil
 	}
 
 	response := GenAIModerationCategoryProbability{}
-	for _, r := range feedback.SafetyRatings {
-		switch r.Category {
-		case google.HarmCategoryHateSpeech:
-			response["Hate"] = float64(r.ProbabilityScore)
-		case google.HarmCategoryDangerousContent:
-			response["Violence"] = float64(r.ProbabilityScore)
-		case google.HarmCategoryHarassment:
-			response["Harassment"] = float64(r.ProbabilityScore)
-		case google.HarmCategorySexuallyExplicit:
-			response["Sexual"] = float64(r.ProbabilityScore)
+	for cat, prob := range modResp.Arguments {
+		strProb, ok := prob.(string)
+		if !ok {
+			continue
 		}
+		response[cat], _ = strconv.ParseFloat(strProb, 64)
 	}
 
-	return &response, &GenAIResponseUsage{}, nil
+	return &response, u, nil
 }
 
 var GenAIProviderGoogleWebData = &GenAIProviderWebDescriptions{

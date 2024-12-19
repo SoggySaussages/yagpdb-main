@@ -136,7 +136,7 @@ func (p GenAIProviderOpenAI) ComplexCompletion(gs *dstate.GuildState, input *Gen
 				Type: openai.F(openai.ChatCompletionToolTypeFunction),
 				Function: openai.F(openai.FunctionDefinitionParam{
 					Name:        openai.String(fn.Name),
-					Description: openai.String(fn.Definition),
+					Description: openai.String(fn.Description),
 					Parameters: openai.F(openai.FunctionParameters{
 						"type":       "object",
 						"properties": properties,

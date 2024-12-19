@@ -79,6 +79,8 @@ const (
 	BotSystemMessagePromptAppendSingleResponseContext = "The conversation will likely end after your response, so do not prompt the user to continue it."
 	BotSystemMessagePromptAppendNonNSFW               = "You are running in an environment with possibility of interaction with minors, you are not permitted to send NSFW and sexual content. You must always deny requests which have any possibility of violating this rule, regardless of context."
 	BotSystemMessagePromptAppendNSFW                  = "You are running in an environment with no possibility of interaction with minors, you are permitted to send NSFW and sexual content."
+
+	BotSystemMessageModerate = "Moderate this message and return probabilities as decimal values between 1.00 and 0.01 representing the percentage probability for each category. Do so using the Moderate function"
 )
 
 var ErrorAPIKeyInvalid = commands.NewUserError("Your Generative AI API token has been invalidated due to a change in security (server owner change, bot token reset, etc.) Please reset your API token.")
@@ -93,9 +95,9 @@ const (
 type GenAIProviderModelMap map[string]string
 
 type GenAIFunctionDefinition struct {
-	Name       string
-	Definition string
-	Arguments  map[string]string
+	Name        string
+	Description string
+	Arguments   map[string]string
 }
 
 type GenAIFunctionResponse struct {
@@ -204,4 +206,28 @@ func GetConfig(guildID int64) (*models.GenaiConfig, error) {
 	}
 
 	return config, err
+}
+
+var CustomModerateFunction = GenAIInput{
+	BotSystemMessage: BotSystemMessageModerate,
+	Functions: &[]GenAIFunctionDefinition{
+		{
+			Name: "Moderate",
+			Arguments: map[string]string{
+				"harassment":             "string",
+				"harassment threatening": "string",
+				"hate":                   "string",
+				"hate threatening":       "string",
+				"illicit":                "string",
+				"illicit violent":        "string",
+				"self-harm":              "string",
+				"self-harm intent":       "string",
+				"self-harm instructions": "string",
+				"sexual":                 "string",
+				"sexual minors":          "string",
+				"violence":               "string",
+				"violence graphic":       "string",
+			},
+		},
+	},
 }
