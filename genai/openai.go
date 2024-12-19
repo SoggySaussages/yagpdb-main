@@ -146,7 +146,7 @@ func (p GenAIProviderOpenAI) ComplexCompletion(gs *dstate.GuildState, input *Gen
 		}
 	}
 
-	requestParams := openai.ChatCompletionNewParams{Model: openai.F(config.Model), MaxCompletionTokens: openai.Int(input.MaxTokens)}
+	requestParams := openai.ChatCompletionNewParams{Model: openai.F(config.Model), MaxCompletionTokens: openai.Int(input.MaxTokens), Temperature: openai.Float(1.1), PresencePenalty: openai.Float(0.1)}
 
 	if len(messages) > 0 {
 		requestParams.Messages = openai.F(messages)
