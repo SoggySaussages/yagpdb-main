@@ -93,7 +93,6 @@ func (p *Plugin) InitWeb() {
 		URL:  "genai/commands",
 		Icon: "fas fa-terminal",
 	})
-
 	getHandler := web.RenderHandler(HandleCommands, "cp_genai_commands")
 
 	genaiMux.Handle(pat.Get("commands"), getHandler)
@@ -203,7 +202,7 @@ func HandlePostGenAI(w http.ResponseWriter, r *http.Request) interface{} {
 }
 
 // Servers the command page with current config
-func HandleCommands(w http.ResponseWriter, r *http.Request) web.TemplateData {
+func HandleCommands(w http.ResponseWriter, r *http.Request) interface{} {
 	ctx := r.Context()
 	activeGuild, templateData := web.GetBaseCPContextData(ctx)
 
