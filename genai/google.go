@@ -244,17 +244,24 @@ func (p GenAIProviderGoogle) ModerateMessage(gs *dstate.GuildState, message stri
 	gemini.GenerationConfig = google.GenerationConfig{}
 	gemini.SetMaxOutputTokens(1)
 	gemini.SafetySettings = []*google.SafetySetting{
-		// define a bunch of safety settings with no blocks so we get the
+		// define a bunch of safety settings with low thresholds so we get the
 		// probability data in the response
-		{Category: google.HarmCategoryHateSpeech, Threshold: google.HarmBlockNone},
-		{Category: google.HarmCategoryDangerousContent, Threshold: google.HarmBlockNone},
-		{Category: google.HarmCategoryHarassment, Threshold: google.HarmBlockNone},
-		{Category: google.HarmCategorySexuallyExplicit, Threshold: google.HarmBlockNone},
+		{Category: google.HarmCategoryHateSpeech, Threshold: google.HarmBlockLowAndAbove},
+		{Category: google.HarmCategoryDangerousContent, Threshold: google.HarmBlockLowAndAbove},
+		{Category: google.HarmCategoryHarassment, Threshold: google.HarmBlockLowAndAbove},
+		{Category: google.HarmCategorySexuallyExplicit, Threshold: google.HarmBlockLowAndAbove},
 	}
 	resp, err := gemini.GenerateContent(context.Background(), google.Text(message))
 	if err != nil {
 		logger.Error(err)
 		return nil, nil, nil
+	}
+
+	if resp.PromptFeedback == nil {
+		// no categories were high enough to be blocked by the "low" threshold
+		return &GenAIModerationCategoryProbability{}, &GenAIResponseUsage{
+			InputTokens:  int64(resp.UsageMetadata.PromptTokenCount),
+			OutputTokens: int64(resp.UsageMetadata.CandidatesTokenCount)}, nil
 	}
 
 	response := GenAIModerationCategoryProbability{}
