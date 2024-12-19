@@ -27,6 +27,9 @@ import (
 //go:embed assets/genai.html
 var PageHTML string
 
+//go:embed assets/genai_commands.html
+var CommandsPageHTML string
+
 type ConextKey int
 
 type FormData struct {
@@ -87,7 +90,7 @@ func (p *Plugin) InitWeb() {
 	genaiMux.Handle(pat.Post(""), web.FormParserMW(web.RenderHandler(HandlePostGenAI, "cp_genai"), FormData{}))
 	genaiMux.Handle(pat.Post("/"), web.FormParserMW(web.RenderHandler(HandlePostGenAI, "cp_genai"), FormData{}))
 
-	web.AddHTMLTemplate("genai/assets/genai_commands.html", PageHTML)
+	web.AddHTMLTemplate("genai/assets/genai_commands.html", CommandsPageHTML)
 	web.AddSidebarItem(web.SidebarCategoryGenAI, &web.SidebarItem{
 		Name: "Commands",
 		URL:  "genai/commands",
@@ -206,7 +209,7 @@ func HandleCommands(w http.ResponseWriter, r *http.Request) (web.TemplateData, e
 	ctx := r.Context()
 	activeGuild, templateData := web.GetBaseCPContextData(ctx)
 
-	commands, err := models.GenaiConfigs(models.GenaiCommandWhere.GuildID.EQ(activeGuild.ID)).AllG(ctx)
+	commands, err := models.GenaiCommands(models.GenaiCommandWhere.GuildID.EQ(activeGuild.ID)).AllG(ctx)
 	if err != nil {
 		return templateData, err
 	}
