@@ -63,7 +63,7 @@
 
 {{define "command-config"}}
 {{$idOrNew := "new"}}
-{{if .Command}}{{$idOrNew := .Command.ID}}{{end}}
+{{if .Command}}{{$idOrNew := print .Command.ID}}{{end}}
 <form data-async-form method="POST"
     action="{{if .Command}}/manage/{{.ActiveGuild.ID}}/genai/commands/command/{{.Command.ID}}/update{{else}}/manage/{{.ActiveGuild.ID}}/genai/commands/command/new{{end}}">
 
@@ -110,7 +110,7 @@
                     <div class="form-group col-md-6">
                         {{$allowInput := false}}
                         {{if .Command}}{{$allowInput = .Command.AllowInput}}{{end}}
-                        {{checkbox "allow_input" (joinStr "" "allow_input-" {{$idOrNew}}) "Append user's command input to the prompt?" $allowInput}}
+                        {{checkbox "allow_input" (joinStr "" "allow_input-" $idOrNew) "Append user's command input to the prompt?" $allowInput}}
                     </div>
                 </div>
             
