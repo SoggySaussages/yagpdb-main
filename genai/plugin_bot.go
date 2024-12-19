@@ -223,7 +223,7 @@ func HandleMessageCreate(evt *eventsystem.EventData) {
 		if err != nil {
 			r = &GenAIResponse{Content: fmt.Sprintf("Failed executing your custom GenAI command; %v responded with: %s", provider, err.Error())}
 		}
-		m, err := common.BotSession.ChannelMessageSendReply(cs.ID, r.Content, &discordgo.MessageReference{MessageID: mc.ID})
+		m, err := common.BotSession.ChannelMessageSendReply(cs.ID, r.Content, &discordgo.MessageReference{ChannelID: cs.ID, MessageID: mc.ID})
 		if err == nil && (cmd.AutodeleteTrigger || cmd.AutodeleteResponse) {
 			if cmd.AutodeleteTrigger {
 				go func() {
