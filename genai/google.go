@@ -187,7 +187,6 @@ func (p GenAIProviderGoogle) ComplexCompletion(gs *dstate.GuildState, input *Gen
 		logger.Error(err)
 		return nil, nil, fmt.Errorf("error generating content: %w", err)
 	}
-	fmt.Println(json.Marshal(resp))
 
 	choice := resp.Candidates[0]
 	var content string
@@ -256,6 +255,7 @@ func (p GenAIProviderGoogle) ModerateMessage(gs *dstate.GuildState, message stri
 		logger.Error(err)
 		return nil, nil, nil
 	}
+	logger.Infof("%#v", *resp)
 
 	if resp.PromptFeedback == nil {
 		// no categories were high enough to be blocked by the "low" threshold
