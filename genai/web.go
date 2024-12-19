@@ -101,13 +101,13 @@ func (p *Plugin) InitWeb() {
 	genaiMux.Handle(pat.Get("/commands"), getHandler)
 	genaiMux.Handle(pat.Get("/commands/"), getHandler)
 
-	genaiMux.Handle(pat.Post("/command/new"),
+	genaiMux.Handle(pat.Post("/commands/new"),
 		web.ControllerPostHandler(HandleCreateCommand, getHandler, CommandFormData{}))
 
-	genaiMux.Handle(pat.Post("/command/:commandID/update"),
+	genaiMux.Handle(pat.Post("/commands/:commandID/update"),
 		web.ControllerPostHandler(CommandMiddleware(HandleUpdateCommand), getHandler, CommandFormData{}))
 
-	genaiMux.Handle(pat.Post("/command/:commandID/delete"),
+	genaiMux.Handle(pat.Post("/commands/:commandID/delete"),
 		web.ControllerPostHandler(CommandMiddleware(HandleDeleteCommand), getHandler, nil))
 }
 

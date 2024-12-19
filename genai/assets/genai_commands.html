@@ -58,7 +58,7 @@
 {{$idOrNew := "new"}}
 {{if .Command}}{{$idOrNew := print .Command.ID}}{{end}}
 <form data-async-form method="POST"
-    action="/manage/{{.ActiveGuild.ID}}/genai/commands/command/{{if .Command}}{{.Command.ID}}/update{{else}}new{{end}}">
+    action="/manage/{{.ActiveGuild.ID}}/genai/commands/{{if .Command}}{{.Command.ID}}/update{{else}}new{{end}}">
 
     <div class="card card-default border border-rounded border-secondary">
         <header class="card-header">
@@ -187,7 +187,7 @@
                 {{if .Command}}
                 <button type="submit" class="btn btn-success" value="Save" data-async-form-alertsonly>Save command</button>
                 <button type="submit" class="btn btn-danger" value="Delete"
-                    formaction="/manage/{{.ActiveGuild.ID}}/genai/commands/{{.Override.ID}}/delete">Delete command</button>
+                    formaction="/manage/{{.ActiveGuild.ID}}/genai/commands/{{.Command.ID}}/delete">Delete command</button>
                 {{else}}
                 <input type="submit" class="btn btn-success" value="Create">
                 {{end}}
