@@ -77,7 +77,6 @@ func (p *Plugin) InitWeb() {
 	web.CPMux.Handle(pat.New("/genai"), genaiMux)
 	web.CPMux.Handle(pat.New("/genai/commands"), genaiMux)
 
-	// Alll handlers here require guild channels present
 	genaiMux.Use(web.RequireServerAdminMiddleware)
 	genaiMux.Use(baseData)
 
@@ -88,7 +87,18 @@ func (p *Plugin) InitWeb() {
 	genaiMux.Handle(pat.Post(""), web.FormParserMW(web.RenderHandler(HandlePostGenAI, "cp_genai"), FormData{}))
 	genaiMux.Handle(pat.Post("/"), web.FormParserMW(web.RenderHandler(HandlePostGenAI, "cp_genai"), FormData{}))
 
+	web.AddHTMLTemplate("genai/assets/genai_commands.html", PageHTML)
+	web.AddSidebarItem(web.SidebarCategoryGenAI, &web.SidebarItem{
+		Name: "Commands",
+		URL:  "genai/commands",
+		Icon: "fas fa-terminal",
+	})
+
 	getHandler := web.ControllerHandler(HandleCommands, "cp_genai_commands")
+
+	genaiMux.Handle(pat.Get("commands"), getHandler)
+	genaiMux.Handle(pat.Get("commands/"), getHandler)
+
 	genaiMux.Handle(pat.Post("/command/new"),
 		web.ControllerPostHandler(HandleCreateCommand, getHandler, CommandFormData{}))
 
