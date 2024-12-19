@@ -5,14 +5,21 @@ import (
 	"crypto/cipher"
 	"crypto/rand"
 	"errors"
+	"fmt"
+	"regexp"
 	"sort"
 	"strconv"
+	"strings"
+	"time"
 
 	"github.com/botlabs-gg/yagpdb/v2/automod"
 	"github.com/botlabs-gg/yagpdb/v2/bot"
+	"github.com/botlabs-gg/yagpdb/v2/bot/eventsystem"
 	"github.com/botlabs-gg/yagpdb/v2/commands"
 	"github.com/botlabs-gg/yagpdb/v2/common"
+	"github.com/botlabs-gg/yagpdb/v2/genai/models"
 	"github.com/botlabs-gg/yagpdb/v2/lib/dcmd"
+	"github.com/botlabs-gg/yagpdb/v2/lib/discordgo"
 	"github.com/botlabs-gg/yagpdb/v2/lib/dstate"
 	"github.com/botlabs-gg/yagpdb/v2/web"
 	"golang.org/x/crypto/scrypt"
@@ -85,6 +92,147 @@ var baseCmd = &commands.YAGCommand{
 		}
 		return response.Content, nil
 	},
+}
+
+var cachedCommandsMessage = common.CacheSet.RegisterSlot("custom_genai_commands", nil, int64(0))
+
+func HandleMessageCreate(evt *eventsystem.EventData) {
+	mc := evt.MessageCreate()
+	cs := evt.CSOrThread()
+
+	if !evt.HasFeatureFlag(featureFlagCommandsEnabled) {
+		return
+	}
+
+	if mc.GuildID == 0 {
+		return
+	}
+
+	if cs == nil {
+		logger.Warn("Channel not found in state")
+		return
+	}
+
+	if !bot.IsUserMessage(mc.Message) {
+		return
+	}
+
+	if mc.Author.Bot {
+		return
+	}
+
+	if hasPerms, _ := bot.BotHasPermissionGS(evt.GS, cs.ID, discordgo.PermissionSendMessages); !hasPerms {
+		return
+	}
+
+	member := dstate.MemberStateFromMember(mc.Member)
+	member.GuildID = evt.GS.ID
+
+	v, err := cachedCommandsMessage.GetCustomFetch(evt.GS.ID, func(key interface{}) (interface{}, error) {
+		var cmds []*models.GenaiCommand
+		var err error
+
+		cmds, err = models.GenaiCommands(
+			models.GenaiCommandWhere.GuildID.EQ(evt.GS.ID)).AllG(evt.Context())
+
+		return cmds, err
+	})
+	if err != nil {
+		return
+	}
+
+	cmds := v.([]*models.GenaiCommand)
+
+	prefix, err := commands.GetCommandPrefixBotEvt(evt)
+	if err != nil {
+		return
+	}
+
+	for _, cmd := range cmds {
+		var cmdRunsInChannel bool
+		var found bool
+		for _, v := range cmd.Channels {
+			if v == cs.ID {
+				cmdRunsInChannel = cmd.ChannelsWhitelistMode
+				found = true
+				break
+			}
+		}
+		if !found {
+			cmdRunsInChannel = !cmd.ChannelsWhitelistMode
+		}
+
+		var cmdRunsForUser bool
+		found = false
+		if len(cmd.Roles) == 0 {
+			cmdRunsForUser = !cmd.RolesWhitelistMode
+			found = true
+		}
+		if !found {
+			for _, v := range cmd.Roles {
+				if common.ContainsInt64Slice(member.Member.Roles, v) {
+					cmdRunsForUser = cmd.RolesWhitelistMode
+					found = true
+					break
+				}
+			}
+		}
+		if !found {
+			cmdRunsForUser = !cmd.RolesWhitelistMode
+		}
+
+		if !cmd.Enabled || !cmdRunsInChannel || !cmdRunsForUser {
+			continue
+		}
+
+		var triggersSafe []string
+		for _, t := range cmd.Triggers {
+			triggersSafe = append(triggersSafe, regexp.QuoteMeta(t))
+		}
+
+		pattern := `\A(<@!?` + discordgo.StrID(common.BotUser.ID) + "> ?|" + regexp.QuoteMeta(prefix) + ")(" + regexp.QuoteMeta(strings.Join(triggersSafe, "|")) + `)(\z|[[:space:]])`
+		re, err := regexp.Compile(pattern)
+		if err != nil {
+			continue
+		}
+
+		content := mc.Content
+		idx := re.FindStringIndex(content)
+		if idx == nil {
+			continue
+		}
+
+		var userMsg string
+		if cmd.AllowInput {
+			userMsg = content[idx[1]:]
+		}
+
+		config, err := GetConfig(evt.GS.ID)
+		if err != nil {
+			return
+		}
+		provider := GenAIProviderFromID(config.Provider)
+
+		r, _, err := provider.BasicCompletion(&evt.GS.GuildState, cmd.Prompt, userMsg, int64(cmd.MaxTokens), cs.NSFW)
+		if err != nil {
+			r = &GenAIResponse{Content: fmt.Sprintf("Failed executing your custom GenAI command; %v responded with: %s", provider, err.Error())}
+		}
+		m, err := common.BotSession.ChannelMessageSendReply(cs.ID, r.Content, &discordgo.MessageReference{MessageID: mc.ID})
+		if err == nil && (cmd.AutodeleteTrigger || cmd.AutodeleteResponse) {
+			if cmd.AutodeleteTrigger {
+				go func() {
+					time.Sleep(time.Duration(cmd.AutodeleteTriggerDelay) * time.Second)
+					common.BotSession.ChannelMessageDelete(cs.ID, mc.ID)
+				}()
+			}
+			if cmd.AutodeleteResponse {
+				go func() {
+					time.Sleep(time.Duration(cmd.AutodeleteResponseDelay) * time.Second)
+					common.BotSession.ChannelMessageDelete(cs.ID, m.ID)
+				}()
+			}
+		}
+	}
 }
 
 func createKey(gs *dstate.GuildState) ([]byte, error) {
