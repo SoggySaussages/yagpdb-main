@@ -152,7 +152,7 @@ func HandleMessageCreate(evt *eventsystem.EventData) {
 		var cmdRunsInChannel bool
 		var found bool
 		for _, v := range cmd.Channels {
-			if v == cs.ID {
+			if v == cs.ID || v == cs.ParentID {
 				cmdRunsInChannel = cmd.ChannelsWhitelistMode
 				found = true
 				break
@@ -187,7 +187,7 @@ func HandleMessageCreate(evt *eventsystem.EventData) {
 
 		var triggersSafe []string
 		for _, t := range cmd.Triggers {
-			triggersSafe = append(triggersSafe, regexp.QuoteMeta(t))
+			triggersSafe = append(triggersSafe, strings.TrimSpace(regexp.QuoteMeta(t)))
 		}
 
 		pattern := `\A(<@!?` + discordgo.StrID(common.BotUser.ID) + "> ?|" + regexp.QuoteMeta(prefix) + ")(" + regexp.QuoteMeta(strings.Join(triggersSafe, "|")) + `)(\z|[[:space:]])`

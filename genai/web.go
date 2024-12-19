@@ -7,7 +7,10 @@ import (
 	"fmt"
 	"html/template"
 	"net/http"
+	"strconv"
+	"strings"
 
+	"emperror.dev/errors"
 	"github.com/botlabs-gg/yagpdb/v2/common"
 	"github.com/botlabs-gg/yagpdb/v2/common/cplogs"
 	"github.com/botlabs-gg/yagpdb/v2/common/featureflags"
@@ -15,6 +18,7 @@ import (
 	"github.com/botlabs-gg/yagpdb/v2/lib/discordgo"
 	"github.com/botlabs-gg/yagpdb/v2/lib/dstate"
 	"github.com/botlabs-gg/yagpdb/v2/web"
+	"github.com/volatiletech/sqlboiler/queries/qm"
 	"github.com/volatiletech/sqlboiler/v4/boil"
 	"goji.io"
 	"goji.io/pat"
@@ -26,12 +30,32 @@ var PageHTML string
 type ConextKey int
 
 type FormData struct {
-	Enabled        bool   `json:"enabled" schema:"enabled"`
-	Provider       int    `json:"provider" schema:"provider"`
-	Model          string `json:"model" schema:"model"`
-	Key            string `json:"key" schema:"key"`
-	BaseCmdEnabled bool   `json:"base_cmd_enabled" schema:"base_cmd_enabled"`
-	ResetToken     bool   `json:"reset_token" schema:"reset_token"`
+	Enabled        bool
+	Provider       int
+	Model          string
+	Key            string
+	BaseCmdEnabled bool
+	ResetToken     bool
+}
+
+type CommandFormData struct {
+	ID                      int64
+	GuildID                 int64
+	Enabled                 bool
+	Name                    string
+	Aliases                 string
+	Prompt                  string
+	AllowInput              bool
+	MaxTokens               int `valid:"1,512"`
+	AutodeleteResponse      bool
+	AutodeleteTrigger       bool
+	AutodeleteResponseDelay int     `valid:"0,2678400"`
+	AutodeleteTriggerDelay  int     `valid:"0,2678400"`
+	Channels                []int64 `valid:"channel,true"`
+	Categories              []int64 `valid:"channel,true"`
+	ChannelsWhitelistMode   bool
+	Roles                   []int64 `valid:"role,true"`
+	RolesWhitelistMode      bool
 }
 
 const (
@@ -51,6 +75,7 @@ func (p *Plugin) InitWeb() {
 	genaiMux := goji.SubMux()
 	web.CPMux.Handle(pat.New("/genai/*"), genaiMux)
 	web.CPMux.Handle(pat.New("/genai"), genaiMux)
+	web.CPMux.Handle(pat.New("/genai/commands"), genaiMux)
 
 	// Alll handlers here require guild channels present
 	genaiMux.Use(web.RequireServerAdminMiddleware)
@@ -62,6 +87,16 @@ func (p *Plugin) InitWeb() {
 
 	genaiMux.Handle(pat.Post(""), web.FormParserMW(web.RenderHandler(HandlePostGenAI, "cp_genai"), FormData{}))
 	genaiMux.Handle(pat.Post("/"), web.FormParserMW(web.RenderHandler(HandlePostGenAI, "cp_genai"), FormData{}))
+
+	getHandler := web.ControllerHandler(HandleCommands, "cp_genai_commands")
+	genaiMux.Handle(pat.Post("/command/new"),
+		web.ControllerPostHandler(HandleCreateCommand, getHandler, CommandFormData{}))
+
+	genaiMux.Handle(pat.Post("/command/:commandID/update"),
+		web.ControllerPostHandler(CommandMiddleware(HandleUpdateCommand), getHandler, CommandFormData{}))
+
+	genaiMux.Handle(pat.Post("/command/:commandID/delete"),
+		web.ControllerPostHandler(CommandMiddleware(HandleDeleteCommand), getHandler, nil))
 }
 
 // Adds the current config to the context
@@ -155,6 +190,135 @@ func HandlePostGenAI(w http.ResponseWriter, r *http.Request) interface{} {
 	go cplogs.RetryAddEntry(web.NewLogEntryFromContext(r.Context(), panelLogKey))
 
 	return tmpl.AddAlerts(web.SucessAlert("Saved settings"))
+}
+
+// Servers the command page with current config
+func HandleCommands(w http.ResponseWriter, r *http.Request) (web.TemplateData, error) {
+	ctx := r.Context()
+	activeGuild, templateData := web.GetBaseCPContextData(ctx)
+
+	commands, err := models.GenaiConfigs(models.GenaiCommandWhere.GuildID.EQ(activeGuild.ID)).AllG(ctx)
+	if err != nil {
+		return templateData, err
+	}
+
+	templateData["Commands"] = commands
+
+	templateData["VisibleURL"] = "/manage/" + discordgo.StrID(activeGuild.ID) + "/genai/commands"
+
+	return templateData, nil
+}
+
+// Command handlers
+func CommandMiddleware(inner func(w http.ResponseWriter, r *http.Request, override *models.GenaiCommand) (web.TemplateData, error)) web.ControllerHandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) (web.TemplateData, error) {
+		activeGuild := r.Context().Value(common.ContextKeyCurrentGuild).(*dstate.GuildSet)
+
+		var command *models.GenaiCommand
+		var err error
+
+		id := pat.Param(r, "commandID")
+		idParsed, _ := strconv.ParseInt(id, 10, 64)
+		command, err = models.GenaiCommands(qm.Where("guild_id = ? AND id = ?", activeGuild.ID, idParsed)).OneG(r.Context())
+
+		if err != nil {
+			return nil, web.NewPublicError("Command not found, someone else deleted it in the meantime perhaps? Check control panel logs")
+		}
+
+		tmpl, err := inner(w, r, command)
+		featureflags.MarkGuildDirty(activeGuild.ID)
+		return tmpl, err
+	}
+}
+
+func HandleCreateCommand(w http.ResponseWriter, r *http.Request) (web.TemplateData, error) {
+	activeGuild, templateData := web.GetBaseCPContextData(r.Context())
+	formData := r.Context().Value(common.ContextKeyParsedForm).(*CommandFormData)
+
+	count, err := models.GenaiCommands(models.GenaiCommandWhere.GuildID.EQ(activeGuild.ID)).CountG(r.Context())
+	if err != nil {
+		return templateData, errors.WithMessage(err, "count")
+	}
+
+	if count > 4 {
+		return templateData.AddAlerts(web.ErrorAlert("Max 5 GenAI commands supported.")), nil
+	}
+
+	localID, err := common.GenLocalIncrID(activeGuild.ID, "genai_command")
+	if err != nil {
+		return templateData, errors.WrapIf(err, "error generating local id")
+	}
+
+	triggers := []string{formData.Name}
+	if formData.Aliases != "" {
+		triggers = append(triggers, strings.Split(formData.Aliases, ",")...)
+	}
+
+	model := &models.GenaiCommand{
+		ID:                      localID,
+		GuildID:                 activeGuild.ID,
+		Enabled:                 formData.Enabled,
+		Triggers:                triggers,
+		Prompt:                  formData.Prompt,
+		AllowInput:              formData.AllowInput,
+		MaxTokens:               formData.MaxTokens,
+		AutodeleteResponse:      formData.AutodeleteResponse,
+		AutodeleteTrigger:       formData.AutodeleteTrigger,
+		AutodeleteResponseDelay: formData.AutodeleteResponseDelay,
+		AutodeleteTriggerDelay:  formData.AutodeleteTriggerDelay,
+		Channels:                append(formData.Channels, formData.Categories...),
+		ChannelsWhitelistMode:   formData.ChannelsWhitelistMode,
+		Roles:                   formData.Roles,
+		RolesWhitelistMode:      formData.RolesWhitelistMode,
+	}
+
+	err = model.InsertG(r.Context(), boil.Infer())
+	if err == nil {
+		featureflags.MarkGuildDirty(activeGuild.ID)
+		//	go cplogs.RetryAddEntry(web.NewLogEntryFromContext(r.Context(), panelLogKeyNewChannelOverride))
+	}
+	return templateData, errors.WithMessage(err, "InsertG")
+}
+
+func HandleUpdateCommand(w http.ResponseWriter, r *http.Request, currentCommand *models.GenaiCommand) (web.TemplateData, error) {
+	_, templateData := web.GetBaseCPContextData(r.Context())
+
+	formData := r.Context().Value(common.ContextKeyParsedForm).(*CommandFormData)
+
+	triggers := []string{formData.Name}
+	if formData.Aliases != "" {
+		triggers = append(triggers, strings.Split(formData.Aliases, ",")...)
+	}
+
+	currentCommand.Enabled = formData.Enabled
+	currentCommand.Triggers = triggers
+	currentCommand.Prompt = formData.Prompt
+	currentCommand.AllowInput = formData.AllowInput
+	currentCommand.MaxTokens = formData.MaxTokens
+	currentCommand.AutodeleteResponse = formData.AutodeleteResponse
+	currentCommand.AutodeleteTrigger = formData.AutodeleteTrigger
+	currentCommand.AutodeleteResponseDelay = formData.AutodeleteResponseDelay
+	currentCommand.AutodeleteTriggerDelay = formData.AutodeleteTriggerDelay
+	currentCommand.Channels = append(formData.Channels, formData.Categories...)
+	currentCommand.ChannelsWhitelistMode = formData.ChannelsWhitelistMode
+	currentCommand.Roles = formData.Roles
+	currentCommand.RolesWhitelistMode = formData.RolesWhitelistMode
+
+	_, err := currentCommand.UpdateG(r.Context(), boil.Infer())
+	//	if err == nil {
+	//		go cplogs.RetryAddEntry(web.NewLogEntryFromContext(r.Context(), panelLogKeyUpdatedChannelOverride))
+	//	}
+	return templateData, errors.WithMessage(err, "UpdateG")
+}
+
+func HandleDeleteCommand(w http.ResponseWriter, r *http.Request, currentOverride *models.GenaiCommand) (web.TemplateData, error) {
+	_, templateData := web.GetBaseCPContextData(r.Context())
+
+	_, err := currentOverride.DeleteG(r.Context())
+	//	if rows > 0 {
+	//		go cplogs.RetryAddEntry(web.NewLogEntryFromContext(r.Context(), panelLogKeyRemovedChannelOverride))
+	//	}
+	return templateData, errors.WithMessage(err, "DeleteG")
 }
 
 var _ web.PluginWithServerHomeWidget = (*Plugin)(nil)
