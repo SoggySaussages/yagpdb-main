@@ -66,7 +66,7 @@ func tmplGenAIComplete(ctx *templates.Context) interface{} {
 		}
 
 		provider := GenAIProviderFromID(config.Provider)
-		response, _, err := provider.BasicCompletion(&dstate.GuildState{ID: ctx.GS.ID, OwnerID: ctx.GS.OwnerID}, systemMsg, userMsg, maxTokens, false)
+		response, _, err := provider.BasicCompletion(&dstate.GuildState{ID: ctx.GS.ID, OwnerID: ctx.GS.OwnerID}, systemMsg, userMsg, maxTokens, ctx.CurrentFrame.CS.NSFW)
 
 		return response.Content, err
 	}
@@ -89,7 +89,11 @@ func tmplGenAICompleteComplex(ctx *templates.Context) interface{} {
 		}
 
 		provider := GenAIProviderFromID(config.Provider)
-		input.BotSystemMessage = BotSystemMessagePromptGeneric + "\n" + BotSystemMessagePromptAppendNonNSFW
+		nsfw := BotSystemMessagePromptAppendNonNSFW
+		if ctx.CurrentFrame.CS.NSFW {
+			nsfw = BotSystemMessagePromptAppendNSFW
+		}
+		input.BotSystemMessage = BotSystemMessagePromptGeneric + "\n" + nsfw
 		resp, _, err := provider.ComplexCompletion(&dstate.GuildState{ID: ctx.GS.ID, OwnerID: ctx.GS.OwnerID}, input)
 		return resp, err
 	}
