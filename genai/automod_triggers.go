@@ -75,6 +75,10 @@ func (mc *GenAIAutomodTrigger) CheckMessage(triggerCtx *automod.TriggerContext, 
 		return false, err
 	}
 
+	if !config.Enabled || len(config.Key) == 0 {
+		return false, nil
+	}
+
 	provider := GenAIProviderFromID(config.Provider)
 
 	g := bot.State.GetGuild(cs.GuildID)

@@ -145,6 +145,10 @@ func HandlePostGenAI(w http.ResponseWriter, r *http.Request) interface{} {
 		Model:          formData.Model,
 		BaseCMDEnabled: formData.BaseCmdEnabled,
 	}
+	if !formData.Enabled {
+		formData.Key = ""
+		formData.ResetToken = true
+	}
 	newConfFakeKey := *newConf
 
 	tmpl["GenAIConfig"] = &newConfFakeKey
