@@ -138,6 +138,7 @@ func HandleMessageCreate(evt *eventsystem.EventData) {
 		return cmds, err
 	})
 	if err != nil {
+		logger.Error(err)
 		return
 	}
 
@@ -145,6 +146,7 @@ func HandleMessageCreate(evt *eventsystem.EventData) {
 
 	prefix, err := commands.GetCommandPrefixBotEvt(evt)
 	if err != nil {
+		logger.Error(err)
 		return
 	}
 
@@ -193,6 +195,7 @@ func HandleMessageCreate(evt *eventsystem.EventData) {
 		pattern := `\A(<@!?` + discordgo.StrID(common.BotUser.ID) + "> ?|" + regexp.QuoteMeta(prefix) + ")(" + regexp.QuoteMeta(strings.Join(triggersSafe, "|")) + `)(\z|[[:space:]])`
 		re, err := regexp.Compile(pattern)
 		if err != nil {
+			logger.Error(err)
 			continue
 		}
 
@@ -209,6 +212,7 @@ func HandleMessageCreate(evt *eventsystem.EventData) {
 
 		config, err := GetConfig(evt.GS.ID)
 		if err != nil {
+			logger.Error(err)
 			return
 		}
 		provider := GenAIProviderFromID(config.Provider)
@@ -231,6 +235,9 @@ func HandleMessageCreate(evt *eventsystem.EventData) {
 					common.BotSession.ChannelMessageDelete(cs.ID, m.ID)
 				}()
 			}
+		}
+		if err != nil {
+			logger.Error(err)
 		}
 	}
 }
