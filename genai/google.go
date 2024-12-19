@@ -243,10 +243,18 @@ func (p GenAIProviderGoogle) ModerateMessage(gs *dstate.GuildState, message stri
 	gemini.SetTemperature(1.1)
 	gemini.GenerationConfig = google.GenerationConfig{}
 	gemini.SetMaxOutputTokens(1)
+	gemini.SafetySettings = []*google.SafetySetting{
+		// define a bunch of safety settings with no blocks so we get the
+		// probability data in the response
+		{Category: google.HarmCategoryHateSpeech, Threshold: google.HarmBlockNone},
+		{Category: google.HarmCategoryDangerousContent, Threshold: google.HarmBlockNone},
+		{Category: google.HarmCategoryHarassment, Threshold: google.HarmBlockNone},
+		{Category: google.HarmCategorySexuallyExplicit, Threshold: google.HarmBlockNone},
+	}
 	resp, err := gemini.GenerateContent(context.Background(), google.Text(message))
 	if err != nil {
 		logger.Error(err)
-		return nil, nil, err
+		return nil, nil, nil
 	}
 
 	response := GenAIModerationCategoryProbability{}
