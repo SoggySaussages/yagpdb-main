@@ -263,7 +263,7 @@ func (p GenAIProviderGoogle) ModerateMessage(gs *dstate.GuildState, message stri
 		feedback = blockedErr.PromptFeedback
 	}
 
-	if resp.PromptFeedback != nil {
+	if resp != nil && resp.PromptFeedback != nil {
 		feedback = resp.PromptFeedback
 	}
 
