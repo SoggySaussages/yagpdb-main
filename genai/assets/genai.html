@@ -68,8 +68,9 @@
                                 </select>
                                 {{range .GenAIProviders}}
                                 <div id="model-description-provider-{{.ID}}">
-                                    <p><a href="{{.WebData.ModelDescriptionsURL}}">OpenAI's Model List</a></p>
-                                    <p>Note: Moderation with OpenAI uses the following model: <code>{{.WebData.ModelForModeration}}</code></p>
+                                    <p><a href="{{.WebData.ModelDescriptionsURL}}">{{.String}}'s Model List</a></p>
+                                    <p>Visit <a href="{{.WebData.PlaygroundURL}}">{{.String}}'s playground</a> to test your prompts against different models and messages before implementing on YAGPDB.</p>
+                                    <p>Note: Moderation with {{.String}} uses the following model: <code>{{.WebData.ModelForModeration}}</code></p>
                                 </div>
                                 {{end}}
                             </div>

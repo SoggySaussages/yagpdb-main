@@ -266,6 +266,7 @@ var GenAIProviderOpenAIWebData = &GenAIProviderWebDescriptions{
 	Click copy, then paste the new API key into the "API Key" field on this page.`),
 	ModelDescriptionsURL: "https://platform.openai.com/docs/models",
 	ModelForModeration:   "omni-moderation-latest",
+	PlaygroundURL:        "https://platform.openai.com/playground/chat?models=gpt-4o-mini",
 }
 
 func (p GenAIProviderOpenAI) WebData() *GenAIProviderWebDescriptions {

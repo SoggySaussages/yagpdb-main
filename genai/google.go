@@ -321,6 +321,7 @@ var GenAIProviderGoogleWebData = &GenAIProviderWebDescriptions{
 	You must select the <strong>entire contents</strong> of your file (not the name, all the text inside the file), and then copy it. Then, paste the <strong>entire</strong> file into the "API Key" field on this page.`),
 	ModelDescriptionsURL: "https://ai.google.dev/pricing",
 	ModelForModeration:   "(whichever model you choose)",
+	PlaygroundURL:        "https://aistudio.google.com/prompts/new_chat",
 }
 
 func (p GenAIProviderGoogle) WebData() *GenAIProviderWebDescriptions {

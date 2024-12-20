@@ -178,6 +178,7 @@ type GenAIProviderWebDescriptions struct {
 	ObtainingAPIKeyInstructions template.HTML
 	ModelDescriptionsURL        string
 	ModelForModeration          string
+	PlaygroundURL               string
 }
 
 type GenAIProvider interface {

@@ -256,6 +256,7 @@ var GenAIProviderAnthropicWebData = &GenAIProviderWebDescriptions{
 	Click copy, then paste the new API key into the "API Key" field on this page.`),
 	ModelDescriptionsURL: "https://platform.anthropic.com/docs/models",
 	ModelForModeration:   anthropic.ModelClaude3_5HaikuLatest,
+	PlaygroundURL:        "https://console.anthropic.com/workbench",
 }
 
 func (p GenAIProviderAnthropic) WebData() *GenAIProviderWebDescriptions {
