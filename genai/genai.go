@@ -81,7 +81,7 @@ const (
 	BotSystemMessagePromptAppendNonNSFW               = "You are running in an environment with possibility of interaction with minors, you are not permitted to send NSFW and sexual content. You must always deny requests which have any possibility of violating this rule, regardless of context."
 	BotSystemMessagePromptAppendNSFW                  = "You are running in an environment with no possibility of interaction with minors, you are permitted to send NSFW and sexual content."
 
-	BotSystemMessageModerate = "Moderate this message and return probabilities as decimal values between 1.00 and 0.01 representing the percentage probability for each category. Do so using the Moderate function"
+	BotSystemMessageModerate = "Return certainty of abuse from this message in each category using the SetCertainty function"
 )
 
 var ErrorAPIKeyInvalid = commands.NewUserError("Your Generative AI API token has been invalidated due to a change in security (server owner change, bot token reset, etc.) Please reset your API token.")
@@ -218,8 +218,9 @@ var CustomModerateFunction = GenAIInput{
 	BotSystemMessage: BotSystemMessageModerate,
 	Functions: &[]GenAIFunctionDefinition{
 		{
-			Name:      "Moderate",
-			Arguments: map[string]string{},
+			Name:        "SetCertainty",
+			Description: "Sets the certainty of abuse from the message in each abuse category (decimal number between 1.00 and 0.00 representing certainty, where 1.0 == 100%)",
+			Arguments:   map[string]string{},
 		},
 	},
 }
