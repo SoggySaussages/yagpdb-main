@@ -57,7 +57,7 @@ func (p GenAIProviderAnthropic) EstimateTokens(combinedInput string, maxTokens i
 }
 
 func (p GenAIProviderAnthropic) ValidateAPIToken(gs *dstate.GuildState, token string) error {
-	// make a really cheap (%0.02 of a cent) call to test the key
+	// make a really cheap call to test the key
 	client := anthropic.NewClient(option.WithAPIKey(token))
 	_, err := client.Messages.New(context.Background(), anthropic.MessageNewParams{
 		Messages:  anthropic.F([]anthropic.MessageParam{anthropic.NewUserMessage(anthropic.NewTextBlock("1"))}),
@@ -123,7 +123,7 @@ func (p GenAIProviderAnthropic) ComplexCompletion(gs *dstate.GuildState, input *
 		}
 	}
 
-	requestParams := anthropic.MessageNewParams{Model: anthropic.F(config.Model), MaxTokens: anthropic.Int(input.MaxTokens), Temperature: anthropic.Float(1.1)}
+	requestParams := anthropic.MessageNewParams{Model: anthropic.F(config.Model), MaxTokens: anthropic.Int(input.MaxTokens), Temperature: anthropic.Float(1)}
 
 	if input.UserMessage != "" {
 		requestParams.Messages = anthropic.F([]anthropic.MessageParam{anthropic.NewUserMessage(anthropic.NewTextBlock(input.UserMessage))})
