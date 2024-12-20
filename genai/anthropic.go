@@ -114,11 +114,9 @@ func (p GenAIProviderAnthropic) ComplexCompletion(gs *dstate.GuildState, input *
 
 	if input.Functions != nil {
 		for _, fn := range *input.Functions {
-			properties := make(map[string]interface{}, 0)
+			properties := make(map[string]string, 0)
 			for argName, argType := range fn.Arguments {
-				properties[argName] = map[string]string{
-					"type": argType,
-				}
+				properties[argName] = argType
 			}
 
 			inputSchema, _ := json.Marshal(properties)
