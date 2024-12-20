@@ -149,9 +149,6 @@ func HandlePostGenAI(w http.ResponseWriter, r *http.Request) interface{} {
 		formData.Key = ""
 		formData.ResetToken = true
 	}
-	newConfFakeKey := *newConf
-
-	tmpl["GenAIConfig"] = &newConfFakeKey
 
 	if !ok {
 		return tmpl
@@ -159,12 +156,30 @@ func HandlePostGenAI(w http.ResponseWriter, r *http.Request) interface{} {
 
 	var saveNewKey bool
 	provider := GenAIProviderFromID(newConf.Provider)
+
+	// see if selected model is a part of selected provider's map, revert to a
+	// default if not
+	var found bool
+	for _, model := range *provider.ModelMap() {
+		if model == newConf.Model {
+			found = true
+			break
+		}
+	}
+	if !found {
+		newConf.Model = provider.DefaultModel()
+	}
+
+	newConfFakeKey := *newConf
+	tmpl["GenAIConfig"] = &newConfFakeKey
+
 	conf, err := GetConfig(guild.ID)
 	if err != nil {
 		conf = &models.GenaiConfig{}
 	}
 
 	if conf.Provider != formData.Provider {
+		// provider changed, reset token
 		formData.Key = ""
 		formData.ResetToken = true
 	}
