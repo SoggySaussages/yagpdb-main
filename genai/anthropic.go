@@ -233,22 +233,22 @@ func (p GenAIProviderAnthropic) ModerateMessage(gs *dstate.GuildState, message s
 var GenAIProviderAnthropicWebData = &GenAIProviderWebDescriptions{
 	ObtainingAPIKeyInstructions: template.HTML(`Step one: Create an account.
 	<br>
-	Visit <a href="https://platform.anthropic.com/docs/guides/production-best-practices/api-keys#setting-up-your-organization">Anthropic's website</a> to do this.
+	Visit <a href="https://console.anthropic.com">Anthropic's website</a> to do this. Once you've created your account, you'll be prompted to give your name and organization name.
 	<br>
 	<br>
 	Step two: Set up payment method.
 	<br>
-	You must set up a payment method in order to make requests to Anthropic. Do so on <a href="https://platform.anthropic.com/settings/organization/billing/overview">Anthropic's API dashboard</a>.
+	You must set up a payment method in order to make requests to Anthropic. Do so on <a href="https://console.anthropic.com/settings/billing">Anthropic's API dashboard</a>. You will be prompted to provide detailed information on your organization.
 	<br>
 	<br>
 	Step three: Set a Budget Limit.
 	<br>
-	You must set a monthly budget limit within reason to prevent yourself from going into credit debt with Anthropic. Do so on <a href="https://platform.anthropic.com/settings/organization/limits">Anthropic's API dashboard</a>.
+	You must set a monthly budget limit within reason to prevent yourself from going into credit debt with Anthropic. Do so on <a href="https://console.anthropic.com/settings/limits">Anthropic's API dashboard</a>, scroll to the bottom under <strong>Monthly limit</strong> and click <strong>Change limit</strong>.
 	<br>
 	<br>
 	Step four: Create an API key.
 	<br>
-	Create an API key on <a href="https://platform.anthropic.com/api-keys">Anthropic's Dashboard</a>. Set the mode to <strong>restricted</strong>, set every permission to <strong>None</strong>, and then set the "Model capabilities" permission to <strong>Write</strong>.
+	Create an API key on <a href="https://console.anthropic.com/settings/keys">Anthropic's Dashboard</a>. Give it a name and click <strong>Create</strong>.
 	<br>
 	<br>
 	Step five: Copy the API key to YAGPDB.

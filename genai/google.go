@@ -275,28 +275,51 @@ func (p GenAIProviderGoogle) ModerateMessage(gs *dstate.GuildState, message stri
 var GenAIProviderGoogleWebData = &GenAIProviderWebDescriptions{
 	ObtainingAPIKeyInstructions: template.HTML(`Step one: Create an account.
 	<br>
-	Visit <a href="https://platform.openai.com/docs/guides/production-best-practices/api-keys#setting-up-your-organization">Google's website</a> to do this.
+	Visit <a href="https://console.cloud.google.com">Google's website</a> to do this.
 	<br>
 	<br>
-	Step two: Set up payment method.
+	Step two: Set up project.
 	<br>
-	You must set up a payment method in order to make requests to Google. Do so on <a href="https://platform.openai.com/settings/organization/billing/overview">Google's API dashboard</a>.
-	<br>
-	<br>
-	Step three: Set a Budget Limit.
-	<br>
-	You must set a monthly budget limit within reason to prevent yourself from going into credit debt with Google. Do so on <a href="https://platform.openai.com/settings/organization/limits">Google's API dashboard</a>.
+	On the same page, click <strong>Select a project</strong> in the top left corner of the screen, then click <strong>New Project</strong>. Finally, name your project (optional) and click <strong>Create</strong>.
 	<br>
 	<br>
-	Step four: Create an API key.
+	Step three: Set up payment method.
 	<br>
-	Create an API key on <a href="https://platform.openai.com/api-keys">Google's Dashboard</a>. Set the mode to <strong>restricted</strong>, set every permission to <strong>None</strong>, and then set the "Model capabilities" permission to <strong>Write</strong>.
+	Go to <a href="https://console.cloud.google.com/billing">your account's billing page</a>, click <strong>Add Billing Account</strong>, and complete the process.
+	<br>
+	Once done, go to <a href="https://console.cloud.google.com/billing/projects">your projects billing dasboard</a> then click the three dots ... on your project, and click <strong>change billing</strong>. Select the billing account you just created from the dropdown, and click <strong>Set Account</strong>.
 	<br>
 	<br>
-	Step five: Copy the API key to YAGPDB.
+	Step four: Set a Budget Limit.
 	<br>
-	Click copy, then paste the new API key into the "API Key" field on this page.`),
-	ModelDescriptionsURL: "https://platform.openai.com/docs/models",
+	You must set a monthly budget alert within reason to protect yourself from going into credit debt with Google. Do so on <a href="https://console.cloud.google.com/billing">Google's Billing dashboard</a>.
+	<br>
+	<br>
+	Step five: Enable the AI API.
+	<br>
+	Enable the Vertex AI API plugin to be able to make requests to it. Do so on <a href="https://console.cloud.google.com/apis/library/aiplatform.googleapis.com?project=our-card-445307-d6">Google's API Library</a>.
+	<br>
+	<br>
+	Step six: Create a service account.
+	<br>
+	Create a service account to allow the bot to make requests to Vertex AI API. Do so on <a href="https://console.cloud.google.com/iam-admin/serviceaccounts/create">the Google Cloud Dashboard</a>.
+	<br>
+	<br>
+	Step seven: Create a credentials file.
+	Once you have created your service account, you'll be redirected to the <a href="https://console.cloud.google.com/iam-admin/serviceaccounts">service accounts page</a>. From there, click the three dots ... on your service account, and click <strong>Manage Keys</strong>.
+	<br>
+	Click <strong>Add Key</strong>, then <strong>Create New Key</strong>, select <strong>JSON</strong>, and then <strong>Create</strong>.
+	<br>
+	<br>
+	Step eight: Open your credentials file.
+	<br>
+	After creating your new key, the credentials file will be downloaded to your device. Find that file and open it. You should see a bunch of text starting with <code>"type": "service_account"</code>.
+	<br>
+	<br>
+	Step nine: Copy the API key to YAGPDB.
+	<br>
+	You must select the <strong>entire contents</strong> of your file (not the name, all the text inside the file), and then copy it. Then, paste the <strong>entire</strong> file into the "API Key" field on this page.`),
+	ModelDescriptionsURL: "https://ai.google.dev/pricing",
 	ModelForModeration:   "(whichever model you choose)",
 }
 
