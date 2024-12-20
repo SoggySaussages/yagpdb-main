@@ -164,6 +164,11 @@ func HandlePostGenAI(w http.ResponseWriter, r *http.Request) interface{} {
 		conf = &models.GenaiConfig{}
 	}
 
+	if conf.Provider != formData.Provider {
+		formData.Key = ""
+		formData.ResetToken = true
+	}
+
 	partialGuildState := &dstate.GuildState{ID: guild.ID, OwnerID: guild.OwnerID}
 	if formData.Key != "" {
 		newConf.Key, err = encryptAPIToken(partialGuildState, formData.Key)
