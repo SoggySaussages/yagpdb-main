@@ -256,7 +256,7 @@ func (p GenAIProviderGoogle) ModerateMessage(gs *dstate.GuildState, message stri
 			probInt = int(parsed)
 		}
 
-		response[cat] = float64(probInt) / 10.0
+		response[cat] = float64(probInt) / 100.0
 	}
 
 	return &response, u, nil

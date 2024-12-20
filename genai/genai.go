@@ -227,7 +227,7 @@ var CustomModerateFunction = GenAIInput{
 
 func genCustomModerateFuncArgs() {
 	for _, c := range GenAIModerationCategoriesFormattedPascal {
-		(*CustomModerateFunction.Functions)[0].Arguments[c] = "int"
+		(*CustomModerateFunction.Functions)[0].Arguments[c] = "integer"
 	}
 	b, e := json.Marshal(CustomModerateFunction)
 	logger.Info(string(b), e)
