@@ -9,7 +9,7 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/botlabs-gg/yagpdb/v2/lib/dstate"
+	"github.com/botlabs-gg/sgpdb/v2/lib/dstate"
 	"github.com/openai/openai-go"
 	"github.com/openai/openai-go/option"
 	"github.com/openai/openai-go/shared"

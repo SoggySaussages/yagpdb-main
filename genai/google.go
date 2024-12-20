@@ -10,7 +10,7 @@ import (
 	"strconv"
 
 	google "cloud.google.com/go/vertexai/genai"
-	"github.com/botlabs-gg/yagpdb/v2/lib/dstate"
+	"github.com/botlabs-gg/sgpdb/v2/lib/dstate"
 	"google.golang.org/api/option"
 )
 

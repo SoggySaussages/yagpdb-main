@@ -6,6 +6,7 @@ import (
 	"github.com/botlabs-gg/sgpdb/v2/common/featureflags"
 	"github.com/botlabs-gg/sgpdb/v2/common/prom"
 	"github.com/botlabs-gg/sgpdb/v2/common/run"
+	"github.com/botlabs-gg/sgpdb/v2/genai"
 	"github.com/botlabs-gg/sgpdb/v2/lib/confusables"
 	"github.com/botlabs-gg/sgpdb/v2/trivia"
 	"github.com/botlabs-gg/sgpdb/v2/web/discorddata"
@@ -92,6 +93,7 @@ func main() {
 	prom.RegisterPlugin()
 	featureflags.RegisterPlugin()
 	trivia.RegisterPlugin()
+	genai.RegisterPlugin()
 
 	// Register confusables replacer
 	confusables.Init()
