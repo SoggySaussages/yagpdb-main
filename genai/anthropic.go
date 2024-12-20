@@ -77,12 +77,13 @@ func (p GenAIProviderAnthropic) BasicCompletion(gs *dstate.GuildState, systemMsg
 	return p.ComplexCompletion(gs, input)
 }
 
-func (p GenAIProviderAnthropic) convertToJSONSchema(funcName string, args json.RawMessage) interface{} {
+func (p GenAIProviderAnthropic) convertToJSONSchema(args json.RawMessage) interface{} {
 	return json.RawMessage(fmt.Sprintf(`{"$schema": "http://json-schema.org/draft/2020-12/schema",
-	"$ref": "#/$defs/%[1]s",
-	"$defs": {
-	  "%[1]s": {"properties": %[2]s, "type": "object", "additional_properties": false, "required": []}
-	}}`, funcName, string(args)))
+	  "properties": %s,
+	  "type": "object",
+	  "additional_properties": false,
+	  "required": []
+	}`, string(args)))
 }
 
 func (p GenAIProviderAnthropic) ComplexCompletion(gs *dstate.GuildState, input *GenAIInput) (*GenAIResponse, *GenAIResponseUsage, error) {
@@ -122,7 +123,7 @@ func (p GenAIProviderAnthropic) ComplexCompletion(gs *dstate.GuildState, input *
 			}
 
 			inputSchema, _ := json.Marshal(properties)
-			inSch := p.convertToJSONSchema(fn.Name, inputSchema)
+			inSch := p.convertToJSONSchema(inputSchema)
 			logger.Infof("%[1]T - %[1]v\n\n%[2]s", inSch, string(inSch.(json.RawMessage)))
 			tools = append(tools, anthropic.ToolParam{
 				Name:        anthropic.String(fn.Name),
