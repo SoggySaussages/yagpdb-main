@@ -133,7 +133,17 @@ func (p GenAIProviderAnthropic) ComplexCompletion(gs *dstate.GuildState, input *
 		}
 	}
 
-	requestParams := anthropic.MessageNewParams{Model: anthropic.F(config.Model), MaxTokens: anthropic.Int(input.MaxTokens), System: anthropic.F(systemMessages), Messages: anthropic.F([]anthropic.MessageParam{anthropic.NewUserMessage(anthropic.NewTextBlock("Please begin."))}), Temperature: anthropic.Float(1)}
+	model := config.Model
+	if input.ModelOverride != "" {
+		for _, v := range *p.ModelMap() {
+			if v == input.ModelOverride {
+				model = input.ModelOverride
+				break
+			}
+		}
+	}
+
+	requestParams := anthropic.MessageNewParams{Model: anthropic.F(model), MaxTokens: anthropic.Int(input.MaxTokens), System: anthropic.F(systemMessages), Messages: anthropic.F([]anthropic.MessageParam{anthropic.NewUserMessage(anthropic.NewTextBlock("Please begin."))}), Temperature: anthropic.Float(1)}
 
 	if input.UserMessage != "" {
 		requestParams.Messages = anthropic.F([]anthropic.MessageParam{anthropic.NewUserMessage(anthropic.NewTextBlock(input.UserMessage))})
@@ -179,6 +189,7 @@ func (p GenAIProviderAnthropic) ModerateMessage(gs *dstate.GuildState, message s
 	input := CustomModerateFunction
 	input.UserMessage = message
 	input.MaxTokens = 96
+	input.ModelOverride = anthropic.ModelClaude3_5HaikuLatest
 
 	r, u, err := p.ComplexCompletion(gs, &input)
 	b, e := json.Marshal(r)
@@ -244,7 +255,7 @@ var GenAIProviderAnthropicWebData = &GenAIProviderWebDescriptions{
 	<br>
 	Click copy, then paste the new API key into the "API Key" field on this page.`),
 	ModelDescriptionsURL: "https://platform.anthropic.com/docs/models",
-	ModelForModeration:   "omni-moderation-latest",
+	ModelForModeration:   anthropic.ModelClaude3_5HaikuLatest,
 }
 
 func (p GenAIProviderAnthropic) WebData() *GenAIProviderWebDescriptions {

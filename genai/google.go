@@ -123,7 +123,17 @@ func (p GenAIProviderGoogle) ComplexCompletion(gs *dstate.GuildState, input *Gen
 	}
 	defer client.Close()
 
-	gemini := client.GenerativeModel(config.Model)
+	model := config.Model
+	if input.ModelOverride != "" {
+		for _, v := range *p.ModelMap() {
+			if v == input.ModelOverride {
+				model = input.ModelOverride
+				break
+			}
+		}
+	}
+
+	gemini := client.GenerativeModel(model)
 	presencePenalty := float32(0.05)
 	gemini.GenerationConfig.PresencePenalty = &presencePenalty
 	gemini.SetTemperature(1.1)
@@ -287,7 +297,7 @@ var GenAIProviderGoogleWebData = &GenAIProviderWebDescriptions{
 	<br>
 	Click copy, then paste the new API key into the "API Key" field on this page.`),
 	ModelDescriptionsURL: "https://platform.openai.com/docs/models",
-	ModelForModeration:   "omni-moderation-latest",
+	ModelForModeration:   "(whichever model you choose)",
 }
 
 func (p GenAIProviderGoogle) WebData() *GenAIProviderWebDescriptions {

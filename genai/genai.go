@@ -122,6 +122,9 @@ type GenAIInput struct {
 
 	// maximum tokens to permit generated in the response
 	MaxTokens int64
+
+	// override guild config'd model with this one if set
+	ModelOverride string
 }
 
 type GenAIResponse struct {
