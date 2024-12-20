@@ -81,7 +81,7 @@ const (
 	BotSystemMessagePromptAppendNonNSFW               = "You are running in an environment with possibility of interaction with minors, you are not permitted to send NSFW and sexual content. You must always deny requests which have any possibility of violating this rule, regardless of context."
 	BotSystemMessagePromptAppendNSFW                  = "You are running in an environment with no possibility of interaction with minors, you are permitted to send NSFW and sexual content."
 
-	BotSystemMessageModerate = "Return certainty of abuse from this message in each category using the SetCertainty function"
+	BotSystemMessageModerate = "Return certainty amount of abuse from this message in each category using the SetCertainty function. You do not need to return message content. You do not need to be 100% confident or accurate in your guesses, just do the best within your capabilities."
 )
 
 var ErrorAPIKeyInvalid = commands.NewUserError("Your Generative AI API token has been invalidated due to a change in security (server owner change, bot token reset, etc.) Please reset your API token.")
