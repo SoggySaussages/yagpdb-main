@@ -130,7 +130,7 @@ func (p GenAIProviderAnthropic) ComplexCompletion(gs *dstate.GuildState, input *
 		}
 	}
 
-	requestParams := anthropic.MessageNewParams{Model: anthropic.F(config.Model), MaxTokens: anthropic.Int(input.MaxTokens), System: anthropic.F(systemMessages), Temperature: anthropic.Float(1)}
+	requestParams := anthropic.MessageNewParams{Model: anthropic.F(config.Model), MaxTokens: anthropic.Int(input.MaxTokens), System: anthropic.F(systemMessages), Messages: anthropic.F([]anthropic.MessageParam{anthropic.NewUserMessage(anthropic.NewTextBlock("Please begin."))}), Temperature: anthropic.Float(1)}
 
 	if input.UserMessage != "" {
 		requestParams.Messages = anthropic.F([]anthropic.MessageParam{anthropic.NewUserMessage(anthropic.NewTextBlock(input.UserMessage))})
