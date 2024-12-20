@@ -3,6 +3,7 @@ package genai
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"html/template"
 	"strings"
 
@@ -227,4 +228,5 @@ func genCustomModerateFuncArgs() {
 	for _, c := range GenAIModerationCategoriesFormattedPascal {
 		(*CustomModerateFunction.Functions)[0].Arguments[c] = "string"
 	}
+	logger.Info(json.Marshal(CustomModerateFunction))
 }
