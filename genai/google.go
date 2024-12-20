@@ -6,6 +6,8 @@ import (
 	"errors"
 	"fmt"
 	"html/template"
+	"reflect"
+	"strconv"
 
 	google "cloud.google.com/go/vertexai/genai"
 	"github.com/botlabs-gg/yagpdb/v2/lib/dstate"
@@ -240,10 +242,20 @@ func (p GenAIProviderGoogle) ModerateMessage(gs *dstate.GuildState, message stri
 
 	response := GenAIModerationCategoryProbability{}
 	for cat, prob := range modResp.Arguments {
-		probInt, ok := prob.(int)
-		if !ok {
-			continue
+		probInt := 0
+		t := reflect.ValueOf(prob)
+		switch {
+		case t.CanInt():
+			probInt = int(t.Int())
+		case t.CanFloat():
+			probInt = int(t.Float())
+		case t.CanUint():
+			probInt = int(t.Uint())
+		case t.Kind() == reflect.String:
+			parsed, _ := strconv.ParseInt(t.String(), 10, 64)
+			probInt = int(parsed)
 		}
+
 		response[cat] = float64(probInt) / 10.0
 	}
 
