@@ -219,7 +219,7 @@ var CustomModerateFunction = GenAIInput{
 	Functions: &[]GenAIFunctionDefinition{
 		{
 			Name:        "SetCertainty",
-			Description: "Sets the certainty of abuse from the message in each abuse category (decimal number between 1.00 and 0.00 representing certainty, where 1.0 == 100%)",
+			Description: "Sets the certainty of abuse from the message in each abuse category (number between 0 and 100 representing percent certain)",
 			Arguments:   map[string]string{},
 		},
 	},
@@ -227,7 +227,7 @@ var CustomModerateFunction = GenAIInput{
 
 func genCustomModerateFuncArgs() {
 	for _, c := range GenAIModerationCategoriesFormattedPascal {
-		(*CustomModerateFunction.Functions)[0].Arguments[c] = "string"
+		(*CustomModerateFunction.Functions)[0].Arguments[c] = "int"
 	}
 	b, e := json.Marshal(CustomModerateFunction)
 	logger.Info(string(b), e)
