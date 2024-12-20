@@ -77,6 +77,14 @@ func (p GenAIProviderAnthropic) BasicCompletion(gs *dstate.GuildState, systemMsg
 	return p.ComplexCompletion(gs, input)
 }
 
+func (p GenAIProviderAnthropic) convertToJSONSchema(funcName string, args json.RawMessage) interface{} {
+	return []byte(fmt.Sprintf(`"$schema": "http://json-schema.org/draft/2020-12/schema",
+	"$ref": "#/$defs/%[1]s",
+	"$defs": {
+	  "%[1]s": %[2]s,
+	}`, funcName, string(args)))
+}
+
 func (p GenAIProviderAnthropic) ComplexCompletion(gs *dstate.GuildState, input *GenAIInput) (*GenAIResponse, *GenAIResponseUsage, error) {
 	key, err := getAPIToken(gs)
 	if err != nil {
@@ -114,16 +122,15 @@ func (p GenAIProviderAnthropic) ComplexCompletion(gs *dstate.GuildState, input *
 			}
 
 			inputSchema, _ := json.Marshal(properties)
-			var inputSch interface{} = string(inputSchema)
 			tools = append(tools, anthropic.ToolParam{
 				Name:        anthropic.String(fn.Name),
 				Description: anthropic.String(fn.Description),
-				InputSchema: anthropic.F(inputSch),
+				InputSchema: anthropic.F(p.convertToJSONSchema(fn.Name, inputSchema)),
 			})
 		}
 	}
 
-	requestParams := anthropic.MessageNewParams{Model: anthropic.F(config.Model), MaxTokens: anthropic.Int(input.MaxTokens), Temperature: anthropic.Float(1)}
+	requestParams := anthropic.MessageNewParams{Model: anthropic.F(config.Model), MaxTokens: anthropic.Int(input.MaxTokens), System: anthropic.F(systemMessages), Temperature: anthropic.Float(1)}
 
 	if input.UserMessage != "" {
 		requestParams.Messages = anthropic.F([]anthropic.MessageParam{anthropic.NewUserMessage(anthropic.NewTextBlock(input.UserMessage))})
