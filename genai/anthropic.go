@@ -78,11 +78,11 @@ func (p GenAIProviderAnthropic) BasicCompletion(gs *dstate.GuildState, systemMsg
 }
 
 func (p GenAIProviderAnthropic) convertToJSONSchema(funcName string, args json.RawMessage) interface{} {
-	return json.RawMessage(fmt.Sprintf(`"$schema": "http://json-schema.org/draft/2020-12/schema",
+	return json.RawMessage(fmt.Sprintf(`{"$schema": "http://json-schema.org/draft/2020-12/schema",
 	"$ref": "#/$defs/%[1]s",
 	"$defs": {
-	  "%[1]s": %[2]s,
-	}`, funcName, string(args)))
+	  "%[1]s": {"properties": %[2]s, "type": "object", "additional_properties": false, "required": []}
+	}}`, funcName, string(args)))
 }
 
 func (p GenAIProviderAnthropic) ComplexCompletion(gs *dstate.GuildState, input *GenAIInput) (*GenAIResponse, *GenAIResponseUsage, error) {
@@ -114,9 +114,11 @@ func (p GenAIProviderAnthropic) ComplexCompletion(gs *dstate.GuildState, input *
 
 	if input.Functions != nil {
 		for _, fn := range *input.Functions {
-			properties := make(map[string]string, 0)
+			properties := make(map[string]interface{}, 0)
 			for argName, argType := range fn.Arguments {
-				properties[argName] = argType
+				properties[argName] = map[string]string{
+					"type": argType,
+				}
 			}
 
 			inputSchema, _ := json.Marshal(properties)
