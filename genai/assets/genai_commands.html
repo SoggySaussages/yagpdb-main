@@ -1,0 +1,200 @@
+{{define "cp_genai_commands"}}
+
+{{template "cp_head" .}}
+<header class="page-header">
+    <h2>Generative AI Configuration</h2>
+</header>
+
+{{template "cp_alerts" .}}
+{{$dot := .}}
+
+<!-- /.row -->
+<div class="row">
+    <div class="col-lg-12">
+        <sction class="card {{if .GenAIConfig.Enabled}}card-featured card-featured-success{{end}}">
+            <header class="card-header">
+                <h2 class="card-title">Custom Generative AI Commands</h2>
+            </header>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <p>
+                            This feature allows you to create your own commands with Generative AI responses. You can set your prompt, and choose whether or not to allow user input, which would also be passed to the AI.
+                        </p>
+                        <p>
+                            If you need further customization and advanced features, consider coding a custom command from scratch using YAGPDB's custom command system.
+                        </p>
+                        
+                        <div class="accordion accordion-primary" id="cmd-accordion">
+                
+                            {{range $i, $v := .Commands}}
+                            {{mTemplate "command-config" "ActiveGuild" $dot.ActiveGuild "Command" .}}
+                            {{end}}
+
+                            {{mTemplate "command-config" "ActiveGuild" $dot.ActiveGuild}}
+                        </div>
+
+                    </div>
+                    <!-- /.col-lg-12 -->
+                </div>
+                <!-- /.row -->
+            </div>
+            <!-- /.panel-body -->
+        </section>
+        <!-- /.panel -->
+    </div>
+    <!-- /.col-lg-12 -->
+</div>
+<!-- /.row -->
+
+<script type="text/javascript">
+</script>
+
+{{template "cp_footer" .}}
+
+{{end}}
+
+{{define "command-config"}}
+{{$idOrNew := "new"}}
+{{if .Command}}{{$idOrNew = print .Command.ID}}{{end}}
+<form data-async-form method="POST"
+    action="/manage/{{.ActiveGuild.ID}}/genai/commands/{{if .Command}}{{.Command.ID}}/update{{else}}new{{end}}">
+
+    <div class="card card-default border border-rounded border-secondary">
+        <header class="card-header">
+            <h4 class="card-title m-0">
+                <a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#cmd-accordion-{{.Parent.ID}}"
+                    href="#cmd-accordion-{{$idOrNew}}"
+                    aria-expanded="false">
+                    {{if .Command}}
+                    {{index .Command.Triggers 0}}
+                    {{else}}
+                    New command
+                    {{end}}
+                </a>
+            </h4>
+        </header>
+        <div id="cmd-accordion-{{$idOrNew}}" class="collapse">
+            <div class="card-body">
+                {{if .Command}}
+                <div class="form-row">
+                {{checkbox "enabled" (joinStr "" "enabled-" .Command.ID) "Enable this Command" .Command.Enabled}}
+                <hr />
+                </div>
+                {{end}}
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <label for="name-{{$idOrNew}}">Command Name</label>
+                        <input type="text" class="form-control" id="name-{{$idOrNew}}" name="name" placeholder="funfact" value="{{if .Command}}{{index .Command.Triggers 0}}{{end}}">
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label for="aliases-{{$idOrNew}}">Aliases (comma separated)</label>
+                        <input type="text" class="form-control" id="aliases-{{$idOrNew}}" name="aliases" placeholder="randomfact,didyouknow,factoid" value="{{if .Command}}{{if gt (len .Command.Triggers) 1}}{{joinStr "," (slice .Command.Triggers 1)}}{{end}}{{end}}">
+                    </div>
+                </div>
+            
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <label for="prompt-{{$idOrNew}}">Command Prompt</label>
+                        <input type="text" class="form-control" id="prompt-{{$idOrNew}}" name="prompt" placeholder="Give me a little-known fun fact" value="{{.Command.Prompt}}">
+                        <br>
+                        <label for="max_tokens-{{$idOrNew}}">Max Response Tokens</label>
+                        <input id="max_tokens_{{$idOrNew}}" type="number" min="1" max="512" class="form-control"
+                        value="{{if .Command}}{{.Command.MaxTokens}}{{else}}128{{end}}"
+                        name="maxtokens">
+                    </div>
+                    <div class="form-group col-md-6">
+                        {{$allowInput := false}}
+                        {{if .Command}}{{$allowInput = .Command.AllowInput}}{{end}}
+                        {{checkbox "allowinput" (joinStr "" "allow_input-" $idOrNew) "Append user's command input to the prompt?" $allowInput}}
+                    </div>
+                </div>
+                <br>
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <div class="radio">
+                            <label>
+                                <input id="require-channel-mode-{{$idOrNew}}" type="radio" name="channelswhitelistmode" value="on"
+                                    {{if .Command.ChannelsWhitelistMode}}checked{{end}}>
+                                Only run in the following channels and categories
+                            </label>
+                        </div>
+                        <div class="radio">
+                            <label>
+                                <input id="ignore-channel-mode-{{$idOrNew}}" type="radio" name="channelswhitelistmode" value=""
+                                    {{if not .Command.ChannelsWhitelistMode}}checked{{end}}>
+                                Run in all channels and categories except for the following
+                            </label>
+                        </div>
+                        <label>Channels</label><br>
+                        <select multiple="multiple" class="form-control" data-plugin-multiselect name="channels">
+                            {{textChannelOptionsMulti .ActiveGuild.Channels .Command.Channels }}
+                        </select><br>
+                        <label>Categories</label><br>
+                        <select multiple="multiple" class="form-control" data-plugin-multiselect name="categories">
+                            {{catChannelOptionsMulti .ActiveGuild.Channels .Command.Channels}}
+                        </select>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <div class="radio">
+                            <label>
+                                <input id="require-channel-mode-{{$idOrNew}}" type="radio" name="roleswhitelistmode" value="on"
+                                    {{if .Command.RolesWhitelistMode}}checked{{end}}>
+                                Only allow users with one or more of the following roles to use
+                            </label>
+                        </div>
+                        <div class="radio">
+                            <label>
+                                <input id="ignore-channel-mode-{{$idOrNew}}" type="radio" name="roleswhitelistmode" value=""
+                                    {{if not .Command.RolesWhitelistMode}}checked{{end}}>
+                                Do not allow users with one or more of the following roles to use
+                            </label>
+                        </div>
+                        <label>Member Roles</label><br>
+                        <select multiple="multiple" class="form-control" data-plugin-multiselect name="roles">
+                            {{roleOptionsMulti .ActiveGuild.Roles nil .Command.Roles}}
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <label>Autodelete trigger after (seconds)</label>
+                        <div class="input-group mb-3">
+                            <span class="input-group-prepend">
+                                <span class="input-group-text">
+                                    <input type="checkbox" name="autodeletetrigger"
+                                        {{if .Command.AutodeleteTrigger}}checked{{end}}>
+                                </span>
+                            </span>
+                            <input type="number" min="0" max="2678400" class="form-control" placeholder="Seconds..."
+                                value="{{if .Command}}{{.Command.AutodeleteTriggerDelay}}{{else}}10{{end}}"
+                                name="autodeletetriggerdelay">
+                        </div>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label>Autodelete response after (seconds)</label>
+                        <div class="input-group mb-3">
+                            <span class="input-group-prepend">
+                                <span class="input-group-text">
+                                    <input type="checkbox" name="autodeleteresponse"
+                                        {{if .Command.AutodeleteResponse}}checked{{end}}>
+                                </span>
+                            </span>
+                            <input type="number" min="0" max="2678400" class="form-control" placeholder="Seconds..."
+                                value="{{if .Command}}{{.Command.AutodeleteResponseDelay}}{{else}}10{{end}}"
+                                name="autodeleteresponsedelay">
+                        </div>
+                    </div>
+                </div>
+                {{if .Command}}
+                <button type="submit" class="btn btn-success" value="Save" data-async-form-alertsonly>Save command</button>
+                <button type="submit" class="btn btn-danger" value="Delete"
+                    formaction="/manage/{{.ActiveGuild.ID}}/genai/commands/{{.Command.ID}}/delete">Delete command</button>
+                {{else}}
+                <input type="submit" class="btn btn-success" value="Create">
+                {{end}}
+            </div>
+        </div>
+    </div>
+</form>
+{{end}}

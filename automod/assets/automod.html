@@ -639,6 +639,11 @@ $(function(){
                     <select name="{{$name}}" class="multiselect form-control" multiple="multiple" data-plugin-multiselect>
                         {{catChannelOptionsMulti $dot.dot.ActiveGuild.Channels (index $dot.settings .Key)}}
                     </select>
+                    {{else if eq .Kind "multi_options_custom"}}
+                    {{$selected := index $dot.settings .Key}}
+                    <select name="{{$name}}" class="multiselect form-control" multiple="multiple" data-plugin-multiselect>
+                        {{range .Options}}{{$val := .Value}}<option value="{{$val}}"{{range $selected}}{{if eq $val .}} selected{{break}}{{end}}{{end}}>{{.Name}}</option>{{end}}
+                    </select>
                     {{else if eq .Kind "string"}}
                     <input type='text' class='form-control' name="{{$name}}" {{if or .Min .Max}}{{if ne .Min 0}}required{{end}} minlength="{{.Min}}" maxlength="{{.Max}}" {{end}} value="{{index $dot.settings .Key}}"></input>
                     {{else if eq .Kind "list"}}
