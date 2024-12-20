@@ -78,7 +78,7 @@ func (p GenAIProviderAnthropic) BasicCompletion(gs *dstate.GuildState, systemMsg
 }
 
 func (p GenAIProviderAnthropic) convertToJSONSchema(funcName string, args json.RawMessage) interface{} {
-	return []byte(fmt.Sprintf(`"$schema": "http://json-schema.org/draft/2020-12/schema",
+	return json.RawMessage(fmt.Sprintf(`"$schema": "http://json-schema.org/draft/2020-12/schema",
 	"$ref": "#/$defs/%[1]s",
 	"$defs": {
 	  "%[1]s": %[2]s,
