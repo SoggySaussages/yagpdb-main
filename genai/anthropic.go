@@ -192,8 +192,6 @@ func (p GenAIProviderAnthropic) ModerateMessage(gs *dstate.GuildState, message s
 	input.ModelOverride = anthropic.ModelClaude3_5HaikuLatest
 
 	r, u, err := p.ComplexCompletion(gs, &input)
-	b, e := json.Marshal(r)
-	logger.Info(string(b), e)
 	if err != nil {
 		logger.Error(err)
 		return &GenAIModerationCategoryProbability{}, u, nil

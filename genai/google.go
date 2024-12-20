@@ -234,8 +234,6 @@ func (p GenAIProviderGoogle) ModerateMessage(gs *dstate.GuildState, message stri
 	input.MaxTokens = 96
 
 	r, u, err := p.ComplexCompletion(gs, &input)
-	b, e := json.Marshal(r)
-	logger.Info(string(b), e)
 	if err != nil {
 		logger.Error(err)
 		return &GenAIModerationCategoryProbability{}, u, nil
