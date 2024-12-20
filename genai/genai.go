@@ -153,6 +153,9 @@ var GenAIModerationCategories = []string{
 // generated at runtime, categories in format "Self-Harm - Intent"
 var GenAIModerationCategoriesFormatted []string
 
+// generated at runtime, categories in format "SelfHarmIntent"
+var GenAIModerationCategoriesFormattedPascal []string
+
 func generateFormattedModCategoryList() {
 	for _, c := range GenAIModerationCategories {
 		words := strings.Split(c, " ")
@@ -160,7 +163,9 @@ func generateFormattedModCategoryList() {
 		if len(words) > 1 {
 			formatted += " - " + words[1]
 		}
-		GenAIModerationCategoriesFormatted = append(GenAIModerationCategoriesFormatted, strings.Title(formatted))
+		formatted = strings.Title(formatted)
+		GenAIModerationCategoriesFormatted = append(GenAIModerationCategoriesFormatted, formatted)
+		GenAIModerationCategoriesFormattedPascal = append(GenAIModerationCategoriesFormattedPascal, strings.ReplaceAll(strings.ReplaceAll(formatted, "-", ""), " ", ""))
 	}
 }
 
@@ -212,22 +217,14 @@ var CustomModerateFunction = GenAIInput{
 	BotSystemMessage: BotSystemMessageModerate,
 	Functions: &[]GenAIFunctionDefinition{
 		{
-			Name: "Moderate",
-			Arguments: map[string]string{
-				"harassment":             "string",
-				"harassment threatening": "string",
-				"hate":                   "string",
-				"hate threatening":       "string",
-				"illicit":                "string",
-				"illicit violent":        "string",
-				"self-harm":              "string",
-				"self-harm intent":       "string",
-				"self-harm instructions": "string",
-				"sexual":                 "string",
-				"sexual minors":          "string",
-				"violence":               "string",
-				"violence graphic":       "string",
-			},
+			Name:      "Moderate",
+			Arguments: map[string]string{},
 		},
 	},
+}
+
+func genCustomModerateFuncArgs() {
+	for _, c := range GenAIModerationCategoriesFormattedPascal {
+		(*CustomModerateFunction.Functions)[0].Arguments[c] = "string"
+	}
 }

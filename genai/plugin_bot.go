@@ -34,6 +34,7 @@ func (p *Plugin) AddCommands() {
 
 func (p *Plugin) BotInit() {
 	generateFormattedModCategoryList()
+	genCustomModerateFuncArgs()
 
 	// add automod trigger
 	automod.RulePartMap[39] = &GenAIAutomodTrigger{}
