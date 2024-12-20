@@ -121,7 +121,7 @@ func (p GenAIProviderAnthropic) ComplexCompletion(gs *dstate.GuildState, input *
 
 			inputSchema, _ := json.Marshal(properties)
 			inSch := p.convertToJSONSchema(fn.Name, inputSchema)
-			logger.Info(inSch)
+			logger.Info(string(inSch.(json.RawMessage)))
 			tools = append(tools, anthropic.ToolParam{
 				Name:        anthropic.String(fn.Name),
 				Description: anthropic.String(fn.Description),
