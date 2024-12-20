@@ -91,6 +91,7 @@ type GenAIProviderID uint
 const (
 	GenAIProviderOpenAIID GenAIProviderID = iota
 	GenAIProviderGoogleID
+	GenAIProviderAnthropicID
 )
 
 type GenAIProviderModelMap map[string]string
@@ -194,7 +195,7 @@ type GenAIProvider interface {
 	WebData() *GenAIProviderWebDescriptions
 }
 
-var GenAIProviders = []GenAIProvider{GenAIProviderOpenAI{}, GenAIProviderGoogle{}}
+var GenAIProviders = []GenAIProvider{GenAIProviderOpenAI{}, GenAIProviderGoogle{}, GenAIProviderAnthropic{}}
 
 var DefaultConfig = models.GenaiConfig{
 	Enabled:  false,

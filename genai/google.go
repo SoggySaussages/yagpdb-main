@@ -221,7 +221,7 @@ func (p GenAIProviderGoogle) ComplexCompletion(gs *dstate.GuildState, input *Gen
 func (p GenAIProviderGoogle) ModerateMessage(gs *dstate.GuildState, message string) (*GenAIModerationCategoryProbability, *GenAIResponseUsage, error) {
 	input := CustomModerateFunction
 	input.UserMessage = message
-	input.MaxTokens = 64
+	input.MaxTokens = 96
 
 	r, u, err := p.ComplexCompletion(gs, &input)
 	b, e := json.Marshal(r)
