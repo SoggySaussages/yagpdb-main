@@ -199,7 +199,31 @@ func HandleMessageCreate(evt *eventsystem.EventData) {
 
 		var userMsg string
 		if cmd.AllowInput {
-			userMsg = content[idx[1]:]
+			userMember, _ := bot.GetMember(mc.GuildID, mc.Author.ID)
+			userName := userMember.Member.Nick
+			if userName == "" {
+				userName = mc.Author.String()
+			}
+			userMsg = userName + ": " + content[idx[1]:]
+			if mc.ReferencedMessage != nil {
+				authorMember, _ := bot.GetMember(mc.GuildID, mc.ReferencedMessage.Author.ID)
+				authorName := mc.ReferencedMessage.Author.String() + "'s"
+				if authorMember != nil && authorMember.Member.Nick != "" {
+					authorName = authorMember.Member.Nick + "'s"
+				}
+				if mc.ReferencedMessage.Author.ID == common.BotUser.ID {
+					authorName = "your"
+				}
+				refMessageContent := mc.ReferencedMessage.ContentWithMentionsReplaced()
+				if len(mc.ReferencedMessage.Embeds) > 0 {
+					emb := mc.ReferencedMessage.Embeds[0]
+					refMessageContent = emb.Description
+					if emb.Author != nil && emb.Author.Name != "" {
+						authorName += " (as " + emb.Author.Name + ")"
+					}
+				}
+				userMsg = fmt.Sprintf("%s\n\nPlease note this message is replying to %s previous message: %s", userMsg, authorName, refMessageContent)
+			}
 		}
 
 		config, err := GetConfig(evt.GS.ID)
