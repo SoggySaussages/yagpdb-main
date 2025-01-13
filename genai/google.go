@@ -25,13 +25,14 @@ func (p GenAIProviderGoogle) String() string {
 }
 
 func (p GenAIProviderGoogle) DefaultModel() string {
-	return "gemini-1.5-flash-002" // cheapest model as of Dec 2024
+	return "gemini-1.5-flash" // cheapest model as of Dec 2024
 }
 
 var GenAIModelMapGoogle = &GenAIProviderModelMap{
-	"Gemini 1.0 Pro":   "gemini-1.0-pro-002",
-	"Gemini 1.5 Pro":   "gemini-1.5-pro-002",
-	"Gemini 1.5 Flash": "gemini-1.5-flash-002",
+	"Gemini 1.0 Pro":                  "gemini-1.0-pro",
+	"Gemini 1.5 Pro":                  "gemini-1.5-pro",
+	"Gemini 1.5 Flash":                "gemini-1.5-flash",
+	"Gemini 2.0 Flash (experimental)": "gemini-2.0-flash-exp",
 }
 
 func (p GenAIProviderGoogle) ModelMap() *GenAIProviderModelMap {
