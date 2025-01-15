@@ -143,7 +143,7 @@ func (p GenAIProviderGoogle) ComplexCompletion(gs *dstate.GuildState, input *Gen
 	gemini.SystemInstruction = &google.Content{Parts: []google.Part{google.Text(input.BotSystemMessage)}}
 
 	if strings.Contains(input.BotSystemMessage, BotSystemMessagePromptAppendNSFW) {
-		gemini.SafetySettings = []*google.SafetySetting{&google.SafetySetting{Category: google.HarmCategorySexuallyExplicit, Threshold: google.HarmBlockOnlyHigh}, &google.SafetySetting{Category: google.HarmCategoryDangerousContent, Threshold: google.HarmBlockOnlyHigh}, &google.SafetySetting{Category: google.HarmCategoryHateSpeech, Threshold: google.HarmBlockOnlyHigh}, &google.SafetySetting{Category: google.HarmCategoryHarassment, Threshold: google.HarmBlockOnlyHigh}}
+		gemini.SafetySettings = []*google.SafetySetting{&google.SafetySetting{Category: google.HarmCategorySexuallyExplicit, Threshold: google.HarmBlockNone, Method: google.HarmBlockMethodSeverity}, &google.SafetySetting{Category: google.HarmCategoryDangerousContent, Threshold: google.HarmBlockNone, Method: google.HarmBlockMethodSeverity}, &google.SafetySetting{Category: google.HarmCategoryHateSpeech, Threshold: google.HarmBlockNone, Method: google.HarmBlockMethodSeverity}, &google.SafetySetting{Category: google.HarmCategoryHarassment, Threshold: google.HarmBlockNone, Method: google.HarmBlockMethodSeverity}}
 	} else {
 		gemini.SafetySettings = []*google.SafetySetting{&google.SafetySetting{Category: google.HarmCategorySexuallyExplicit, Threshold: google.HarmBlockMediumAndAbove}}
 	}
