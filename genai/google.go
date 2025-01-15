@@ -143,7 +143,7 @@ func (p GenAIProviderGoogle) ComplexCompletion(gs *dstate.GuildState, input *Gen
 	gemini.SystemInstruction = &google.Content{Parts: []google.Part{google.Text(input.BotSystemMessage)}}
 
 	if strings.Contains(input.BotSystemMessage, BotSystemMessagePromptAppendNSFW) {
-		gemini.SafetySettings = []*google.SafetySetting{&google.SafetySetting{Category: google.HarmCategorySexuallyExplicit, Threshold: google.HarmBlockNone}}
+		gemini.SafetySettings = []*google.SafetySetting{&google.SafetySetting{Category: google.HarmCategorySexuallyExplicit, Threshold: google.HarmBlockOnlyHigh}, &google.SafetySetting{Category: google.HarmCategoryDangerousContent, Threshold: google.HarmBlockOnlyHigh}, &google.SafetySetting{Category: google.HarmCategoryHateSpeech, Threshold: google.HarmBlockOnlyHigh}, &google.SafetySetting{Category: google.HarmCategoryHarassment, Threshold: google.HarmBlockOnlyHigh}}
 	} else {
 		gemini.SafetySettings = []*google.SafetySetting{&google.SafetySetting{Category: google.HarmCategorySexuallyExplicit, Threshold: google.HarmBlockMediumAndAbove}}
 	}
