@@ -8,6 +8,7 @@ import (
 	"html/template"
 	"reflect"
 	"strconv"
+	"strings"
 
 	google "cloud.google.com/go/vertexai/genai"
 	"github.com/botlabs-gg/yagpdb/v2/lib/dstate"
@@ -140,6 +141,12 @@ func (p GenAIProviderGoogle) ComplexCompletion(gs *dstate.GuildState, input *Gen
 	gemini.SetTemperature(1.1)
 	gemini.SetMaxOutputTokens(int32(input.MaxTokens))
 	gemini.SystemInstruction = &google.Content{Parts: []google.Part{google.Text(input.BotSystemMessage)}}
+
+	if strings.Contains(input.BotSystemMessage, BotSystemMessagePromptAppendNSFW) {
+		gemini.SafetySettings = []*google.SafetySetting{&google.SafetySetting{Category: google.HarmCategorySexuallyExplicit, Threshold: google.HarmBlockNone}}
+	} else {
+		gemini.SafetySettings = []*google.SafetySetting{&google.SafetySetting{Category: google.HarmCategorySexuallyExplicit, Threshold: google.HarmBlockMediumAndAbove}}
+	}
 
 	if input.SystemMessage != "" {
 		gemini.SystemInstruction.Parts = append(gemini.SystemInstruction.Parts, google.Text(input.SystemMessage))
