@@ -233,7 +233,7 @@ func HandleMessageCreate(evt *eventsystem.EventData) {
 		}
 		provider := GenAIProviderFromID(config.Provider)
 
-		r, _, err := provider.BasicCompletion(&evt.GS.GuildState, cmd.Prompt, userMsg, int64(cmd.MaxTokens), cs.NSFW)
+		r, _, err := provider.BasicCompletion(&evt.GS.GuildState, cmd.Prompt, userMsg, int64(cmd.MaxTokens), cs.NSFW || evt.GS.GetChannel(cs.ParentID).NSFW)
 		if err != nil {
 			r = &GenAIResponse{Content: fmt.Sprintf("Failed executing your custom GenAI command; %v responded with: %s", provider, err.Error())}
 		}
