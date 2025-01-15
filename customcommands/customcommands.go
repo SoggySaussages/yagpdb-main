@@ -122,7 +122,7 @@ type CustomCommand struct {
 	TriggerType     CommandTriggerType `json:"trigger_type"`
 	TriggerTypeForm string             `json:"-" schema:"type"`
 	Trigger         string             `json:"trigger" schema:"trigger" valid:",0,1000"`
-	Responses       []string           `json:"responses" schema:"responses" valid:"template,20000"`
+	Responses       []string           `json:"responses" schema:"responses" valid:"template,1000000"`
 	CaseSensitive   bool               `json:"case_sensitive" schema:"case_sensitive"`
 	ID              int64              `json:"id"`
 	Name            string             `json:"name" schema:"name" valid:",0,100"`
