@@ -515,6 +515,10 @@ func (s *state) walkRange(dot reflect.Value, r *parse.RangeNode) controlFlowSign
 			s.errorf("range can't iterate over a negative number")
 			return controlFlowNone
 		}
+		if intVal > 10000 {
+			s.errorf("iteration count exceeds slice limit")
+			return controlFlowNone
+		}
 		for i := 0; i < intVal; i++ {
 			val := reflect.ValueOf(i)
 			switch oneIteration(val, val) {
@@ -532,6 +536,10 @@ func (s *state) walkRange(dot reflect.Value, r *parse.RangeNode) controlFlowSign
 		}
 		if intVal < 0 {
 			s.errorf("range can't iterate over a negative number")
+			return controlFlowNone
+		}
+		if intVal > 10000 {
+			s.errorf("iteration count exceeds slice limit")
 			return controlFlowNone
 		}
 		for i := 0; i < intVal; i++ {
