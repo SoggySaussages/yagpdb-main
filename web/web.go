@@ -39,8 +39,8 @@ var (
 	ServerPublicMux    *goji.Mux
 	ServerPublicAPIMux *goji.Mux
 
-	confListenAddressHTTP  = config.RegisterOption("yagpdb.web.http_address", "Port to listen for HTTP requests on. Overriden by the -pa flag", 5000)
-	confListenAddressHTTPS = config.RegisterOption("yagpdb.web.https_address", "Port to listen for HTTPS requests on. Overriden by the -pa flag", 5001)
+	confListenAddressHTTP  = config.RegisterOption("sgpdb.web.http_address", "Port to listen for HTTP requests on. Overriden by the -pa flag", 5000)
+	confListenAddressHTTPS = config.RegisterOption("sgpdb.web.https_address", "Port to listen for HTTPS requests on. Overriden by the -pa flag", 5001)
 
 	properAddresses bool
 

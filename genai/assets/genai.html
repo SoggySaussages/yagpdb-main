@@ -29,7 +29,7 @@
                                 <li>Using the <code>genaiComplete</code>, <code>genaiCompleteComplex</code>, and <code>genaiModerate</code> functions in Custom Commands</li>
                             </ul>
                             <p>
-                                To use this feature, you will need to create an account with one of the supported providers, and pay for API access. Once you have created a paid account, generate an API token, and input it here. This allows YAGPDB to send requests to the Generative AI provider using the credits from your account.
+                                To use this feature, you will need to create an account with one of the supported providers, and pay for API access. Once you have created a paid account, generate an API token, and input it here. This allows SGPDB to send requests to the Generative AI provider using the credits from your account.
                             </p>
                             <p>Trying to decide which provider to use? Here's a quick guide:</p>
                             <ul>
@@ -75,7 +75,7 @@
                                 {{range .GenAIProviders}}
                                 <div id="model-description-provider-{{.ID}}">
                                     <p><a href="{{.WebData.ModelDescriptionsURL}}">{{.String}}'s Model List</a></p>
-                                    <p>Visit <a href="{{.WebData.PlaygroundURL}}">{{.String}}'s playground</a> to test your prompts against different models and messages before implementing on YAGPDB.</p>
+                                    <p>Visit <a href="{{.WebData.PlaygroundURL}}">{{.String}}'s playground</a> to test your prompts against different models and messages before implementing on SGPDB.</p>
                                     <p>Note: Moderation with {{.String}} uses the following model: <code>{{.WebData.ModelForModeration}}</code></p>
                                 </div>
                                 {{end}}

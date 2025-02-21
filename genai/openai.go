@@ -261,7 +261,7 @@ var GenAIProviderOpenAIWebData = &GenAIProviderWebDescriptions{
 	Create an API key on <a href="https://platform.openai.com/api-keys">OpenAI's Dashboard</a>. Set the mode to <strong>restricted</strong>, set every permission to <strong>None</strong>, and then set the "Model capabilities" permission to <strong>Write</strong>.
 	<br>
 	<br>
-	Step five: Copy the API key to YAGPDB.
+	Step five: Copy the API key to SGPDB.
 	<br>
 	Click copy, then paste the new API key into the "API Key" field on this page.`),
 	ModelDescriptionsURL: "https://platform.openai.com/docs/models",

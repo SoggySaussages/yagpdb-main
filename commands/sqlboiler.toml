@@ -5,7 +5,7 @@ no-tests="true"
 [psql]
 dbname="sgpdb"
 host="localhost"
-user="yagpdb"
+user="sgpdb"
 pass="ihateducks"
 sslmode="disable"
 whitelist=["commands_channels_overrides","commands_command_overrides"]

@@ -5,7 +5,7 @@ no-tests = true
 [psql]
 dbname = "sgpdb"
 host = "localhost"
-user="yagpdb"
+user="sgpdb"
 pass="ihateducks"
 sslmode = "disable"
 whitelist = ["youtube_channel_subscriptions", "youtube_announcements"]

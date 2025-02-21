@@ -248,7 +248,7 @@ var GenAIProviderAnthropicWebData = &GenAIProviderWebDescriptions{
 	Create an API key on <a href="https://console.anthropic.com/settings/keys">Anthropic's Dashboard</a>. Give it a name and click <strong>Create</strong>.
 	<br>
 	<br>
-	Step five: Copy the API key to YAGPDB.
+	Step five: Copy the API key to SGPDB.
 	<br>
 	Click copy, then paste the new API key into the "API Key" field on this page.`),
 	ModelDescriptionsURL: "https://platform.anthropic.com/docs/models",
