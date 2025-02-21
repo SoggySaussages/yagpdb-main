@@ -2640,7 +2640,7 @@ func (c *Context) getRole(roleInput interface{}, accept roleInputType) (*discord
 }
 
 func (c *Context) tmplDelRole(roleInput interface{}) (string, error) {
-	r, err := c.getRole(roleInput)
+	r, err := c.getRole(roleInput, acceptAllRoleInput)
 	if err != nil {
 		return "", nil
 	}
@@ -2657,7 +2657,7 @@ func (c *Context) tmplEditRole(roleInput interface{}, values ...interface{}) (*d
 		return nil, errors.New("nothing passed to edit role builder")
 	}
 
-	r, err := c.getRole(roleInput)
+	r, err := c.getRole(roleInput, acceptAllRoleInput)
 	if err != nil {
 		return nil, nil
 	}
