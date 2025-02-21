@@ -121,7 +121,7 @@ func punish(config *Config, p Punishment, guildID int64, channel *dstate.Channel
 			return errors.New("cannot " + actionPresentTense + " a member who is ranked higher than the bot")
 		}
 
-		sendPunishDM(config, msg, action, gs, channel, message, author, member, duration, reason, -1, executedFromCommandTemplate)
+		go sendPunishDM(config, msg, action, gs, channel, message, author, member, duration, reason, -1, executedFromCommandTemplate)
 	}
 
 	logLink := ""
@@ -152,7 +152,7 @@ func punish(config *Config, p Punishment, guildID int64, channel *dstate.Channel
 		return err
 	}
 
-	logger.WithField("guild_id", guildID).Infof("MODERATION: %s %s %s cause %q", author.Username, action.Prefix, user.Username, reason)
+	logger.WithField("guild_id", guildID).Infof("MODERATION: %s %s %s with reason %q", author.Username, action.Prefix, user.Username, reason)
 	if memberNotFound {
 		// Wait a tiny bit to make sure the audit log is updated
 		time.Sleep(time.Second * 3)
@@ -235,18 +235,23 @@ func sendPunishDM(config *Config, dmMsg string, action ModlogAction, gs *dstate.
 	if err != nil {
 		logger.WithError(err).WithField("guild", gs.ID).Warn("Failed executing punishment DM")
 		executed = "Failed executing template."
-
-		if config.ErrorChannel != 0 {
-			_, _, _ = bot.SendMessage(gs.ID, config.ErrorChannel, fmt.Sprintf("Failed executing punishment DM (Action: `%s`).\nError: `%v`", ActionMap[action.Prefix], err))
-		}
+		sendFailedDMError(gs.ID, config.ErrorChannel, fmt.Sprintf("Failed executing punishment DM (Action: `%s`).\nError: `%v`", ActionMap[action.Prefix], err))
 	}
 
 	if strings.TrimSpace(executed) != "" {
 		err = bot.SendDM(member.User.ID, "**"+gs.Name+":** "+executed)
 		if err != nil {
 			logger.WithError(err).Error("failed sending punish DM")
+			sendFailedDMError(gs.ID, config.ErrorChannel, fmt.Sprintf("Failed executing punishment DM (Action: `%s`).\nError: `%v`", ActionMap[action.Prefix], err))
 		}
 	}
+}
+
+func sendFailedDMError(gID, cID int64, errorText string) {
+	if cID == 0 {
+		return
+	}
+	_, _, _ = bot.SendMessage(gID, cID, errorText)
 }
 
 func KickUser(config *Config, guildID int64, channel *dstate.ChannelState, message *discordgo.Message, author *discordgo.User, reason string, user *discordgo.User, del int, executedFromCommandTemplate bool) error {
@@ -368,9 +373,6 @@ func UnbanUser(config *Config, guildID int64, author *discordgo.User, reason str
 		user = guildBan.User
 	}
 
-	// Set a key in redis that marks that this user has appeared in the modlog already
-	common.RedisPool.Do(radix.FlatCmd(nil, "SETEX", RedisKeyUnbannedUser(guildID, user.ID), 30, 2))
-
 	// Prepends the author's name, if unban wasn't triggered automatically.
 	fullReason := reason
 	if author.ID != common.BotUser.ID {
@@ -383,12 +385,11 @@ func UnbanUser(config *Config, guildID int64, author *discordgo.User, reason str
 		return notbanned, err
 	}
 
-	logger.Infof("MODERATION: %s %s %s cause %q", author.Username, action.Prefix, user.Username, reason)
-
-	//modLog Entry handling
 	if config.LogUnbans {
 		err = CreateModlogEmbed(config, author, action, user, reason, "")
 	}
+
+	logger.Infof("MODERATION: %s %s %s with reason %q", author.Username, action.Prefix, user.Username, reason)
 	return false, err
 }
 
@@ -439,6 +440,17 @@ func isNotFound(err error) (bool, error) {
 const (
 	ErrNoMuteRole = errors.Sentinel("No mute role")
 )
+
+func IsMuted(guildID, userID int64) bool {
+	mute, err := models.MutedUsers(
+		models.MutedUserWhere.UserID.EQ(userID),
+		models.MutedUserWhere.GuildID.EQ(guildID),
+	).OneG(context.Background())
+	if err != nil {
+		return false // assume not muted
+	}
+	return mute.ExpiresAt.IsZero() || mute.ExpiresAt.Time.After(time.Now())
+}
 
 // Unmut or mute a user, ignore duration if unmuting
 // TODO: i don't think we need to track mutes in its own database anymore now with the new scheduled event system
@@ -680,10 +692,8 @@ func WarnUser(config *Config, guildID int64, channel *dstate.ChannelState, msg *
 	gs := bot.State.GetGuild(guildID)
 	ms, _ := bot.GetMember(guildID, target.ID)
 	if gs != nil && ms != nil {
-		sendPunishDM(config, config.WarnMessage, MAWarned, gs, channel, msg, author, ms, -1, message, int(warning.ID), executedByCommandTemplate)
+		go sendPunishDM(config, config.WarnMessage, MAWarned, gs, channel, msg, author, ms, -1, message, int(warning.ID), executedByCommandTemplate)
 	}
-
-	// go bot.SendDM(target.ID, fmt.Sprintf("**%s**: You have been warned for: %s", bot.GuildName(guildID), message))
 
 	if config.WarnSendToModlog && config.ActionChannel != 0 {
 		err = CreateModlogEmbed(config, author, MAWarned, target, message, warning.LogsLink.String)

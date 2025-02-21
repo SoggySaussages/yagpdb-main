@@ -5,7 +5,7 @@ no-tests="true"
 [psql]
 dbname="sgpdb"
 host="localhost"
-user="ashish"
-pass="sgpdb"
+user="yagpdb"
+pass="ihateducks"
 sslmode="disable"
 whitelist=["rsvp_sessions", "rsvp_participants"]

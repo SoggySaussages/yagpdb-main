@@ -5,7 +5,7 @@ no-tests="true"
 [psql]
 dbname="sgpdb"
 host="localhost"
-user="ashish"
-pass="sgpdb"
+user="yagpdb"
+pass="ihateducks"
 sslmode="disable"
-whitelist=["reputation_configs", "reputation_users", "reputation_log"]
+whitelist=["reputation_configs", "reputation_users", "reputation_log", "reputation_roles"]

@@ -112,11 +112,8 @@ var (
 		"roleAbove":   roleIsAbove,
 		"seq":         sequence,
 
-		"shuffle":      shuffle,
-		"verb":         common.RandomVerb,
-		"hash":         tmplSha256,
-		"decodeBase64": tmplDecodeBase64,
-		"encodeBase64": tmplEncodeBase64,
+		"shuffle": shuffle,
+		"verb":    common.RandomVerb,
 
 		// time functions
 		"currentTime":     tmplCurrentTime,
@@ -209,6 +206,7 @@ type ContextFrame struct {
 
 	DelResponseDelay         int
 	EmbedsToSend             []*discordgo.MessageEmbed
+	ComponentsToSend         []discordgo.MessageComponent
 	AddResponseReactionNames []string
 
 	isNestedTemplate bool
@@ -495,7 +493,13 @@ func (c *Context) SendResponse(content string) (m *discordgo.Message, err error)
 	embeds = append(embeds, c.CurrentFrame.EmbedsToSend...)
 	msgSend.Embeds = embeds
 	msgSend.Content = content
-	if (len(msgSend.Embeds) == 0 && strings.TrimSpace(content) == "") || (c.CurrentFrame.DelResponse && c.CurrentFrame.DelResponseDelay < 1) {
+	if len(c.CurrentFrame.ComponentsToSend) > 0 {
+		msgSend.Components = append(msgSend.Components, c.CurrentFrame.ComponentsToSend...)
+		if len(msgSend.Components) > 5 {
+			msgSend.Components = msgSend.Components[:5]
+		}
+	}
+	if (len(msgSend.Embeds) == 0 && strings.TrimSpace(content) == "" && len(msgSend.Components) == 0) || (c.CurrentFrame.DelResponse && c.CurrentFrame.DelResponseDelay < 1) {
 		// no point in sending the response if it gets deleted immedietely
 		return nil, nil
 	}
@@ -781,6 +785,9 @@ func baseContextFuncs(c *Context) {
 
 	c.addContextFunc("sleep", c.tmplSleep)
 	c.addContextFunc("sort", c.tmplSort)
+	c.addContextFunc("hash", c.tmplSha256)
+	c.addContextFunc("decodeBase64", c.tmplDecodeBase64)
+	c.addContextFunc("encodeBase64", c.tmplEncodeBase64)
 }
 
 type limitedWriter struct {

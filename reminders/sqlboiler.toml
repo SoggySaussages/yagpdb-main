@@ -5,8 +5,8 @@ no-tests = true
 [psql]
 dbname = "sgpdb"
 host = "localhost"
-user = "postgres"
-pass = "pass"
+user="yagpdb"
+pass="ihateducks"
 sslmode = "disable"
 whitelist = ["reminders"]
 

@@ -59,7 +59,7 @@ require (
 	github.com/volatiletech/sqlboiler/v4 v4.14.2
 	github.com/volatiletech/strmangle v0.0.6
 	goji.io v2.0.2+incompatible
-	golang.org/x/crypto v0.29.0
+	golang.org/x/crypto v0.31.0
 	golang.org/x/image v0.18.0
 	golang.org/x/net v0.30.0
 	golang.org/x/oauth2 v0.23.0
@@ -79,6 +79,7 @@ require (
 	github.com/justinian/dice v1.0.2
 	github.com/n0madic/twitter-scraper v0.0.0-20230711213008-94503a2bc36c
 	github.com/openai/openai-go v0.1.0-alpha.38
+	github.com/robfig/cron/v3 v3.0.1
 	github.com/robfig/cron/v3 v3.0.1
 	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c
 )
@@ -113,6 +114,7 @@ require (
 	github.com/tidwall/sjson v1.2.5 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/yusufpapurcu/wmi v1.2.3 // indirect
+	golang.org/x/arch v0.3.0 // indirect
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.54.0 // indirect
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.54.0 // indirect
 	go.opentelemetry.io/otel v1.29.0 // indirect
