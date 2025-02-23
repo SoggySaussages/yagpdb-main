@@ -15,7 +15,7 @@ import (
 var ErrTooManyInteractionResponses = errors.New("cannot respond to an interaction > 1 time; consider using a followup")
 
 func interactionContextFuncs(c *Context) {
-	c.addContextFunc("deferInteractionResponse", c.tmplDeferInteractionResponse)
+	c.addContextFunc("deferResponse", c.tmplDeferInteractionResponse)
 	c.addContextFunc("deleteInteractionResponse", c.tmplDeleteInteractionResponse)
 	c.addContextFunc("editResponse", c.tmplEditInteractionResponse(true))
 	c.addContextFunc("editResponseNoEscape", c.tmplEditInteractionResponse(false))
