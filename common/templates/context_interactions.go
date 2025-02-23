@@ -469,7 +469,7 @@ func validateActionRowsCustomIDs(rows *[]discordgo.MessageComponent) error {
 	return nil
 }
 
-func (c *Context) tmplDeferInteractionResponse(respType string, flags ...bool) (interface{}, error) {
+func (c *Context) tmplDeferInteractionResponse(respType string) (interface{}, error) {
 	if c.CurrentFrame.Interaction == nil {
 		return "", errors.New("no interaction data in context; consider editMessage or editResponse")
 	}
@@ -483,16 +483,15 @@ func (c *Context) tmplDeferInteractionResponse(respType string, flags ...bool) (
 	switch respType {
 	case "message":
 		r.Type = discordgo.InteractionResponseDeferredChannelMessageWithSource
+	case "ephemeral_message":
+		r.Type = discordgo.InteractionResponseDeferredChannelMessageWithSource
+		r.Data = &discordgo.InteractionResponseData{Flags: discordgo.MessageFlagsEphemeral}
 	case "update":
 		r.Type = discordgo.InteractionResponseDeferredMessageUpdate
 	case "modal":
 		return "", errors.New("cannot defer a modal response")
 	default:
 		return "", errors.New("invalid response type to defer")
-	}
-
-	if len(flags) > 0 && flags[0] {
-		r.Data = &discordgo.InteractionResponseData{Flags: discordgo.MessageFlagsEphemeral}
 	}
 
 	return "", common.BotSession.CreateInteractionResponse(c.CurrentFrame.Interaction.ID, c.CurrentFrame.Interaction.Token, r)
