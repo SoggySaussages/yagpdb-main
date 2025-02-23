@@ -15,6 +15,7 @@ import (
 var ErrTooManyInteractionResponses = errors.New("cannot respond to an interaction > 1 time; consider using a followup")
 
 func interactionContextFuncs(c *Context) {
+	c.addContextFunc("deferInteractionResponse", c.tmplDeferInteractionResponse)
 	c.addContextFunc("deleteInteractionResponse", c.tmplDeleteInteractionResponse)
 	c.addContextFunc("editResponse", c.tmplEditInteractionResponse(true))
 	c.addContextFunc("editResponseNoEscape", c.tmplEditInteractionResponse(false))
@@ -466,6 +467,35 @@ func validateActionRowsCustomIDs(rows *[]discordgo.MessageComponent) error {
 	}
 	*rows = newComponents
 	return nil
+}
+
+func (c *Context) tmplDeferInteractionResponse(respType string, flags ...bool) (interface{}, error) {
+	if c.CurrentFrame.Interaction == nil {
+		return "", errors.New("no interaction data in context; consider editMessage or editResponse")
+	}
+
+	if c.IncreaseCheckGenericAPICall() {
+		return "", ErrTooManyAPICalls
+	}
+
+	r := &discordgo.InteractionResponse{}
+
+	switch respType {
+	case "message":
+		r.Type = discordgo.InteractionResponseDeferredChannelMessageWithSource
+	case "update":
+		r.Type = discordgo.InteractionResponseDeferredMessageUpdate
+	case "modal":
+		return "", errors.New("cannot defer a modal response")
+	default:
+		return "", errors.New("invalid response type to defer")
+	}
+
+	if len(flags) > 0 && flags[0] {
+		r.Data = &discordgo.InteractionResponseData{Flags: discordgo.MessageFlagsEphemeral}
+	}
+
+	return "", common.BotSession.CreateInteractionResponse(c.CurrentFrame.Interaction.ID, c.CurrentFrame.Interaction.Token, r)
 }
 
 func (c *Context) tmplDeleteInteractionResponse(interactionToken, msgID interface{}, delaySeconds ...interface{}) (interface{}, error) {
