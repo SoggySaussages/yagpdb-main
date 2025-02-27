@@ -5,9 +5,9 @@ import (
 	"time"
 
 	"emperror.dev/errors"
-	"github.com/SoggySaussages/syzygy/bot"
-	"github.com/SoggySaussages/syzygy/common"
-	"github.com/SoggySaussages/syzygy/lib/discordgo"
+	"github.com/botlabs-gg/sgpdb/v2/bot"
+	"github.com/botlabs-gg/sgpdb/v2/common"
+	"github.com/botlabs-gg/sgpdb/v2/lib/discordgo"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
 )

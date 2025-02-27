@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/SoggySaussages/syzygy/lib/discordgo"
+	"github.com/botlabs-gg/sgpdb/v2/lib/discordgo"
 )
 
 // The state system for yags

@@ -8,12 +8,12 @@ import (
 	"net/url"
 	"sync"
 
-	"github.com/SoggySaussages/syzygy/common"
-	"github.com/SoggySaussages/syzygy/common/config"
-	"github.com/SoggySaussages/syzygy/common/mqueue"
-	"github.com/SoggySaussages/syzygy/lib/discordgo"
-	"github.com/SoggySaussages/syzygy/premium"
-	"github.com/SoggySaussages/syzygy/youtube/models"
+	"github.com/botlabs-gg/sgpdb/v2/common"
+	"github.com/botlabs-gg/sgpdb/v2/common/config"
+	"github.com/botlabs-gg/sgpdb/v2/common/mqueue"
+	"github.com/botlabs-gg/sgpdb/v2/lib/discordgo"
+	"github.com/botlabs-gg/sgpdb/v2/premium"
+	"github.com/botlabs-gg/sgpdb/v2/youtube/models"
 	"google.golang.org/api/youtube/v3"
 )
 
@@ -27,9 +27,9 @@ const (
 )
 
 var (
-	confWebsubVerifytoken     = config.RegisterOption("syzygy.youtube.verify_token", "Youtube websub push verify token, set it to a random string and never change it", "asdkpoasdkpaoksdpako")
-	confResubBatchSize        = config.RegisterOption("syzygy.youtube.resub_batch_size", "Number of Websubs to resubscribe to concurrently", 1)
-	confYoutubeVideoCacheDays = config.RegisterOption("syzygy.youtube.video_cache_duration", "Duration in days to cache youtube video data", 1)
+	confWebsubVerifytoken     = config.RegisterOption("sgpdb.youtube.verify_token", "Youtube websub push verify token, set it to a random string and never change it", "asdkpoasdkpaoksdpako")
+	confResubBatchSize        = config.RegisterOption("sgpdb.youtube.resub_batch_size", "Number of Websubs to resubscribe to concurrently", 1)
+	confYoutubeVideoCacheDays = config.RegisterOption("sgpdb.youtube.video_cache_duration", "Duration in days to cache youtube video data", 1)
 	logger                    = common.GetPluginLogger(&Plugin{})
 )
 

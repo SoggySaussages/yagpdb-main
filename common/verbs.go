@@ -1,4 +1,4 @@
-// this package provides core functionality to syzygy, important security stuff here
+// this package provides core functionality to sgpdb, important security stuff here
 package common
 
 var Verbs = []string{

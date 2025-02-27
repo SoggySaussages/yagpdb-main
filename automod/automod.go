@@ -8,10 +8,10 @@ import (
 	"unicode"
 
 	"emperror.dev/errors"
-	"github.com/SoggySaussages/syzygy/automod/models"
-	"github.com/SoggySaussages/syzygy/common"
-	"github.com/SoggySaussages/syzygy/common/featureflags"
-	"github.com/SoggySaussages/syzygy/premium"
+	"github.com/botlabs-gg/sgpdb/v2/automod/models"
+	"github.com/botlabs-gg/sgpdb/v2/common"
+	"github.com/botlabs-gg/sgpdb/v2/common/featureflags"
+	"github.com/botlabs-gg/sgpdb/v2/premium"
 	"github.com/karlseguin/ccache"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )

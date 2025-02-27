@@ -1,4 +1,4 @@
-# SYZYGY's Event System
+# SGPDB's Event System
 
 Instead of just using discordgo's standard simple event system, I like to experiment a little as I work on stuff to see what happens.
 

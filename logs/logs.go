@@ -11,12 +11,12 @@ import (
 	"sync"
 
 	"emperror.dev/errors"
-	"github.com/SoggySaussages/syzygy/bot"
-	"github.com/SoggySaussages/syzygy/common"
-	"github.com/SoggySaussages/syzygy/common/config"
-	"github.com/SoggySaussages/syzygy/lib/discordgo"
-	"github.com/SoggySaussages/syzygy/logs/models"
-	"github.com/SoggySaussages/syzygy/web"
+	"github.com/botlabs-gg/sgpdb/v2/bot"
+	"github.com/botlabs-gg/sgpdb/v2/common"
+	"github.com/botlabs-gg/sgpdb/v2/common/config"
+	"github.com/botlabs-gg/sgpdb/v2/lib/discordgo"
+	"github.com/botlabs-gg/sgpdb/v2/logs/models"
+	"github.com/botlabs-gg/sgpdb/v2/web"
 	"github.com/volatiletech/null/v8"
 	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
@@ -25,7 +25,7 @@ import (
 
 var (
 	ErrChannelBlacklisted     = errors.New("Channel blacklisted from creating message logs")
-	ConfEnableMessageLogPurge = config.RegisterOption("syzygy.enable_message_log_purge", "If enabled message logs older than 30 days will be deleted", false)
+	ConfEnableMessageLogPurge = config.RegisterOption("sgpdb.enable_message_log_purge", "If enabled message logs older than 30 days will be deleted", false)
 	logger                    = common.GetPluginLogger(&Plugin{})
 )
 

@@ -7,11 +7,11 @@ import (
 	"html/template"
 	"net/http"
 
-	"github.com/SoggySaussages/syzygy/commands"
-	"github.com/SoggySaussages/syzygy/common"
-	"github.com/SoggySaussages/syzygy/common/cplogs"
-	"github.com/SoggySaussages/syzygy/tickets/models"
-	"github.com/SoggySaussages/syzygy/web"
+	"github.com/botlabs-gg/sgpdb/v2/commands"
+	"github.com/botlabs-gg/sgpdb/v2/common"
+	"github.com/botlabs-gg/sgpdb/v2/common/cplogs"
+	"github.com/botlabs-gg/sgpdb/v2/tickets/models"
+	"github.com/botlabs-gg/sgpdb/v2/web"
 	"github.com/volatiletech/sqlboiler/v4/boil"
 	"goji.io/pat"
 )
@@ -69,9 +69,9 @@ func (p *Plugin) handleGetSettings(w http.ResponseWriter, r *http.Request) (web.
 		settings = &models.TicketConfig{}
 	}
 
-	appendButtons := map[string]bool{}
-	appendButtons["Close"] = settings.AppendButtons&AppendButtonsClose == AppendButtonsClose
-	appendButtons["CloseWithReason"] = settings.AppendButtons&AppendButtonsCloseWithReason == AppendButtonsCloseWithReason
+	appendButtons := map[string]bool {}
+	appendButtons["Close"] = settings.AppendButtons & AppendButtonsClose == AppendButtonsClose
+	appendButtons["CloseWithReason"] = settings.AppendButtons & AppendButtonsCloseWithReason == AppendButtonsCloseWithReason
 
 	templateData["DefaultTicketMessage"] = DefaultTicketMsg
 	templateData["PluginSettings"] = settings

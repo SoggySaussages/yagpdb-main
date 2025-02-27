@@ -29,7 +29,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/SoggySaussages/syzygy/lib/gojay"
+	"github.com/botlabs-gg/sgpdb/v2/lib/gojay"
 	"github.com/gobwas/ws"
 	"github.com/gobwas/ws/wsutil"
 )

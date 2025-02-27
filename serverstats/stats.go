@@ -7,9 +7,9 @@ import (
 
 	"emperror.dev/errors"
 
-	"github.com/SoggySaussages/syzygy/bot/botrest"
-	"github.com/SoggySaussages/syzygy/common"
-	"github.com/SoggySaussages/syzygy/serverstats/messagestatscollector"
+	"github.com/botlabs-gg/sgpdb/v2/bot/botrest"
+	"github.com/botlabs-gg/sgpdb/v2/common"
+	"github.com/botlabs-gg/sgpdb/v2/serverstats/messagestatscollector"
 	"github.com/mediocregopher/radix/v3"
 )
 

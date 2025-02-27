@@ -1,8 +1,8 @@
 package trivia
 
 import (
-	"github.com/SoggySaussages/syzygy/commands"
-	"github.com/SoggySaussages/syzygy/lib/dcmd"
+	"github.com/botlabs-gg/sgpdb/v2/commands"
+	"github.com/botlabs-gg/sgpdb/v2/lib/dcmd"
 )
 
 func (p *Plugin) AddCommands() {

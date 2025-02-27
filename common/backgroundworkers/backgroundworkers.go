@@ -5,12 +5,12 @@ import (
 	"net/http"
 	"sync"
 
-	"github.com/SoggySaussages/syzygy/common"
-	"github.com/SoggySaussages/syzygy/common/config"
+	"github.com/botlabs-gg/sgpdb/v2/common"
+	"github.com/botlabs-gg/sgpdb/v2/common/config"
 	"goji.io"
 )
 
-var HTTPAddr = config.RegisterOption("syzygy.bgworker.http_server_addr", "Backgroundn worker http server address", "localhost:5004")
+var HTTPAddr = config.RegisterOption("sgpdb.bgworker.http_server_addr", "Backgroundn worker http server address", "localhost:5004")
 var RESTServerMuxer *goji.Mux
 
 var restServer *http.Server

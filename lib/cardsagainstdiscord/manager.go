@@ -3,8 +3,8 @@ package cardsagainstdiscord
 import (
 	"sync"
 
-	"github.com/SoggySaussages/syzygy/lib/discordgo"
-	"github.com/SoggySaussages/syzygy/lib/jarowinkler"
+	"github.com/botlabs-gg/sgpdb/v2/lib/discordgo"
+	"github.com/botlabs-gg/sgpdb/v2/lib/jarowinkler"
 )
 
 type GameManager struct {

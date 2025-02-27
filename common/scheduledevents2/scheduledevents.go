@@ -20,10 +20,10 @@ import (
 	"github.com/volatiletech/null/v8"
 
 	"emperror.dev/errors"
-	"github.com/SoggySaussages/syzygy/bot"
-	"github.com/SoggySaussages/syzygy/common"
-	"github.com/SoggySaussages/syzygy/common/scheduledevents2/models"
-	"github.com/SoggySaussages/syzygy/lib/discordgo"
+	"github.com/botlabs-gg/sgpdb/v2/bot"
+	"github.com/botlabs-gg/sgpdb/v2/common"
+	"github.com/botlabs-gg/sgpdb/v2/common/scheduledevents2/models"
+	"github.com/botlabs-gg/sgpdb/v2/lib/discordgo"
 	"github.com/volatiletech/sqlboiler/v4/boil"
 )
 
@@ -146,12 +146,12 @@ func (se *ScheduledEvents) runCheckLoop() {
 }
 
 var metricsScheduledEventsProcessed = promauto.NewCounter(prometheus.CounterOpts{
-	Name: "syzygy_scheduledevents_processed_total",
+	Name: "sgpdb_scheduledevents_processed_total",
 	Help: "Total scheduled events processed",
 })
 
 var metricsScheduledEventsSkipped = promauto.NewCounter(prometheus.CounterOpts{
-	Name: "syzygy_scheduledevents_skipped_total",
+	Name: "sgpdb_scheduledevents_skipped_total",
 	Help: "Total scheduled events skipped",
 })
 

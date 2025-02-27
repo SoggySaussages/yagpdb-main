@@ -6,15 +6,15 @@ import (
 	"sync"
 	"time"
 
-	"github.com/SoggySaussages/syzygy/automod/models"
-	"github.com/SoggySaussages/syzygy/bot"
-	"github.com/SoggySaussages/syzygy/common"
-	"github.com/SoggySaussages/syzygy/common/scheduledevents2"
-	schEventsModels "github.com/SoggySaussages/syzygy/common/scheduledevents2/models"
-	"github.com/SoggySaussages/syzygy/common/templates"
-	"github.com/SoggySaussages/syzygy/lib/discordgo"
-	"github.com/SoggySaussages/syzygy/lib/dstate"
-	"github.com/SoggySaussages/syzygy/moderation"
+	"github.com/botlabs-gg/sgpdb/v2/automod/models"
+	"github.com/botlabs-gg/sgpdb/v2/bot"
+	"github.com/botlabs-gg/sgpdb/v2/common"
+	"github.com/botlabs-gg/sgpdb/v2/common/scheduledevents2"
+	schEventsModels "github.com/botlabs-gg/sgpdb/v2/common/scheduledevents2/models"
+	"github.com/botlabs-gg/sgpdb/v2/common/templates"
+	"github.com/botlabs-gg/sgpdb/v2/lib/discordgo"
+	"github.com/botlabs-gg/sgpdb/v2/lib/dstate"
+	"github.com/botlabs-gg/sgpdb/v2/moderation"
 	"github.com/volatiletech/null/v8"
 	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
@@ -879,7 +879,7 @@ func (send *SendChannelMessageEffect) MergeDuplicates(data []interface{}) interf
 
 type SendModeratorAlertMessageData struct {
 	CustomMessage string `valid:",0,280,trimspace"`
-	LogChannel    int64
+	LogChannel   int64
 }
 
 type SendModeratorAlertMessageEffect struct{}
@@ -948,7 +948,7 @@ func (send *SendModeratorAlertMessageEffect) Apply(ctxData *TriggeredRuleData, s
 
 	msgEmbed := &discordgo.MessageEmbed{
 		Author: &discordgo.MessageEmbedAuthor{
-			Name:    fmt.Sprintf("%s (ID: %d)", ctxData.MS.User.Username, ctxData.MS.User.ID),
+			Name: fmt.Sprintf("%s (ID: %d)", ctxData.MS.User.Username, ctxData.MS.User.ID),
 			IconURL: ctxData.MS.User.AvatarURL("64"),
 		},
 		Footer: &discordgo.MessageEmbedFooter{
@@ -957,7 +957,7 @@ func (send *SendModeratorAlertMessageEffect) Apply(ctxData *TriggeredRuleData, s
 	}
 
 	msgEmbed.Fields = []*discordgo.MessageEmbedField{{
-		Name:  "____",
+		Name: "____",
 		Value: ctxData.MS.User.Mention(),
 	}}
 

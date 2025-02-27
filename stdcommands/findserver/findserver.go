@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/SoggySaussages/syzygy/bot/models"
-	"github.com/SoggySaussages/syzygy/commands"
-	"github.com/SoggySaussages/syzygy/lib/dcmd"
-	"github.com/SoggySaussages/syzygy/lib/dstate"
-	"github.com/SoggySaussages/syzygy/stdcommands/util"
+	"github.com/botlabs-gg/sgpdb/v2/bot/models"
+	"github.com/botlabs-gg/sgpdb/v2/commands"
+	"github.com/botlabs-gg/sgpdb/v2/lib/dcmd"
+	"github.com/botlabs-gg/sgpdb/v2/lib/dstate"
+	"github.com/botlabs-gg/sgpdb/v2/stdcommands/util"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 

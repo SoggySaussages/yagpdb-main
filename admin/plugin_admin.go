@@ -1,7 +1,7 @@
 package admin
 
 import (
-	"github.com/SoggySaussages/syzygy/common"
+	"github.com/botlabs-gg/sgpdb/v2/common"
 )
 
 var logger = common.GetPluginLogger(&Plugin{})

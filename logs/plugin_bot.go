@@ -7,18 +7,18 @@ import (
 	"time"
 
 	"emperror.dev/errors"
-	"github.com/SoggySaussages/syzygy/bot/paginatedmessages"
-	"github.com/SoggySaussages/syzygy/common/config"
-	"github.com/SoggySaussages/syzygy/common/run"
+	"github.com/botlabs-gg/sgpdb/v2/bot/paginatedmessages"
+	"github.com/botlabs-gg/sgpdb/v2/common/config"
+	"github.com/botlabs-gg/sgpdb/v2/common/run"
 
-	"github.com/SoggySaussages/syzygy/bot"
-	"github.com/SoggySaussages/syzygy/bot/eventsystem"
-	"github.com/SoggySaussages/syzygy/commands"
-	"github.com/SoggySaussages/syzygy/common"
-	"github.com/SoggySaussages/syzygy/lib/dcmd"
-	"github.com/SoggySaussages/syzygy/lib/discordgo"
-	"github.com/SoggySaussages/syzygy/lib/dstate"
-	"github.com/SoggySaussages/syzygy/logs/models"
+	"github.com/botlabs-gg/sgpdb/v2/bot"
+	"github.com/botlabs-gg/sgpdb/v2/bot/eventsystem"
+	"github.com/botlabs-gg/sgpdb/v2/commands"
+	"github.com/botlabs-gg/sgpdb/v2/common"
+	"github.com/botlabs-gg/sgpdb/v2/lib/dcmd"
+	"github.com/botlabs-gg/sgpdb/v2/lib/discordgo"
+	"github.com/botlabs-gg/sgpdb/v2/lib/dstate"
+	"github.com/botlabs-gg/sgpdb/v2/logs/models"
 	"github.com/volatiletech/null/v8"
 	"github.com/volatiletech/sqlboiler/v4/boil"
 )
@@ -553,7 +553,7 @@ type UserGuildPair struct {
 	User    *discordgo.User
 }
 
-var confEnableUsernameTracking = config.RegisterOption("syzygy.enable_username_tracking", "Enable username tracking", true)
+var confEnableUsernameTracking = config.RegisterOption("sgpdb.enable_username_tracking", "Enable username tracking", true)
 
 // Queue up all the events and process them one by one, because of limited connections
 func EvtProcesser() {

@@ -4,7 +4,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/SoggySaussages/syzygy/common"
+	"github.com/botlabs-gg/sgpdb/v2/common"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 )
@@ -63,6 +63,6 @@ func Stop(wg *sync.WaitGroup) {
 }
 
 var MetricPostedMessages = promauto.NewCounterVec(prometheus.CounterOpts{
-	Name: "syzygy_feed_posted_total",
+	Name: "sgpdb_feed_posted_total",
 	Help: "Feed messages posted",
 }, []string{"source"})

@@ -3,10 +3,10 @@ package bot
 import (
 	"fmt"
 
-	"github.com/SoggySaussages/syzygy/bot/shardmemberfetcher"
-	"github.com/SoggySaussages/syzygy/common"
-	"github.com/SoggySaussages/syzygy/lib/discordgo"
-	"github.com/SoggySaussages/syzygy/lib/dstate"
+	"github.com/botlabs-gg/sgpdb/v2/bot/shardmemberfetcher"
+	"github.com/botlabs-gg/sgpdb/v2/common"
+	"github.com/botlabs-gg/sgpdb/v2/lib/discordgo"
+	"github.com/botlabs-gg/sgpdb/v2/lib/dstate"
 )
 
 var (

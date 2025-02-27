@@ -3,9 +3,9 @@ no-hooks="true"
 no-tests="true"
 
 [psql]
-dbname="syzygy"
+dbname="sgpdb"
 host="localhost"
-user="syzygy"
+user="sgpdb"
 pass="ihateducks"
 sslmode="disable"
 whitelist=["automod_rulesets", "automod_rules", "automod_rule_data", "automod_ruleset_conditions", "automod_violations", "automod_lists", "automod_triggered_rules"]

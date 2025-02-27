@@ -13,7 +13,7 @@ services:
       # We change context so that we can copy the local repo in during
       # development
       context: ../
-      dockerfile: syzygy_docker/Dockerfile.debug
+      dockerfile: sgpdb_docker/Dockerfile.debug
     restart: unless-stopped
     depends_on:
       - redis
@@ -23,7 +23,7 @@ services:
     volumes:
       - cert_cache:/app/cert
       - soundboard:/app/soundboard
-      - ..:/app/syzygy
+      - ..:/app/sgpdb
     ports:
       - '5000:5000'
       - '4000:4000'

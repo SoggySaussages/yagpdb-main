@@ -1,10 +1,10 @@
 package banserver
 
 import (
-	"github.com/SoggySaussages/syzygy/commands"
-	"github.com/SoggySaussages/syzygy/common"
-	"github.com/SoggySaussages/syzygy/lib/dcmd"
-	"github.com/SoggySaussages/syzygy/stdcommands/util"
+	"github.com/botlabs-gg/sgpdb/v2/commands"
+	"github.com/botlabs-gg/sgpdb/v2/common"
+	"github.com/botlabs-gg/sgpdb/v2/lib/dcmd"
+	"github.com/botlabs-gg/sgpdb/v2/stdcommands/util"
 	"github.com/mediocregopher/radix/v3"
 )
 
@@ -13,7 +13,7 @@ var Command = &commands.YAGCommand{
 	CmdCategory:          commands.CategoryDebug,
 	HideFromCommandsPage: true,
 	Name:                 "banserver",
-	Description:          "Bans the specified server from using the bot. SYZYGY will leave the server, and leave whenever invited back. Bot Owner Only",
+	Description:          "Bans the specified server from using the bot. SGPDB will leave the server, and leave whenever invited back. Bot Owner Only",
 	HideFromHelp:         true,
 	RequiredArgs:         1,
 	Arguments: []*dcmd.ArgDef{

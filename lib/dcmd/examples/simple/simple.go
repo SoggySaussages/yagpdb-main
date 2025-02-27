@@ -9,8 +9,8 @@ import (
 	"log"
 	"os"
 
-	"github.com/SoggySaussages/syzygy/lib/dcmd"
-	"github.com/SoggySaussages/syzygy/lib/discordgo"
+	"github.com/botlabs-gg/sgpdb/v2/lib/dcmd"
+	"github.com/botlabs-gg/sgpdb/v2/lib/discordgo"
 )
 
 func main() {

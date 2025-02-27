@@ -4,8 +4,8 @@ import (
 	"runtime/debug"
 	"time"
 
-	"github.com/SoggySaussages/syzygy/common"
-	"github.com/SoggySaussages/syzygy/common/config"
+	"github.com/botlabs-gg/sgpdb/v2/common"
+	"github.com/botlabs-gg/sgpdb/v2/common/config"
 
 	"github.com/shirou/gopsutil/mem"
 )
@@ -16,7 +16,7 @@ type MemWatcher struct {
 	lastTimeFreed time.Time
 }
 
-var confEnableMemMonitor = config.RegisterOption("syzygy.mem_monitor.enabled", "Enable the memory monitor, will attempt to free resources when os is running low", true)
+var confEnableMemMonitor = config.RegisterOption("sgpdb.mem_monitor.enabled", "Enable the memory monitor, will attempt to free resources when os is running low", true)
 var memLogger = common.GetFixedPrefixLogger("[mem_monitor]")
 
 func watchMemusage() {

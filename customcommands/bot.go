@@ -15,31 +15,31 @@ import (
 	"time"
 	"unicode/utf8"
 
-	"github.com/SoggySaussages/syzygy/analytics"
-	"github.com/SoggySaussages/syzygy/lib/template"
-	"github.com/SoggySaussages/syzygy/premium"
-	"github.com/SoggySaussages/syzygy/web"
+	"github.com/botlabs-gg/sgpdb/v2/analytics"
+	"github.com/botlabs-gg/sgpdb/v2/lib/template"
+	"github.com/botlabs-gg/sgpdb/v2/premium"
+	"github.com/botlabs-gg/sgpdb/v2/web"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 
 	"emperror.dev/errors"
-	"github.com/SoggySaussages/syzygy/bot"
-	"github.com/SoggySaussages/syzygy/bot/eventsystem"
-	"github.com/SoggySaussages/syzygy/commands"
-	"github.com/SoggySaussages/syzygy/common"
-	"github.com/SoggySaussages/syzygy/common/featureflags"
-	"github.com/SoggySaussages/syzygy/common/keylock"
-	"github.com/SoggySaussages/syzygy/common/multiratelimit"
-	prfx "github.com/SoggySaussages/syzygy/common/prefix"
-	"github.com/SoggySaussages/syzygy/common/pubsub"
-	"github.com/SoggySaussages/syzygy/common/scheduledevents2"
-	schEventsModels "github.com/SoggySaussages/syzygy/common/scheduledevents2/models"
-	"github.com/SoggySaussages/syzygy/common/templates"
-	"github.com/SoggySaussages/syzygy/customcommands/models"
-	"github.com/SoggySaussages/syzygy/lib/dcmd"
-	"github.com/SoggySaussages/syzygy/lib/discordgo"
-	"github.com/SoggySaussages/syzygy/lib/dstate"
-	"github.com/SoggySaussages/syzygy/stdcommands/util"
+	"github.com/botlabs-gg/sgpdb/v2/bot"
+	"github.com/botlabs-gg/sgpdb/v2/bot/eventsystem"
+	"github.com/botlabs-gg/sgpdb/v2/commands"
+	"github.com/botlabs-gg/sgpdb/v2/common"
+	"github.com/botlabs-gg/sgpdb/v2/common/featureflags"
+	"github.com/botlabs-gg/sgpdb/v2/common/keylock"
+	"github.com/botlabs-gg/sgpdb/v2/common/multiratelimit"
+	prfx "github.com/botlabs-gg/sgpdb/v2/common/prefix"
+	"github.com/botlabs-gg/sgpdb/v2/common/pubsub"
+	"github.com/botlabs-gg/sgpdb/v2/common/scheduledevents2"
+	schEventsModels "github.com/botlabs-gg/sgpdb/v2/common/scheduledevents2/models"
+	"github.com/botlabs-gg/sgpdb/v2/common/templates"
+	"github.com/botlabs-gg/sgpdb/v2/customcommands/models"
+	"github.com/botlabs-gg/sgpdb/v2/lib/dcmd"
+	"github.com/botlabs-gg/sgpdb/v2/lib/discordgo"
+	"github.com/botlabs-gg/sgpdb/v2/lib/dstate"
+	"github.com/botlabs-gg/sgpdb/v2/stdcommands/util"
 	"github.com/sirupsen/logrus"
 	"github.com/vmihailenco/msgpack"
 	"github.com/volatiletech/null/v8"
@@ -170,7 +170,7 @@ var cmdEvalCommand = &commands.YAGCommand{
 
 		// use stripped message content instead of parsed arg data to avoid dcmd
 		// from misinterpreting backslashes and losing spaces in input; see
-		// https://github.com/SoggySaussages/syzygy/pull/1547
+		// https://github.com/botlabs-gg/sgpdb/pull/1547
 		code := common.ParseCodeblock(data.TraditionalTriggerData.MessageStrippedPrefix)
 
 		// Encourage only small code snippets being tested with this command
@@ -715,7 +715,7 @@ func (p *Plugin) OnRemovedPremiumGuild(GuildID int64) error {
 }
 
 var metricsExecutedCommands = promauto.NewCounterVec(prometheus.CounterOpts{
-	Name: "syzygy_cc_triggered_total",
+	Name: "sgpdb_cc_triggered_total",
 	Help: "Number custom commands triggered",
 }, []string{"trigger"})
 

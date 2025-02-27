@@ -7,9 +7,9 @@ import (
 	"math/rand"
 	"net/http"
 
-	"github.com/SoggySaussages/syzygy/commands"
-	"github.com/SoggySaussages/syzygy/lib/dcmd"
-	"github.com/SoggySaussages/syzygy/lib/discordgo"
+	"github.com/botlabs-gg/sgpdb/v2/commands"
+	"github.com/botlabs-gg/sgpdb/v2/lib/dcmd"
+	"github.com/botlabs-gg/sgpdb/v2/lib/discordgo"
 )
 
 type Xkcd struct {
@@ -100,7 +100,7 @@ func getComic(number ...int64) (*Xkcd, error) {
 		return nil, err
 	}
 
-	req.Header.Set("User-Agent", "SYZYGY.xyz (https://github.com/SoggySaussages/syzygy)")
+	req.Header.Set("User-Agent", "SGPDB.xyz (https://github.com/botlabs-gg/sgpdb)")
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {

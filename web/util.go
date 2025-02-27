@@ -10,11 +10,11 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/SoggySaussages/syzygy/bot"
-	"github.com/SoggySaussages/syzygy/common"
-	"github.com/SoggySaussages/syzygy/common/cplogs"
-	"github.com/SoggySaussages/syzygy/lib/discordgo"
-	"github.com/SoggySaussages/syzygy/lib/dstate"
+	"github.com/botlabs-gg/sgpdb/v2/bot"
+	"github.com/botlabs-gg/sgpdb/v2/common"
+	"github.com/botlabs-gg/sgpdb/v2/common/cplogs"
+	"github.com/botlabs-gg/sgpdb/v2/lib/discordgo"
+	"github.com/botlabs-gg/sgpdb/v2/lib/dstate"
 	"github.com/sirupsen/logrus"
 	"goji.io/pattern"
 )
@@ -63,7 +63,7 @@ func RandBase64(size int) string {
 func GenSessionCookie() *http.Cookie {
 	data := RandBase64(32)
 	cookie := &http.Cookie{
-		Name:   "syzygy-session",
+		Name:   "sgpdb-session",
 		Value:  data,
 		MaxAge: 86400,
 		Path:   "/",

@@ -33,7 +33,7 @@ const (
 	ServiceTypeOrchestator   ServiceType = "orchestrator"
 )
 
-// Service represents a service or component of syzygy
+// Service represents a service or component of sgpdb
 type Service struct {
 	Type    ServiceType `json:"type"`
 	Name    string      `json:"name"`
@@ -61,7 +61,7 @@ type ServiceHost struct {
 	Services []*Service `json:"services"`
 }
 
-// ServiceTracker keeps track of the various components of syzygy in a central location for ease of access
+// ServiceTracker keeps track of the various components of sgpdb in a central location for ease of access
 var ServiceTracker = newServiceTracker()
 
 func newServiceTracker() *serviceTracker {

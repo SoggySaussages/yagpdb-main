@@ -8,12 +8,12 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/SoggySaussages/syzygy/common"
-	"github.com/SoggySaussages/syzygy/common/mqueue"
-	"github.com/SoggySaussages/syzygy/common/pubsub"
-	"github.com/SoggySaussages/syzygy/lib/go-reddit"
-	"github.com/SoggySaussages/syzygy/premium"
-	"github.com/SoggySaussages/syzygy/reddit/models"
+	"github.com/botlabs-gg/sgpdb/v2/common"
+	"github.com/botlabs-gg/sgpdb/v2/common/mqueue"
+	"github.com/botlabs-gg/sgpdb/v2/common/pubsub"
+	"github.com/botlabs-gg/sgpdb/v2/lib/go-reddit"
+	"github.com/botlabs-gg/sgpdb/v2/premium"
+	"github.com/botlabs-gg/sgpdb/v2/reddit/models"
 )
 
 const (

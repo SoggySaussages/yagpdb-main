@@ -6,11 +6,11 @@ import (
 	"sync"
 	"time"
 
-	"github.com/SoggySaussages/syzygy/bot/eventsystem"
-	"github.com/SoggySaussages/syzygy/common"
-	"github.com/SoggySaussages/syzygy/lib/discordgo"
-	"github.com/SoggySaussages/syzygy/lib/dstate"
-	"github.com/SoggySaussages/syzygy/lib/dstate/inmemorytracker"
+	"github.com/botlabs-gg/sgpdb/v2/bot/eventsystem"
+	"github.com/botlabs-gg/sgpdb/v2/common"
+	"github.com/botlabs-gg/sgpdb/v2/lib/discordgo"
+	"github.com/botlabs-gg/sgpdb/v2/lib/dstate"
+	"github.com/botlabs-gg/sgpdb/v2/lib/dstate/inmemorytracker"
 	"github.com/karlseguin/ccache"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
@@ -21,22 +21,22 @@ type ReadyTracker interface {
 }
 
 var metricsRequests = promauto.NewCounter(prometheus.CounterOpts{
-	Name: "syzygy_memberfetcher_requests_total",
+	Name: "sgpdb_memberfetcher_requests_total",
 	Help: "The total number members added to queue",
 })
 
 var metricsProcessed = promauto.NewCounterVec(prometheus.CounterOpts{
-	Name: "syzygy_memberfetcher_processed_total",
+	Name: "sgpdb_memberfetcher_processed_total",
 	Help: "The total number of processed queue items",
 }, []string{"type"})
 
 var metricsFailed = promauto.NewCounterVec(prometheus.CounterOpts{
-	Name: "syzygy_memberfetcher_failed_total",
+	Name: "sgpdb_memberfetcher_failed_total",
 	Help: "The total number of failed queue items",
 }, []string{"type"})
 
 var metricsGatewayChunkFailed = promauto.NewCounter(prometheus.CounterOpts{
-	Name: "syzygy_memberfetcher_gateway_chunk_fail_total",
+	Name: "sgpdb_memberfetcher_gateway_chunk_fail_total",
 	Help: "The number of failed",
 })
 

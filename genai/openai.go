@@ -9,7 +9,7 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/SoggySaussages/syzygy/lib/dstate"
+	"github.com/botlabs-gg/sgpdb/v2/lib/dstate"
 	"github.com/openai/openai-go"
 	"github.com/openai/openai-go/option"
 	"github.com/openai/openai-go/shared"
@@ -261,7 +261,7 @@ var GenAIProviderOpenAIWebData = &GenAIProviderWebDescriptions{
 	Create an API key on <a href="https://platform.openai.com/api-keys">OpenAI's Dashboard</a>. Set the mode to <strong>restricted</strong>, set every permission to <strong>None</strong>, and then set the "Model capabilities" permission to <strong>Write</strong>.
 	<br>
 	<br>
-	Step five: Copy the API key to SYZYGY.
+	Step five: Copy the API key to SGPDB.
 	<br>
 	Click copy, then paste the new API key into the "API Key" field on this page.`),
 	ModelDescriptionsURL: "https://platform.openai.com/docs/models",

@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/SoggySaussages/syzygy/bot/paginatedmessages"
-	"github.com/SoggySaussages/syzygy/common"
-	"github.com/SoggySaussages/syzygy/lib/dcmd"
-	"github.com/SoggySaussages/syzygy/lib/discordgo"
-	"github.com/SoggySaussages/syzygy/web"
+	"github.com/botlabs-gg/sgpdb/v2/bot/paginatedmessages"
+	"github.com/botlabs-gg/sgpdb/v2/common"
+	"github.com/botlabs-gg/sgpdb/v2/lib/dcmd"
+	"github.com/botlabs-gg/sgpdb/v2/lib/discordgo"
+	"github.com/botlabs-gg/sgpdb/v2/web"
 )
 
 var cmdHelp = &YAGCommand{
@@ -101,8 +101,8 @@ func createInteractiveHelp(userID int64, helpEmbeds []*discordgo.MessageEmbed) (
 
 	// prepend a introductionairy first page
 	firstPage := &discordgo.MessageEmbed{
-		Title: "SYZYGY Help!",
-		Description: fmt.Sprintf(`SYZYGY is a fork of an open-source multipurpose discord bot that is configured through the web interface at %s.
+		Title: "SGPDB Help!",
+		Description: fmt.Sprintf(`SGPDB is a fork of an open-source multipurpose discord bot that is configured through the web interface at %s.
 For more in depth help and information you should visit https://help.yagpdb.xyz/ as this command only shows information about commands.)
 		
 		

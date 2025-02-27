@@ -12,24 +12,24 @@ import (
 
 // ConnectPQ connectes to a postgres database for testing purposes
 func ConnectPQ() (*sql.DB, error) {
-	host := os.Getenv("SYZYGY_TEST_PQ_HOST")
+	host := os.Getenv("SGPDB_TEST_PQ_HOST")
 	if host == "" {
 		host = "localhost"
 	}
-	user := os.Getenv("SYZYGY_TEST_PQ_USER")
+	user := os.Getenv("SGPDB_TEST_PQ_USER")
 	if user == "" {
-		user = "syzygy_test"
+		user = "sgpdb_test"
 	}
 
-	dbPassword := os.Getenv("SYZYGY_TEST_PQ_PASSWORD")
-	sslMode := os.Getenv("SYZYGY_TEST_PQ_SSLMODE")
+	dbPassword := os.Getenv("SGPDB_TEST_PQ_PASSWORD")
+	sslMode := os.Getenv("SGPDB_TEST_PQ_SSLMODE")
 	if sslMode == "" {
 		sslMode = "disable"
 	}
 
-	dbName := os.Getenv("SYZYGY_TEST_PQ_DB")
+	dbName := os.Getenv("SGPDB_TEST_PQ_DB")
 	if dbName == "" {
-		dbName = "syzygy_test"
+		dbName = "sgpdb_test"
 	}
 
 	if !strings.Contains(dbName, "test") {

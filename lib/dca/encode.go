@@ -18,7 +18,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/SoggySaussages/syzygy/lib/ogg"
+	"github.com/botlabs-gg/sgpdb/v2/lib/ogg"
 )
 
 // AudioApplication is an application profile for opus encoding

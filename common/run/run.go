@@ -11,17 +11,17 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/SoggySaussages/syzygy/bot"
-	"github.com/SoggySaussages/syzygy/bot/botrest"
-	"github.com/SoggySaussages/syzygy/commands"
-	"github.com/SoggySaussages/syzygy/common"
-	"github.com/SoggySaussages/syzygy/common/backgroundworkers"
-	"github.com/SoggySaussages/syzygy/common/config"
-	"github.com/SoggySaussages/syzygy/common/mqueue"
-	"github.com/SoggySaussages/syzygy/common/pubsub"
-	"github.com/SoggySaussages/syzygy/common/sentryhook"
-	"github.com/SoggySaussages/syzygy/feeds"
-	"github.com/SoggySaussages/syzygy/web"
+	"github.com/botlabs-gg/sgpdb/v2/bot"
+	"github.com/botlabs-gg/sgpdb/v2/bot/botrest"
+	"github.com/botlabs-gg/sgpdb/v2/commands"
+	"github.com/botlabs-gg/sgpdb/v2/common"
+	"github.com/botlabs-gg/sgpdb/v2/common/backgroundworkers"
+	"github.com/botlabs-gg/sgpdb/v2/common/config"
+	"github.com/botlabs-gg/sgpdb/v2/common/mqueue"
+	"github.com/botlabs-gg/sgpdb/v2/common/pubsub"
+	"github.com/botlabs-gg/sgpdb/v2/common/sentryhook"
+	"github.com/botlabs-gg/sgpdb/v2/feeds"
+	"github.com/botlabs-gg/sgpdb/v2/web"
 	"github.com/getsentry/sentry-go"
 	log "github.com/sirupsen/logrus"
 )
@@ -48,7 +48,7 @@ var (
 	flagVersion bool
 )
 
-var confSentryDSN = config.RegisterOption("syzygy.sentry_dsn", "Sentry credentials for sentry logging hook", nil)
+var confSentryDSN = config.RegisterOption("sgpdb.sentry_dsn", "Sentry credentials for sentry logging hook", nil)
 
 func init() {
 	flag.BoolVar(&flagRunBot, "bot", false, "Set to run discord bot and bot related stuff")
@@ -57,7 +57,7 @@ func init() {
 	flag.BoolVar(&flagRunEverything, "all", false, "Set to everything (discord bot, webserver, backgroundworkers and all feeds)")
 	flag.BoolVar(&flagDryRun, "dry", false, "Do a dryrun, initialize all plugins but don't actually start anything")
 	flag.BoolVar(&flagSysLog, "syslog", false, "Set to log to syslog (only linux)")
-	flag.StringVar(&flagLogAppName, "logappname", "syzygy", "When using syslog, the application name will be set to this")
+	flag.StringVar(&flagLogAppName, "logappname", "sgpdb", "When using syslog, the application name will be set to this")
 	flag.BoolVar(&flagRunBWC, "backgroundworkers", false, "Run the various background workers, atleast one process needs this")
 	flag.BoolVar(&FlagGenCmdDocs, "gencmddocs", false, "Generate command docs and exit")
 	flag.BoolVar(&flagGenConfigDocs, "genconfigdocs", false, "Generate config docs and exit")
@@ -97,7 +97,7 @@ func Init() {
 		os.Exit(1)
 	}
 
-	log.Info("Starting SYZYGY version " + common.VERSION)
+	log.Info("Starting SGPDB version " + common.VERSION)
 
 	err := common.CoreInit(true)
 	if err != nil {

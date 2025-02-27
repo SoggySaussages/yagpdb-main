@@ -8,13 +8,13 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/SoggySaussages/syzygy/bot/eventsystem"
+	"github.com/botlabs-gg/sgpdb/v2/bot/eventsystem"
 	"github.com/mediocregopher/radix/v3"
 
-	"github.com/SoggySaussages/syzygy/common"
-	"github.com/SoggySaussages/syzygy/lib/dshardorchestrator"
-	"github.com/SoggySaussages/syzygy/lib/dshardorchestrator/node"
-	"github.com/SoggySaussages/syzygy/lib/dstate"
+	"github.com/botlabs-gg/sgpdb/v2/common"
+	"github.com/botlabs-gg/sgpdb/v2/lib/dshardorchestrator"
+	"github.com/botlabs-gg/sgpdb/v2/lib/dshardorchestrator/node"
+	"github.com/botlabs-gg/sgpdb/v2/lib/dstate"
 )
 
 func init() {
@@ -46,7 +46,7 @@ func (n *NodeImpl) SessionEstablished(info node.SessionInfo) {
 		EventLogger.init(info.TotalShards)
 		go EventLogger.run()
 
-		err := common.RedisPool.Do(radix.FlatCmd(nil, "SET", "syzygy_total_shards", info.TotalShards))
+		err := common.RedisPool.Do(radix.FlatCmd(nil, "SET", "sgpdb_total_shards", info.TotalShards))
 		if err != nil {
 			logger.WithError(err).Error("failed setting shard count")
 		}

@@ -18,16 +18,16 @@ import (
 	"unicode/utf8"
 
 	"emperror.dev/errors"
-	"github.com/SoggySaussages/syzygy/common"
-	"github.com/SoggySaussages/syzygy/common/cplogs"
-	"github.com/SoggySaussages/syzygy/common/featureflags"
-	prfx "github.com/SoggySaussages/syzygy/common/prefix"
-	"github.com/SoggySaussages/syzygy/common/pubsub"
-	yagtemplate "github.com/SoggySaussages/syzygy/common/templates"
-	"github.com/SoggySaussages/syzygy/customcommands/models"
-	"github.com/SoggySaussages/syzygy/lib/discordgo"
-	"github.com/SoggySaussages/syzygy/premium"
-	"github.com/SoggySaussages/syzygy/web"
+	"github.com/botlabs-gg/sgpdb/v2/common"
+	"github.com/botlabs-gg/sgpdb/v2/common/cplogs"
+	"github.com/botlabs-gg/sgpdb/v2/common/featureflags"
+	prfx "github.com/botlabs-gg/sgpdb/v2/common/prefix"
+	"github.com/botlabs-gg/sgpdb/v2/common/pubsub"
+	yagtemplate "github.com/botlabs-gg/sgpdb/v2/common/templates"
+	"github.com/botlabs-gg/sgpdb/v2/customcommands/models"
+	"github.com/botlabs-gg/sgpdb/v2/lib/discordgo"
+	"github.com/botlabs-gg/sgpdb/v2/premium"
+	"github.com/botlabs-gg/sgpdb/v2/web"
 	"github.com/mediocregopher/radix/v3"
 	"github.com/robfig/cron/v3"
 	"github.com/sirupsen/logrus"
@@ -566,7 +566,7 @@ func handleUpdateCommand(w http.ResponseWriter, r *http.Request) (web.TemplateDa
 			//	//	if dbModel.TimeTriggerInterval < 5 {
 			//	//		dbModel.TimeTriggerInterval = 5
 			//	//	}
-			//
+//
 			//	ok, err := checkIntervalLimits(ctx, activeGuild.ID, dbModel.LocalID, templateData)
 			//	if err != nil || !ok {
 			//		return templateData, err
@@ -1024,7 +1024,7 @@ func updateTemplateWithCountData(count int, templateData web.TemplateData, ctx c
 
 	additionalMessage := ""
 	if premium.ContextPremiumTier(ctx) != premium.PremiumTierPremium {
-		additionalMessage = fmt.Sprintf("(You may increase the limit upto %d with SYZYGY premium)", MaxCommandsPremium)
+		additionalMessage = fmt.Sprintf("(You may increase the limit upto %d with SGPDB premium)", MaxCommandsPremium)
 	}
 	templateData["AdditionalMessage"] = additionalMessage
 }

@@ -5,8 +5,8 @@ import (
 	"log"
 	"os"
 
-	"github.com/SoggySaussages/syzygy/lib/dshardorchestrator"
-	"github.com/SoggySaussages/syzygy/lib/dshardorchestrator/node"
+	"github.com/botlabs-gg/sgpdb/v2/lib/dshardorchestrator"
+	"github.com/botlabs-gg/sgpdb/v2/lib/dshardorchestrator/node"
 )
 
 var Node *node.Conn

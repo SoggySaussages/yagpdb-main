@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/SoggySaussages/syzygy/common/mqueue"
-	"github.com/SoggySaussages/syzygy/twitter/models"
+	"github.com/botlabs-gg/sgpdb/v2/common/mqueue"
+	"github.com/botlabs-gg/sgpdb/v2/twitter/models"
 )
 
 func (p *Plugin) Status() (string, string) {

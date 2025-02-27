@@ -5,7 +5,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/SoggySaussages/syzygy/common"
+	"github.com/botlabs-gg/sgpdb/v2/common"
 )
 
 func TestMain(m *testing.M) {

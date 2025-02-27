@@ -4,9 +4,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/SoggySaussages/syzygy/common"
-	"github.com/SoggySaussages/syzygy/common/config"
-	"github.com/SoggySaussages/syzygy/lib/discordgo"
+	"github.com/botlabs-gg/sgpdb/v2/common"
+	"github.com/botlabs-gg/sgpdb/v2/common/config"
+	"github.com/botlabs-gg/sgpdb/v2/lib/discordgo"
 )
 
 type DiscordPremiumPoller struct {
@@ -16,7 +16,7 @@ type DiscordPremiumPoller struct {
 	isLastFetchSuccess   bool
 }
 
-var confDiscordPremiumSKUID = config.RegisterOption("syzygy.discord.premium.sku_id", "SKU_ID for Discord Premium", nil)
+var confDiscordPremiumSKUID = config.RegisterOption("sgpdb.discord.premium.sku_id", "SKU_ID for Discord Premium", nil)
 
 func InitPoller() *DiscordPremiumPoller {
 

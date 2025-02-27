@@ -9,7 +9,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/SoggySaussages/syzygy/lib/template"
+	"github.com/botlabs-gg/sgpdb/v2/lib/template"
 )
 
 // This example demonstrates a custom function to process template text.

@@ -5,7 +5,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/SoggySaussages/syzygy/common"
+	"github.com/botlabs-gg/sgpdb/v2/common"
 	"github.com/mediocregopher/radix/v3"
 	"github.com/sirupsen/logrus"
 )

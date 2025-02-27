@@ -12,10 +12,10 @@ type RedisConfigStore struct {
 }
 
 func (rs *RedisConfigStore) GetValue(key string) interface{} {
-	prefixStripped := strings.TrimPrefix(key, "syzygy.")
+	prefixStripped := strings.TrimPrefix(key, "sgpdb.")
 
 	var v string
-	err := rs.Pool.Do(radix.Cmd(&v, "HGET", "syzygy_config", prefixStripped))
+	err := rs.Pool.Do(radix.Cmd(&v, "HGET", "sgpdb_config", prefixStripped))
 	if err != nil {
 		logrus.WithError(err).Error("[redis_config_source] failed retrieving value")
 		return nil
@@ -29,9 +29,9 @@ func (rs *RedisConfigStore) GetValue(key string) interface{} {
 }
 
 func (rs *RedisConfigStore) SaveValue(key, value string) error {
-	prefixStripped := strings.TrimPrefix(key, "syzygy.")
+	prefixStripped := strings.TrimPrefix(key, "sgpdb.")
 
-	err := rs.Pool.Do(radix.Cmd(nil, "HSET", "syzygy_config", prefixStripped, value))
+	err := rs.Pool.Do(radix.Cmd(nil, "HSET", "sgpdb_config", prefixStripped, value))
 	if err != nil {
 		return err
 	}

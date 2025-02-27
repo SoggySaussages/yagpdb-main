@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/SoggySaussages/syzygy/lib/dshardorchestrator"
+	"github.com/botlabs-gg/sgpdb/v2/lib/dshardorchestrator"
 )
 
 type monitor struct {

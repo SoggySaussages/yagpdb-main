@@ -4,11 +4,11 @@ import (
 	"sort"
 	"time"
 
-	"github.com/SoggySaussages/syzygy/lib/when/rules"
-	"github.com/SoggySaussages/syzygy/lib/when/rules/br"
-	"github.com/SoggySaussages/syzygy/lib/when/rules/common"
-	"github.com/SoggySaussages/syzygy/lib/when/rules/en"
-	"github.com/SoggySaussages/syzygy/lib/when/rules/ru"
+	"github.com/botlabs-gg/sgpdb/v2/lib/when/rules"
+	"github.com/botlabs-gg/sgpdb/v2/lib/when/rules/br"
+	"github.com/botlabs-gg/sgpdb/v2/lib/when/rules/common"
+	"github.com/botlabs-gg/sgpdb/v2/lib/when/rules/en"
+	"github.com/botlabs-gg/sgpdb/v2/lib/when/rules/ru"
 	"github.com/pkg/errors"
 )
 

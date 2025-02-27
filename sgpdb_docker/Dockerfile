@@ -1,13 +1,13 @@
 FROM docker.io/golang:1.23.3 AS builder
 
-WORKDIR /appbuild/syzygy
+WORKDIR /appbuild/sgpdb
 COPY go.mod go.sum ./
 RUN go mod download
 
 COPY . .
 
-WORKDIR /appbuild/syzygy/cmd/syzygy
-RUN CGO_ENABLED=0 GOOS=linux go build -v -ldflags "-X github.com/SoggySaussages/syzygy/common.VERSION=$(git describe --tags)"
+WORKDIR /appbuild/sgpdb/cmd/sgpdb
+RUN CGO_ENABLED=0 GOOS=linux go build -v -ldflags "-X github.com/botlabs-gg/sgpdb/v2/common.VERSION=$(git describe --tags)"
 
 
 
@@ -20,7 +20,7 @@ EXPOSE 80 443
 # Dependencies: ca-certificates for client TLS, tzdata for timezone and ffmpeg for soundboard support
 RUN apk --no-cache add ca-certificates ffmpeg tzdata
 
-COPY --from=builder /appbuild/syzygy/cmd/syzygy/syzygy syzygy
+COPY --from=builder /appbuild/sgpdb/cmd/sgpdb/sgpdb sgpdb
 
-ENTRYPOINT ["/app/syzygy"]
+ENTRYPOINT ["/app/sgpdb"]
 CMD ["-all", "-pa", "-exthttps=false", "-https=true"]

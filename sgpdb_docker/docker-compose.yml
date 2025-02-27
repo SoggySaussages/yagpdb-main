@@ -6,32 +6,36 @@ volumes:
 
 networks:
   default:
-  proxy-tier:
-    external:
-      name: proxy-tier
 
 services:
   app:
+    # We don't provide an official image, but there is a community-made image you can try:
+    #  - teyker/sgpdb (https://hub.docker.com/r/teyker/sgpdb)
+    #
+    # Note that we do not take responsibility for anything that happens as a result of using
+    # the image above. uncomment the below line in case your want to put your own image.
     #image: PUT_YOUR_OWN_IMAGE_HERE
     build:
       context: ../
-      dockerfile: syzygy_docker/Dockerfile
+      dockerfile: sgpdb_docker/Dockerfile
     restart: unless-stopped
     command:
-      # - "/app/syzygy"
+      # - "/app/sgpdb"
       - "-all"
       - "-pa"
-      - "-exthttps=true"
-      - "-https=false"
+      - "-exthttps=false"
+      - "-https=true"
     depends_on:
       - redis
       - db
     networks:
       - default
-      - proxy-tier
     volumes:
       - cert_cache:/app/cert
       - soundboard:/app/soundboard
+    ports:
+      - '80:80'
+      - '443:443'
     env_file:
       - app.env
 

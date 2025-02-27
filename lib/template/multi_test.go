@@ -11,7 +11,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/SoggySaussages/syzygy/lib/template/parse"
+	"github.com/botlabs-gg/sgpdb/v2/lib/template/parse"
 )
 
 const (

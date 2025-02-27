@@ -3,8 +3,8 @@ package featureflags
 import (
 	"sync"
 
-	"github.com/SoggySaussages/syzygy/common"
-	"github.com/SoggySaussages/syzygy/common/pubsub"
+	"github.com/botlabs-gg/sgpdb/v2/common"
+	"github.com/botlabs-gg/sgpdb/v2/common/pubsub"
 )
 
 var logger = common.GetPluginLogger(&Plugin{})

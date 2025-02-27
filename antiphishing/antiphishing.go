@@ -9,7 +9,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/SoggySaussages/syzygy/common"
+	"github.com/botlabs-gg/sgpdb/v2/common"
 	"github.com/mediocregopher/radix/v3"
 	"github.com/sirupsen/logrus"
 )
@@ -69,7 +69,7 @@ func getAllPhishingDomains() ([]string, error) {
 	req, _ := http.NewRequest("GET", getAllPhishingDomainsUrl, nil)
 	req.Header.Add("Content-Type", "application/json")
 	req.Header.Add("Accept", "*/*")
-	req.Header.Add("X-identify", "SYZYGY")
+	req.Header.Add("X-identify", "SGPDB")
 	resp, err := client.Do(req)
 	if err != nil {
 		return nil, err
@@ -89,7 +89,7 @@ func getRecentlyUpdatedPhishingDomains(seconds uint32) ([]string, []string, erro
 	req, _ := http.NewRequest("GET", reqUrl, nil)
 	req.Header.Add("Content-Type", "application/json")
 	req.Header.Add("Accept", "*/*")
-	req.Header.Add("X-identify", "SYZYGY")
+	req.Header.Add("X-identify", "SGPDB")
 	resp, err := client.Do(req)
 	if err != nil {
 		return nil, nil, err
@@ -181,7 +181,7 @@ func checkRemoteForPhishingUrl(input []string) (*BitFlowAntiFishResponse, error)
 	req.Header.Add("Content-Type", "application/json")
 	req.Header.Add("Accept", "*/*")
 	req.Header.Add("Content-Length", strconv.Itoa(len(queryString)))
-	req.Header.Add("User-Agent", "SYZYGY.xyz (https://github.com/SoggySaussages/syzygy)")
+	req.Header.Add("User-Agent", "SGPDB.xyz (https://github.com/botlabs-gg/sgpdb)")
 
 	resp, err := client.Do(req)
 	if err != nil {

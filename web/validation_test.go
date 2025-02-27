@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/SoggySaussages/syzygy/lib/dstate"
+	"github.com/botlabs-gg/sgpdb/v2/lib/dstate"
 )
 
 type StringTestStruct struct {

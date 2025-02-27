@@ -3,10 +3,10 @@ package bot
 import (
 	"time"
 
-	"github.com/SoggySaussages/syzygy/bot/eventsystem"
-	"github.com/SoggySaussages/syzygy/common"
-	"github.com/SoggySaussages/syzygy/common/config"
-	"github.com/SoggySaussages/syzygy/lib/discordgo"
+	"github.com/botlabs-gg/sgpdb/v2/bot/eventsystem"
+	"github.com/botlabs-gg/sgpdb/v2/common"
+	"github.com/botlabs-gg/sgpdb/v2/common/config"
+	"github.com/botlabs-gg/sgpdb/v2/lib/discordgo"
 	"github.com/mediocregopher/radix/v3"
 )
 
@@ -16,11 +16,11 @@ var (
 	readOnlyAccessRole int64
 
 	// Set of redis admins
-	RedisKeyAdmins    = "syzygy_admins"
-	tmpRedisKeyAdmins = "syzygy_admins_tmp"
+	RedisKeyAdmins    = "sgpdb_admins"
+	tmpRedisKeyAdmins = "sgpdb_admins_tmp"
 	// Set of users with read only access
-	RedisKeyReadOnlyAccess    = "syzygy_ro_access"
-	tmpRedisKeyReadOnlyAccess = "syzygy_ro_access_tmp"
+	RedisKeyReadOnlyAccess    = "sgpdb_ro_access"
+	tmpRedisKeyReadOnlyAccess = "sgpdb_ro_access_tmp"
 )
 
 func IsBotAdmin(userID int64) (isAdmin bool, err error) {
@@ -40,9 +40,9 @@ func HasReadOnlyAccess(userID int64) (hasAccess bool, err error) {
 var stopRunCheckAdmins = make(chan bool)
 
 var (
-	confMainServer         = config.RegisterOption("syzygy.main.server", "Main server used for various purposes, like assigning people with a certain role as bot admins", int64(0))
-	confAdminRole          = config.RegisterOption("syzygy.admin.role", "People with this role on the main server has bot admin status", int64(0))
-	confReadOnlyAccessRole = config.RegisterOption("syzygy.readonly.access.role", "People with this role on the main server has global read only access to configs", int64(0))
+	confMainServer         = config.RegisterOption("sgpdb.main.server", "Main server used for various purposes, like assigning people with a certain role as bot admins", int64(0))
+	confAdminRole          = config.RegisterOption("sgpdb.admin.role", "People with this role on the main server has bot admin status", int64(0))
+	confReadOnlyAccessRole = config.RegisterOption("sgpdb.readonly.access.role", "People with this role on the main server has global read only access to configs", int64(0))
 )
 
 func loopCheckAdmins() {
@@ -51,7 +51,7 @@ func loopCheckAdmins() {
 	readOnlyAccessRole = int64(confReadOnlyAccessRole.GetInt())
 
 	if mainServer == 0 || (adminRole == 0 && readOnlyAccessRole == 0) {
-		logger.Info("One of SYZYGY_MAIN_SERVER, SYZYGY_ADMIN_ROLE or SYZYGY_READONLY_ACCESS_ROLE not provided, not running admin checker")
+		logger.Info("One of SGPDB_MAIN_SERVER, SGPDB_ADMIN_ROLE or SGPDB_READONLY_ACCESS_ROLE not provided, not running admin checker")
 		return
 	}
 	logger.Info("Admin checker running")

@@ -5,7 +5,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/SoggySaussages/syzygy/common/testutils"
+	"github.com/botlabs-gg/sgpdb/v2/common/testutils"
 )
 
 var db *DB

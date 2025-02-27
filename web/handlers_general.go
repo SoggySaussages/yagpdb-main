@@ -15,15 +15,15 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/SoggySaussages/syzygy/bot/botrest"
-	"github.com/SoggySaussages/syzygy/common"
-	"github.com/SoggySaussages/syzygy/common/cplogs"
-	"github.com/SoggySaussages/syzygy/common/models"
-	"github.com/SoggySaussages/syzygy/common/patreon"
-	"github.com/SoggySaussages/syzygy/common/pubsub"
-	"github.com/SoggySaussages/syzygy/lib/discordgo"
-	"github.com/SoggySaussages/syzygy/lib/dstate"
-	"github.com/SoggySaussages/syzygy/web/discordblog"
+	"github.com/botlabs-gg/sgpdb/v2/bot/botrest"
+	"github.com/botlabs-gg/sgpdb/v2/common"
+	"github.com/botlabs-gg/sgpdb/v2/common/cplogs"
+	"github.com/botlabs-gg/sgpdb/v2/common/models"
+	"github.com/botlabs-gg/sgpdb/v2/common/patreon"
+	"github.com/botlabs-gg/sgpdb/v2/common/pubsub"
+	"github.com/botlabs-gg/sgpdb/v2/lib/discordgo"
+	"github.com/botlabs-gg/sgpdb/v2/lib/dstate"
+	"github.com/botlabs-gg/sgpdb/v2/web/discordblog"
 	"github.com/mediocregopher/radix/v3"
 	"github.com/patrickmn/go-cache"
 	"goji.io/pat"
@@ -320,7 +320,7 @@ func genFakeNodeStatuses(hosts int, nodes int, shards int) []*HostStatus {
 
 	for hostI := 0; hostI < hosts; hostI++ {
 		host := &HostStatus{
-			Name: "syzygy-" + strconv.Itoa(hostI),
+			Name: "sgpdb-" + strconv.Itoa(hostI),
 		}
 		for nodeI := 0; nodeI < nodes; nodeI++ {
 

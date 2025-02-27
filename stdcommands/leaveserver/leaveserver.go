@@ -1,10 +1,10 @@
 package leaveserver
 
 import (
-	"github.com/SoggySaussages/syzygy/commands"
-	"github.com/SoggySaussages/syzygy/common"
-	"github.com/SoggySaussages/syzygy/lib/dcmd"
-	"github.com/SoggySaussages/syzygy/stdcommands/util"
+	"github.com/botlabs-gg/sgpdb/v2/commands"
+	"github.com/botlabs-gg/sgpdb/v2/common"
+	"github.com/botlabs-gg/sgpdb/v2/lib/dcmd"
+	"github.com/botlabs-gg/sgpdb/v2/stdcommands/util"
 )
 
 var Command = &commands.YAGCommand{
@@ -12,7 +12,7 @@ var Command = &commands.YAGCommand{
 	CmdCategory:          commands.CategoryDebug,
 	HideFromCommandsPage: true,
 	Name:                 "leaveserver",
-	Description:          "Causes SYZYGY to leave the specified server. The bot may still be invited back with full functionality restored. Bot Owner Only",
+	Description:          "Causes SGPDB to leave the specified server. The bot may still be invited back with full functionality restored. Bot Owner Only",
 	HideFromHelp:         true,
 	RequiredArgs:         1,
 	Arguments: []*dcmd.ArgDef{

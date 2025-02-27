@@ -11,18 +11,18 @@ import (
 	"time"
 
 	"emperror.dev/errors"
-	"github.com/SoggySaussages/syzygy/analytics"
-	"github.com/SoggySaussages/syzygy/bot"
-	"github.com/SoggySaussages/syzygy/bot/eventsystem"
-	"github.com/SoggySaussages/syzygy/common"
-	"github.com/SoggySaussages/syzygy/common/config"
-	"github.com/SoggySaussages/syzygy/lib/dcmd"
-	"github.com/SoggySaussages/syzygy/lib/discordgo"
-	"github.com/SoggySaussages/syzygy/lib/dstate"
-	"github.com/SoggySaussages/syzygy/lib/jarowinkler"
-	"github.com/SoggySaussages/syzygy/premium"
-	"github.com/SoggySaussages/syzygy/rolecommands/models"
-	"github.com/SoggySaussages/syzygy/web"
+	"github.com/botlabs-gg/sgpdb/v2/analytics"
+	"github.com/botlabs-gg/sgpdb/v2/bot"
+	"github.com/botlabs-gg/sgpdb/v2/bot/eventsystem"
+	"github.com/botlabs-gg/sgpdb/v2/common"
+	"github.com/botlabs-gg/sgpdb/v2/common/config"
+	"github.com/botlabs-gg/sgpdb/v2/lib/dcmd"
+	"github.com/botlabs-gg/sgpdb/v2/lib/discordgo"
+	"github.com/botlabs-gg/sgpdb/v2/lib/dstate"
+	"github.com/botlabs-gg/sgpdb/v2/lib/jarowinkler"
+	"github.com/botlabs-gg/sgpdb/v2/premium"
+	"github.com/botlabs-gg/sgpdb/v2/rolecommands/models"
+	"github.com/botlabs-gg/sgpdb/v2/web"
 	"github.com/volatiletech/null/v8"
 	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
@@ -97,9 +97,9 @@ func cmdFuncRoleMenuCreate(parsed *dcmd.Data) (interface{}, error) {
 		OwnerID:   parsed.Author.ID,
 		ChannelID: parsed.ChannelID,
 
-		RoleGroupID:   null.Int64From(group.ID),
-		OwnMessage:    true,
-		DisableSendDM: parsed.Switches["nodm"].Value != nil && parsed.Switches["nodm"].Value.(bool),
+		RoleGroupID:                null.Int64From(group.ID),
+		OwnMessage:                 true,
+		DisableSendDM:              parsed.Switches["nodm"].Value != nil && parsed.Switches["nodm"].Value.(bool),
 		// `rr` is `true` by default, which is why we want
 		// a `true` value, if `.Value` is `nil`.
 		RemoveRoleOnReactionRemove: parsed.Switches["rr"].Value == nil || !parsed.Switches["rr"].Value.(bool),
@@ -288,9 +288,9 @@ func UpdateRoleMenuMessage(ctx context.Context, rm *models.RoleMenu) error {
 		emoji := opt.UnicodeEmoji
 		if opt.EmojiID != 0 {
 			if opt.EmojiAnimated {
-				emoji = fmt.Sprintf("<a:syzygy:%d>", opt.EmojiID)
+				emoji = fmt.Sprintf("<a:sgpdb:%d>", opt.EmojiID)
 			} else {
-				emoji = fmt.Sprintf("<:syzygy:%d>", opt.EmojiID)
+				emoji = fmt.Sprintf("<:sgpdb:%d>", opt.EmojiID)
 			}
 		}
 
@@ -619,7 +619,7 @@ var (
 	activeReactionRemovals   = make([]*reactionRemovalOccurence, 0)
 	activeReactionRemovalsmu sync.Mutex
 
-	confDisableReactionRemovalSingleMode = config.RegisterOption("syzygy.rolecommands.disable_reaction_removal_single_mode", "Disable reaction removal in single mode, could be heavy on number of requests", false)
+	confDisableReactionRemovalSingleMode = config.RegisterOption("sgpdb.rolecommands.disable_reaction_removal_single_mode", "Disable reaction removal in single mode, could be heavy on number of requests", false)
 )
 
 func removeOtherReactions(rm *models.RoleMenu, option *models.RoleMenuOption, userID int64) {

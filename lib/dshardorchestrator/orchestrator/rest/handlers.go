@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/SoggySaussages/syzygy/lib/dshardorchestrator/orchestrator"
+	"github.com/botlabs-gg/sgpdb/v2/lib/dshardorchestrator/orchestrator"
 	"github.com/gin-gonic/gin"
 	"github.com/pkg/errors"
 )

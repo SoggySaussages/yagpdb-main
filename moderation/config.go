@@ -5,10 +5,10 @@ import (
 	"database/sql"
 	"time"
 
-	"github.com/SoggySaussages/syzygy/common/featureflags"
-	"github.com/SoggySaussages/syzygy/common/pubsub"
-	"github.com/SoggySaussages/syzygy/lib/discordgo"
-	"github.com/SoggySaussages/syzygy/moderation/models"
+	"github.com/botlabs-gg/sgpdb/v2/common/featureflags"
+	"github.com/botlabs-gg/sgpdb/v2/common/pubsub"
+	"github.com/botlabs-gg/sgpdb/v2/lib/discordgo"
+	"github.com/botlabs-gg/sgpdb/v2/moderation/models"
 	"github.com/volatiletech/null/v8"
 	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/volatiletech/sqlboiler/v4/types"
@@ -89,13 +89,13 @@ type Config struct {
 	DefaultMuteDuration     null.Int64       `valid:"0,"`
 
 	// Warn
-	WarnCommandsEnabled      bool
-	WarnCmdRoles             types.Int64Array `valid:"role,true"`
-	WarnIncludeChannelLogs   bool
-	WarnSendToModlog         bool
-	DelwarnSendToModlog      bool
+	WarnCommandsEnabled    	bool
+	WarnCmdRoles           	types.Int64Array `valid:"role,true"`
+	WarnIncludeChannelLogs 	bool
+	WarnSendToModlog       	bool
+	DelwarnSendToModlog     	bool
 	DelwarnIncludeWarnReason bool
-	WarnMessage              string `valid:"template,5000"`
+	WarnMessage            	string `valid:"template,5000"`
 
 	// Misc
 	CleanEnabled  bool
@@ -151,13 +151,13 @@ func (c *Config) ToModel() *models.ModerationConfig {
 		UnmuteMessage:           null.StringFrom(c.UnmuteMessage),
 		DefaultMuteDuration:     c.DefaultMuteDuration,
 
-		WarnCommandsEnabled:      null.BoolFrom(c.WarnCommandsEnabled),
-		WarnCmdRoles:             c.WarnCmdRoles,
-		WarnIncludeChannelLogs:   null.BoolFrom(c.WarnIncludeChannelLogs),
-		WarnSendToModlog:         null.BoolFrom(c.WarnSendToModlog),
-		DelwarnSendToModlog:      c.DelwarnSendToModlog,
+		WarnCommandsEnabled:    null.BoolFrom(c.WarnCommandsEnabled),
+		WarnCmdRoles:           c.WarnCmdRoles,
+		WarnIncludeChannelLogs: null.BoolFrom(c.WarnIncludeChannelLogs),
+		WarnSendToModlog:       null.BoolFrom(c.WarnSendToModlog),
+		DelwarnSendToModlog:     c.DelwarnSendToModlog,
 		DelwarnIncludeWarnReason: c.DelwarnIncludeWarnReason,
-		WarnMessage:              null.StringFrom(c.WarnMessage),
+		WarnMessage:            null.StringFrom(c.WarnMessage),
 
 		CleanEnabled:  null.BoolFrom(c.CleanEnabled),
 		ReportEnabled: null.BoolFrom(c.ReportEnabled),
@@ -218,13 +218,13 @@ func configFromModel(model *models.ModerationConfig) *Config {
 		UnmuteMessage:           model.UnmuteMessage.String,
 		DefaultMuteDuration:     model.DefaultMuteDuration,
 
-		WarnCommandsEnabled:      model.WarnCommandsEnabled.Bool,
-		WarnCmdRoles:             model.WarnCmdRoles,
-		WarnIncludeChannelLogs:   model.WarnIncludeChannelLogs.Bool,
-		WarnSendToModlog:         model.WarnSendToModlog.Bool,
-		DelwarnSendToModlog:      model.DelwarnSendToModlog,
+		WarnCommandsEnabled:    model.WarnCommandsEnabled.Bool,
+		WarnCmdRoles:           model.WarnCmdRoles,
+		WarnIncludeChannelLogs: model.WarnIncludeChannelLogs.Bool,
+		WarnSendToModlog:       model.WarnSendToModlog.Bool,
+		DelwarnSendToModlog:     model.DelwarnSendToModlog,
 		DelwarnIncludeWarnReason: model.DelwarnIncludeWarnReason,
-		WarnMessage:              model.WarnMessage.String,
+		WarnMessage:            model.WarnMessage.String,
 
 		CleanEnabled:  model.CleanEnabled.Bool,
 		ReportEnabled: model.ReportEnabled.Bool,

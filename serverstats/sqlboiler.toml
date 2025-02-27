@@ -3,9 +3,9 @@ no-hooks="true"
 no-tests="true"
 
 [psql]
-dbname="syzygy"
+dbname="sgpdb"
 host="localhost"
-user="syzygy"
+user="sgpdb"
 pass="ihateducks"
 sslmode="disable"
 whitelist=["server_stats_periods", "server_stats_configs", "server_stats_member_periods"]

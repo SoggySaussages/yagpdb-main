@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/SoggySaussages/syzygy/lib/discordgo"
+	"github.com/botlabs-gg/sgpdb/v2/lib/discordgo"
 )
 
 var (

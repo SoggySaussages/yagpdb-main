@@ -6,14 +6,14 @@ package commands
 import (
 	"context"
 
-	"github.com/SoggySaussages/syzygy/bot/eventsystem"
-	"github.com/SoggySaussages/syzygy/commands/models"
-	"github.com/SoggySaussages/syzygy/common"
-	"github.com/SoggySaussages/syzygy/common/config"
-	"github.com/SoggySaussages/syzygy/common/featureflags"
-	prfx "github.com/SoggySaussages/syzygy/common/prefix"
-	"github.com/SoggySaussages/syzygy/lib/dcmd"
-	"github.com/SoggySaussages/syzygy/lib/discordgo"
+	"github.com/botlabs-gg/sgpdb/v2/bot/eventsystem"
+	"github.com/botlabs-gg/sgpdb/v2/commands/models"
+	"github.com/botlabs-gg/sgpdb/v2/common"
+	"github.com/botlabs-gg/sgpdb/v2/common/config"
+	"github.com/botlabs-gg/sgpdb/v2/common/featureflags"
+	prfx "github.com/botlabs-gg/sgpdb/v2/common/prefix"
+	"github.com/botlabs-gg/sgpdb/v2/lib/dcmd"
+	"github.com/botlabs-gg/sgpdb/v2/lib/discordgo"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 
@@ -32,7 +32,7 @@ const (
 type MessageFilterFunc func(evt *eventsystem.EventData, msg *discordgo.Message) bool
 
 var (
-	confSetTyping = config.RegisterOption("syzygy.commands.typing", "Wether to set typing or not when running commands", true)
+	confSetTyping = config.RegisterOption("sgpdb.commands.typing", "Wether to set typing or not when running commands", true)
 )
 
 // These functions are called on every message, and should return true if the message should be checked for commands, false otherwise

@@ -1,6 +1,6 @@
 package ru
 
-import "github.com/SoggySaussages/syzygy/lib/when/rules"
+import "github.com/botlabs-gg/sgpdb/v2/lib/when/rules"
 
 var All = []rules.Rule{
 	Weekday(rules.Override),

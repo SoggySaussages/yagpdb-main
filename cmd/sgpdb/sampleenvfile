@@ -1,128 +1,128 @@
 #!/bin/bash
 
 # General discord stuff
-SYZYGY_OWNER="Insert owner id here"
-SYZYGY_CLIENTID="Insert client id here"
-SYZYGY_CLIENTSECRET="Insert client secret here"
-SYZYGY_BOTTOKEN="Bot token_here"
+SGPDB_OWNER="Insert owner id here"
+SGPDB_CLIENTID="Insert client id here"
+SGPDB_CLIENTSECRET="Insert client secret here"
+SGPDB_BOTTOKEN="Bot token_here"
 
 # Used for the website, required for https and csrf protection
-SYZYGY_HOST="somehost.com"
-SYZYGY_EMAIL="insert@email.here"
+SGPDB_HOST="somehost.com"
+SGPDB_EMAIL="insert@email.here"
 
 # Postgres and redis
-SYZYGY_PQHOST="localhost"
-SYZYGY_PQUSERNAME="postgres username"
-SYZYGY_PQPASSWORD="postgres password"
-SYZYGY_PQDB="syzygy"
-SYZYGY_REDIS="redis address"
+SGPDB_PQHOST="localhost"
+SGPDB_PQUSERNAME="postgres username"
+SGPDB_PQPASSWORD="postgres password"
+SGPDB_PQDB="sgpdb"
+SGPDB_REDIS="redis address"
 
 # Set to yes or anything really to run in testing mode (cooldowns, verbose logging, load templates from plugin folders etc..)
-SYZYGY_TESTING=""
+SGPDB_TESTING=""
 
 # This is the max amount of concurrent requests the bot can send to discord
 # If you're running a lot of shards and guilds in the same process (25k+ guilds), and/or have a higher latency, you might need to increase this
 # Recommended setup for a clustered setup of 10 shards per node is around 10 max ccr
 # Defaults to 25
-# SYZYGY_MAX_CCR="25"
+# SGPDB_MAX_CCR="25"
 
 # specify the listen address for the bot's internal REST api, defaults to 127.0.0.1
 # only needs to be changed if you're running the webserver on a different machine than the bot itself
-# SYZYGY_BOTREST_LISTEN_ADDRESS="127.0.0.1"
+# SGPDB_BOTREST_LISTEN_ADDRESS="127.0.0.1"
 
 # Set to enable the memory monitor on the bot, this will attempt to free memory when the system is getting low on memory
 # This is mainly an issue when stuff like large spikes of reconnects with full re-identify flow happening, this will try to mitigate that slightly
-#SYZYGY_ENABLE_MEM_MONITOR="true"
+#SGPDB_ENABLE_MEM_MONITOR="true"
 
 #######################################
 # Clustering / Shard orchestrator mode
 #######################################
 # Uncomment to enable cluster/shard orchestrator mode, dont do this unless you know what that is
-# SYZYGY_ORCHESTRATOR_ADDRESS="127.0.0.1:7447"
-# SYZYGY_SHARDING_TOTAL_SHARDS="required for clustered mode"
+# SGPDB_ORCHESTRATOR_ADDRESS="127.0.0.1:7447"
+# SGPDB_SHARDING_TOTAL_SHARDS="required for clustered mode"
 #
 # For running in multiple host mode, how that works is you run 1 shard orchestrator per host, then have that orchestrator be responsible for a subset of the shards
-# SYZYGY_SHARDING_ACTIVE_SHARDS
+# SGPDB_SHARDING_ACTIVE_SHARDS
 
 ###################################################################
 # Plugins and various other optional features below, not required #
 ###################################################################
 
 # Administration
-# Used for SYZYGY_ADMINROLE and readonlyaccesrole
-SYZYGY_MAIN_SERVER=""
+# Used for SGPDB_ADMINROLE and readonlyaccesrole
+SGPDB_MAIN_SERVER=""
 # Admins have full access to admin only commands
-SYZYGY_ADMIN_ROLE=""
+SGPDB_ADMIN_ROLE=""
 # Users in the main server with this role can access the control panel page of any server, but they can't modify any settings
-SYZYGY_READONLY_ACCESS_ROLE=""
+SGPDB_READONLY_ACCESS_ROLE=""
 
 # Send discord gateway connection events to a discord channel
-SYZYGY_CONNEVT_CHANNEL=""
+SGPDB_CONNEVT_CHANNEL=""
 # Send connection status to a discord channel
-SYZYGY_CONNSTATUS_CHANNEL=""
+SGPDB_CONNSTATUS_CHANNEL=""
 
 # Bot leaves joins to this channel
-SYZYGY_BOTLEAVESJOINS=""
+SGPDB_BOTLEAVESJOINS=""
 
 # Set to anything to disable the request logging of the webserver
-SYZYGY_DISABLE_REQUEST_LOGGING=""
+SGPDB_DISABLE_REQUEST_LOGGING=""
 
 # Aylien
-SYZYGY_AYLIENAPPID="aylien app id here"
-SYZYGY_AYLIENAPPKEY="aylien app key here"
+SGPDB_AYLIENAPPID="aylien app id here"
+SGPDB_AYLIENAPPKEY="aylien app key here"
 
 # Owlbot
-SYZYGY_OWLBOT_TOKEN=
+SGPDB_OWLBOT_TOKEN=
 
 # Reddit
 # You'll need to get a permanent refresh token using a script or something, i should probably make a easy way to do it but eh...
-SYZYGY_REDDIT_CLIENTID="Reddit application clientid here"
-SYZYGY_REDDIT_CLIENTSECRET="Reddit application client secret here"
-SYZYGY_REDDIT_REDIRECT="Reddit redirect uri here"
-SYZYGY_REDDIT_REFRESHTOKEN="Reddit never-ending refreshtoken here (duration=permanent)"
+SGPDB_REDDIT_CLIENTID="Reddit application clientid here"
+SGPDB_REDDIT_CLIENTSECRET="Reddit application client secret here"
+SGPDB_REDDIT_REDIRECT="Reddit redirect uri here"
+SGPDB_REDDIT_REFRESHTOKEN="Reddit never-ending refreshtoken here (duration=permanent)"
 
 # Youtube and other google apis credentials json file
 GOOGLE_APPLICATION_CREDENTIALS="path/to/credentials.json"
-SYZYGY_GOOGLE_SAFEBROWSING_API_KEY=""
-SYZYGY_GOOGLE_RECAPTCHA_SITE_KEY=""
-SYZYGY_GOOGLE_RECAPTCHA_SECRET=""
+SGPDB_GOOGLE_SAFEBROWSING_API_KEY=""
+SGPDB_GOOGLE_RECAPTCHA_SITE_KEY=""
+SGPDB_GOOGLE_RECAPTCHA_SECRET=""
 
 # This will be used as the pubsubhubbub (websub) verify token when receiving callbacks on new video uploads
 # if this gets leaked, people could spam stuff
-SYZYGY_YOUTUBE_VERIFY_TOKEN="token_goes_here"
+SGPDB_YOUTUBE_VERIFY_TOKEN="token_goes_here"
 
 ## These variables are for displaying an ad in the sidebar
 # Leave empty for nothing
 # Path to ad image (it's automatically prefixed with / because msys64 kept messing with my path in my dev env)
-SYZYGY_AD_IMG_PATH=
+SGPDB_AD_IMG_PATH=
 # Alternative, comma seperated list of paths
-SYZYGY_AD_VIDEO_PATHS=
+SGPDB_AD_VIDEO_PATHS=
 
 # Where clicking on the image sends you
-SYZYGY_AD_LINK=
+SGPDB_AD_LINK=
 #Dimensions
-SYZYGY_AD_H=
-SYZYGY_AD_W=
+SGPDB_AD_H=
+SGPDB_AD_W=
 
 # Google analytics ID
-SYZYGY_GA_ID=""
+SGPDB_GA_ID=""
 
 # The feed on /managed
-SYZYGY_ANNOUNCEMENTS_CHANNEL=""
+SGPDB_ANNOUNCEMENTS_CHANNEL=""
 
 # Pass a api key to list pledges on your patreon on the website
 # This refresh token will only work and will only be used once, the api returns a new token which we store in redis
 # under the patreon_refresh_token key, therefor if you wipe redis you will have to update this refresh token again
-SYZYGY_PATREON_API_REFRESH_TOKEN=""
-SYZYGY_PATREON_API_CLIENT_ID=""
-SYZYGY_PATREON_API_CLIENT_SECRET=""
+SGPDB_PATREON_API_REFRESH_TOKEN=""
+SGPDB_PATREON_API_CLIENT_ID=""
+SGPDB_PATREON_API_CLIENT_SECRET=""
 
 
-SYZYGY_GOOGLE_RECAPTCHA_SITE_KEY=""
-SYZYGY_GOOGLE_RECAPTCHA_SECRET=""
+SGPDB_GOOGLE_RECAPTCHA_SITE_KEY=""
+SGPDB_GOOGLE_RECAPTCHA_SECRET=""
 
 # Twitter API credentials for twitter feeds
-# SYZYGY_TWITTER_ACCESS_TOKEN=
-# SYZYGY_TWITTER_ACCESS_TOKEN_SECRET=
-# SYZYGY_TWITTER_CONSUMER_KEY=
-# SYZYGY_TWITTER_CONSUMER_SECRET=
+# SGPDB_TWITTER_ACCESS_TOKEN=
+# SGPDB_TWITTER_ACCESS_TOKEN_SECRET=
+# SGPDB_TWITTER_CONSUMER_KEY=
+# SGPDB_TWITTER_CONSUMER_SECRET=
