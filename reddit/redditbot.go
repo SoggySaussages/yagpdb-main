@@ -10,14 +10,14 @@ import (
 	"sync"
 	"time"
 
-	"github.com/botlabs-gg/sgpdb/v2/analytics"
-	"github.com/botlabs-gg/sgpdb/v2/common"
-	"github.com/botlabs-gg/sgpdb/v2/common/config"
-	"github.com/botlabs-gg/sgpdb/v2/common/mqueue"
-	"github.com/botlabs-gg/sgpdb/v2/feeds"
-	"github.com/botlabs-gg/sgpdb/v2/lib/discordgo"
-	"github.com/botlabs-gg/sgpdb/v2/lib/go-reddit"
-	"github.com/botlabs-gg/sgpdb/v2/reddit/models"
+	"github.com/SoggySaussages/syzygy/analytics"
+	"github.com/SoggySaussages/syzygy/common"
+	"github.com/SoggySaussages/syzygy/common/config"
+	"github.com/SoggySaussages/syzygy/common/mqueue"
+	"github.com/SoggySaussages/syzygy/feeds"
+	"github.com/SoggySaussages/syzygy/lib/discordgo"
+	"github.com/SoggySaussages/syzygy/lib/go-reddit"
+	"github.com/SoggySaussages/syzygy/reddit/models"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
@@ -25,13 +25,13 @@ import (
 )
 
 var (
-	confClientID     = config.RegisterOption("sgpdb.reddit.clientid", "Client ID for the reddit api application", "")
-	confClientSecret = config.RegisterOption("sgpdb.reddit.clientsecret", "Client Secret for the reddit api application", "")
-	confRedirectURI  = config.RegisterOption("sgpdb.reddit.redirect", "Redirect URI for the reddit api application", "")
-	confRefreshToken = config.RegisterOption("sgpdb.reddit.refreshtoken", "RefreshToken for the reddit api application, you need to ackquire this manually, should be set to permanent", "")
+	confClientID     = config.RegisterOption("syzygy.reddit.clientid", "Client ID for the reddit api application", "")
+	confClientSecret = config.RegisterOption("syzygy.reddit.clientsecret", "Client Secret for the reddit api application", "")
+	confRedirectURI  = config.RegisterOption("syzygy.reddit.redirect", "Redirect URI for the reddit api application", "")
+	confRefreshToken = config.RegisterOption("syzygy.reddit.refreshtoken", "RefreshToken for the reddit api application, you need to ackquire this manually, should be set to permanent", "")
 
-	confMaxPostsHourFast = config.RegisterOption("sgpdb.reddit.fast_max_posts_hour", "Max posts per hour per guild for fast feed", 60)
-	confMaxPostsHourSlow = config.RegisterOption("sgpdb.reddit.slow_max_posts_hour", "Max posts per hour per guild for slow feed", 120)
+	confMaxPostsHourFast = config.RegisterOption("syzygy.reddit.fast_max_posts_hour", "Max posts per hour per guild for fast feed", 60)
+	confMaxPostsHourSlow = config.RegisterOption("syzygy.reddit.slow_max_posts_hour", "Max posts per hour per guild for slow feed", 120)
 
 	feedLock sync.Mutex
 	fastFeed *PostFetcher
@@ -71,7 +71,7 @@ func (p *Plugin) StopFeed(wg *sync.WaitGroup) {
 }
 
 func UserAgent() string {
-	return fmt.Sprintf("SGPDB:%s:%s (by /u/jonas747)", confClientID.GetString(), common.VERSION)
+	return fmt.Sprintf("SYZYGY:%s:%s (by /u/jonas747)", confClientID.GetString(), common.VERSION)
 }
 
 func setupClient() *reddit.Client {
@@ -84,7 +84,7 @@ func setupClient() *reddit.Client {
 func (p *Plugin) runBot() {
 	feedLock.Lock()
 
-	if os.Getenv("SGPDB_REDDIT_FAST_FEED_DISABLED") == "" {
+	if os.Getenv("SYZYGY_REDDIT_FAST_FEED_DISABLED") == "" {
 		fastFeed = NewPostFetcher(p.redditClient, false, NewPostHandler(false))
 		go fastFeed.Run()
 	}
@@ -202,7 +202,7 @@ func (p *PostHandlerImpl) handlePost(post *reddit.Link, filterGuild int64) error
 	for _, item := range filteredItems {
 		idStr := strconv.FormatInt(item.ID, 10)
 
-		webhookUsername := "Reddit • SGPDB"
+		webhookUsername := "Reddit • SYZYGY"
 
 		qm := &mqueue.QueuedElement{
 			GuildID:         item.GuildID,

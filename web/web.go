@@ -12,13 +12,13 @@ import (
 	"time"
 
 	"github.com/NYTimes/gziphandler"
-	"github.com/botlabs-gg/sgpdb/v2/common"
-	"github.com/botlabs-gg/sgpdb/v2/common/config"
-	"github.com/botlabs-gg/sgpdb/v2/common/patreon"
-	yagtmpl "github.com/botlabs-gg/sgpdb/v2/common/templates"
-	"github.com/botlabs-gg/sgpdb/v2/frontend"
-	"github.com/botlabs-gg/sgpdb/v2/lib/discordgo"
-	"github.com/botlabs-gg/sgpdb/v2/web/discordblog"
+	"github.com/SoggySaussages/syzygy/common"
+	"github.com/SoggySaussages/syzygy/common/config"
+	"github.com/SoggySaussages/syzygy/common/patreon"
+	yagtmpl "github.com/SoggySaussages/syzygy/common/templates"
+	"github.com/SoggySaussages/syzygy/frontend"
+	"github.com/SoggySaussages/syzygy/lib/discordgo"
+	"github.com/SoggySaussages/syzygy/web/discordblog"
 	"github.com/natefinch/lumberjack"
 	"goji.io"
 	"goji.io/pat"
@@ -39,8 +39,8 @@ var (
 	ServerPublicMux    *goji.Mux
 	ServerPublicAPIMux *goji.Mux
 
-	confListenAddressHTTP  = config.RegisterOption("sgpdb.web.http_address", "Port to listen for HTTP requests on. Overriden by the -pa flag", 5000)
-	confListenAddressHTTPS = config.RegisterOption("sgpdb.web.https_address", "Port to listen for HTTPS requests on. Overriden by the -pa flag", 5001)
+	confListenAddressHTTP  = config.RegisterOption("syzygy.web.http_address", "Port to listen for HTTP requests on. Overriden by the -pa flag", 5000)
+	confListenAddressHTTPS = config.RegisterOption("syzygy.web.https_address", "Port to listen for HTTPS requests on. Overriden by the -pa flag", 5001)
 
 	properAddresses bool
 
@@ -57,19 +57,19 @@ var (
 
 	logger = common.GetFixedPrefixLogger("web")
 
-	confAnnouncementsChannel       = config.RegisterOption("sgpdb.announcements_channel", "Channel to pull announcements from and display on the control panel homepage", 0)
-	confReverseProxyClientIPHeader = config.RegisterOption("sgpdb.web.reverse_proxy_client_ip_header", "If were behind a reverse proxy, this is the header field with the real ip that the proxy passes along", "")
+	confAnnouncementsChannel       = config.RegisterOption("syzygy.announcements_channel", "Channel to pull announcements from and display on the control panel homepage", 0)
+	confReverseProxyClientIPHeader = config.RegisterOption("syzygy.web.reverse_proxy_client_ip_header", "If were behind a reverse proxy, this is the header field with the real ip that the proxy passes along", "")
 
-	confAdPath       = config.RegisterOption("sgpdb.ad.img_path", "The ad image ", "")
-	confAdLinkurl    = config.RegisterOption("sgpdb.ad.link", "Link to follow when clicking on the ad", "")
-	confAdWidth      = config.RegisterOption("sgpdb.ad.w", "Ad width", 0)
-	confAdHeight     = config.RegisterOption("sgpdb.ad.h", "Ad Height", 0)
-	ConfAdVideos     = config.RegisterOption("sgpdb.ad.video_paths", "Comma seperated list of video paths in different formats", "")
-	confDemoServerID = config.RegisterOption("sgpdb.web.demo_server_id", "Server ID for live demo links", 0)
+	confAdPath       = config.RegisterOption("syzygy.ad.img_path", "The ad image ", "")
+	confAdLinkurl    = config.RegisterOption("syzygy.ad.link", "Link to follow when clicking on the ad", "")
+	confAdWidth      = config.RegisterOption("syzygy.ad.w", "Ad width", 0)
+	confAdHeight     = config.RegisterOption("syzygy.ad.h", "Ad Height", 0)
+	ConfAdVideos     = config.RegisterOption("syzygy.ad.video_paths", "Comma seperated list of video paths in different formats", "")
+	confDemoServerID = config.RegisterOption("syzygy.web.demo_server_id", "Server ID for live demo links", 0)
 
-	ConfAdsTxt = config.RegisterOption("sgpdb.ads.ads_txt", "Path to the ads.txt file for monetization using ad networks", "")
+	ConfAdsTxt = config.RegisterOption("syzygy.ads.ads_txt", "Path to the ads.txt file for monetization using ad networks", "")
 
-	confDisableRequestLogging = config.RegisterOption("sgpdb.disable_request_logging", "Disable logging of http requests to web server", false)
+	confDisableRequestLogging = config.RegisterOption("syzygy.disable_request_logging", "Disable logging of http requests to web server", false)
 
 	// can be overriden by plugins
 	// main prurpose is to plug in a onboarding process through a properietary plugin
@@ -217,7 +217,7 @@ func IsAcceptingRequests() bool {
 
 func runServers(mainMuxer *goji.Mux) {
 	if !https {
-		logger.Info("Starting sgpdb web server http:", ListenAddressHTTP)
+		logger.Info("Starting syzygy web server http:", ListenAddressHTTP)
 
 		server := &http.Server{
 			Addr:        ListenAddressHTTP,
@@ -230,7 +230,7 @@ func runServers(mainMuxer *goji.Mux) {
 			logger.Error("Failed http ListenAndServe:", err)
 		}
 	} else {
-		logger.Info("Starting sgpdb web server http:", ListenAddressHTTP, ", and https:", ListenAddressHTTPS)
+		logger.Info("Starting syzygy web server http:", ListenAddressHTTP, ", and https:", ListenAddressHTTPS)
 
 		cache := autocert.DirCache("cert")
 

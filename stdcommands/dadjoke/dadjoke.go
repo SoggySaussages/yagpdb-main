@@ -5,8 +5,8 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/botlabs-gg/sgpdb/v2/commands"
-	"github.com/botlabs-gg/sgpdb/v2/lib/dcmd"
+	"github.com/SoggySaussages/syzygy/commands"
+	"github.com/SoggySaussages/syzygy/lib/dcmd"
 )
 
 type Joke struct {
@@ -29,7 +29,7 @@ var Command = &commands.YAGCommand{
 		}
 		//Set the headers that will be sent to the API to determine the response.
 		req.Header.Set("Accept", "application/json")
-		req.Header.Add("User-Agent", "SGPDB.xyz (https://github.com/botlabs-gg/sgpdb)")
+		req.Header.Add("User-Agent", "SYZYGY.xyz (https://github.com/SoggySaussages/syzygy)")
 
 		apiResp, err := http.DefaultClient.Do(req)
 		if err != nil {

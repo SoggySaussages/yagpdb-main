@@ -4,8 +4,8 @@ import (
 	"time"
 
 	"emperror.dev/errors"
-	"github.com/botlabs-gg/sgpdb/v2/common"
-	"github.com/botlabs-gg/sgpdb/v2/premium"
+	"github.com/SoggySaussages/syzygy/common"
+	"github.com/SoggySaussages/syzygy/premium"
 )
 
 func StartMigrationToV2Format() error {

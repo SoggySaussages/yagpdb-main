@@ -11,13 +11,13 @@ import (
 	"strings"
 	"time"
 
-	"github.com/botlabs-gg/sgpdb/v2/common"
-	"github.com/botlabs-gg/sgpdb/v2/common/cplogs"
-	"github.com/botlabs-gg/sgpdb/v2/common/pubsub"
-	"github.com/botlabs-gg/sgpdb/v2/lib/discordgo"
-	"github.com/botlabs-gg/sgpdb/v2/premium"
-	"github.com/botlabs-gg/sgpdb/v2/serverstats/models"
-	"github.com/botlabs-gg/sgpdb/v2/web"
+	"github.com/SoggySaussages/syzygy/common"
+	"github.com/SoggySaussages/syzygy/common/cplogs"
+	"github.com/SoggySaussages/syzygy/common/pubsub"
+	"github.com/SoggySaussages/syzygy/lib/discordgo"
+	"github.com/SoggySaussages/syzygy/premium"
+	"github.com/SoggySaussages/syzygy/serverstats/models"
+	"github.com/SoggySaussages/syzygy/web"
 	"github.com/karlseguin/rcache"
 	"github.com/volatiletech/null/v8"
 	"github.com/volatiletech/sqlboiler/v4/boil"
@@ -233,7 +233,7 @@ func emptyChartData() *ChartResponse {
 }
 
 func CacheGetCharts(guildID int64, days int, ctx context.Context) *ChartResponse {
-	if os.Getenv("SGPDB_SERVERSTATS_DISABLE_SERVERSTATS") != "" {
+	if os.Getenv("SYZYGY_SERVERSTATS_DISABLE_SERVERSTATS") != "" {
 		return emptyChartData()
 	}
 

@@ -8,9 +8,9 @@ import (
 	"reflect"
 	"strconv"
 
+	"github.com/SoggySaussages/syzygy/lib/dstate"
 	"github.com/anthropics/anthropic-sdk-go"
 	"github.com/anthropics/anthropic-sdk-go/option"
-	"github.com/botlabs-gg/sgpdb/v2/lib/dstate"
 )
 
 type GenAIProviderAnthropic struct{}
@@ -248,7 +248,7 @@ var GenAIProviderAnthropicWebData = &GenAIProviderWebDescriptions{
 	Create an API key on <a href="https://console.anthropic.com/settings/keys">Anthropic's Dashboard</a>. Give it a name and click <strong>Create</strong>.
 	<br>
 	<br>
-	Step five: Copy the API key to SGPDB.
+	Step five: Copy the API key to SYZYGY.
 	<br>
 	Click copy, then paste the new API key into the "API Key" field on this page.`),
 	ModelDescriptionsURL: "https://platform.anthropic.com/docs/models",

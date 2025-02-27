@@ -1,17 +1,17 @@
 # Just some stuff
-cmd/sgpdb/static/bower_components
-cmd/sgpdb/static/pages
-cmd/sgpdb/static/index.html
-cmd/sgpdb/cert
-cmd/sgpdb/access_log
-cmd/sgpdb/access.log
-cmd/sgpdb/static/report.html
-cmd/sgpdb/sgpdb
-cmd/sgpdb/templates/plugins/*.html
-cmd/sgpdb/soundboard
-cmd/sgpdb/shutdown_logs
-cmd/sgpdb/safebrowsing_db
-cmd/sgpdb/static/video/*
+cmd/syzygy/static/bower_components
+cmd/syzygy/static/pages
+cmd/syzygy/static/index.html
+cmd/syzygy/cert
+cmd/syzygy/access_log
+cmd/syzygy/access.log
+cmd/syzygy/static/report.html
+cmd/syzygy/syzygy
+cmd/syzygy/templates/plugins/*.html
+cmd/syzygy/soundboard
+cmd/syzygy/shutdown_logs
+cmd/syzygy/safebrowsing_db
+cmd/syzygy/static/video/*
 
 cmd/capturepanics/capturepanics
 cmd/shardorchestrator/shardorchestrator

@@ -10,12 +10,12 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/botlabs-gg/sgpdb/v2/common"
-	"github.com/botlabs-gg/sgpdb/v2/common/cplogs"
-	"github.com/botlabs-gg/sgpdb/v2/common/pubsub"
-	"github.com/botlabs-gg/sgpdb/v2/lib/discordgo"
-	"github.com/botlabs-gg/sgpdb/v2/reddit/models"
-	"github.com/botlabs-gg/sgpdb/v2/web"
+	"github.com/SoggySaussages/syzygy/common"
+	"github.com/SoggySaussages/syzygy/common/cplogs"
+	"github.com/SoggySaussages/syzygy/common/pubsub"
+	"github.com/SoggySaussages/syzygy/lib/discordgo"
+	"github.com/SoggySaussages/syzygy/reddit/models"
+	"github.com/SoggySaussages/syzygy/web"
 	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 	"goji.io"
@@ -93,7 +93,7 @@ func baseData(inner http.Handler) http.Handler {
 		templateData["VisibleURL"] = "/manage/" + discordgo.StrID(activeGuild.ID) + "/reddit/"
 
 		feeds, err := models.RedditFeeds(models.RedditFeedWhere.GuildID.EQ(activeGuild.ID)).AllG(ctx)
-		if web.CheckErr(templateData, err, "Failed retrieving config, message support in the sgpdb server", web.CtxLogger(ctx).Error) {
+		if web.CheckErr(templateData, err, "Failed retrieving config, message support in the syzygy server", web.CtxLogger(ctx).Error) {
 			web.LogIgnoreErr(web.Templates.ExecuteTemplate(w, "cp_reddit", templateData))
 		} else {
 			sort.Slice(feeds, func(i, j int) bool {

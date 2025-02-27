@@ -4,11 +4,11 @@ import (
 	"sync"
 	"time"
 
-	"github.com/botlabs-gg/sgpdb/v2/bot"
-	"github.com/botlabs-gg/sgpdb/v2/common/config"
+	"github.com/SoggySaussages/syzygy/bot"
+	"github.com/SoggySaussages/syzygy/common/config"
 )
 
-var confMaxConcurrentSends = config.RegisterOption("sgpdb.mqueue.max_concurrent_sends", "Max number of concurrent sends that mqueue will do", 3)
+var confMaxConcurrentSends = config.RegisterOption("syzygy.mqueue.max_concurrent_sends", "Max number of concurrent sends that mqueue will do", 3)
 
 type workItem struct {
 	Elem *QueuedElement

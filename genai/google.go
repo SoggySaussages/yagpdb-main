@@ -11,7 +11,7 @@ import (
 	"strings"
 
 	google "cloud.google.com/go/vertexai/genai"
-	"github.com/botlabs-gg/sgpdb/v2/lib/dstate"
+	"github.com/SoggySaussages/syzygy/lib/dstate"
 	"google.golang.org/api/option"
 )
 
@@ -322,7 +322,7 @@ var GenAIProviderGoogleWebData = &GenAIProviderWebDescriptions{
 	After creating your new key, the credentials file will be downloaded to your device. Find that file and open it. You should see a bunch of text starting with <code>"type": "service_account"</code>.
 	<br>
 	<br>
-	Step nine: Copy the API key to SGPDB.
+	Step nine: Copy the API key to SYZYGY.
 	<br>
 	You must select the <strong>entire contents</strong> of your file (not the name, all the text inside the file), and then copy it. Then, paste the <strong>entire</strong> file into the "API Key" field on this page.`),
 	ModelDescriptionsURL: "https://ai.google.dev/pricing",

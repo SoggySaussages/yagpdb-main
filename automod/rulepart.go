@@ -4,9 +4,9 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/botlabs-gg/sgpdb/v2/automod/models"
-	"github.com/botlabs-gg/sgpdb/v2/lib/discordgo"
-	"github.com/botlabs-gg/sgpdb/v2/lib/dstate"
+	"github.com/SoggySaussages/syzygy/automod/models"
+	"github.com/SoggySaussages/syzygy/lib/discordgo"
+	"github.com/SoggySaussages/syzygy/lib/dstate"
 )
 
 // maps rule part indentifiers to actual condition types

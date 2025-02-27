@@ -1,7 +1,7 @@
 package node
 
 import (
-	"github.com/botlabs-gg/sgpdb/v2/lib/dshardorchestrator"
+	"github.com/SoggySaussages/syzygy/lib/dshardorchestrator"
 )
 
 type SessionInfo struct {

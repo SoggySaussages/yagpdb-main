@@ -9,11 +9,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/botlabs-gg/sgpdb/v2/bot/paginatedmessages"
-	"github.com/botlabs-gg/sgpdb/v2/commands"
-	"github.com/botlabs-gg/sgpdb/v2/common"
-	"github.com/botlabs-gg/sgpdb/v2/lib/dcmd"
-	"github.com/botlabs-gg/sgpdb/v2/lib/discordgo"
+	"github.com/SoggySaussages/syzygy/bot/paginatedmessages"
+	"github.com/SoggySaussages/syzygy/commands"
+	"github.com/SoggySaussages/syzygy/common"
+	"github.com/SoggySaussages/syzygy/lib/dcmd"
+	"github.com/SoggySaussages/syzygy/lib/discordgo"
 
 	"golang.org/x/text/language"
 	"golang.org/x/text/message"

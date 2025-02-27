@@ -2,7 +2,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "SGPDB Docker Debug",
+            "name": "SYZYGY Docker Debug",
             "type": "go",
             "request": "attach",
             "port": 4000,
@@ -10,18 +10,18 @@
             "cwd": "${workspaceRoot}",
             "showLog": true,
             "mode": "remote",
-            "remotePath": "/app/sgpdb/",
+            "remotePath": "/app/syzygy/",
             "substitutePath": [
-                { "from": "${workspaceFolder}", "to": "/app/sgpdb" },
+                { "from": "${workspaceFolder}", "to": "/app/syzygy" },
             ]
         }, {
-          "name": "SGPDB Local Debug",
+          "name": "SYZYGY Local Debug",
           "type":"go",
           "request": "launch",
           "mode": "debug",
           "envFile": "${workspaceFolder}/app.env",
-          "program": "${workspaceFolder}/cmd/sgpdb/main.go",
-          "output": "${workspaceFolder}/cmd/sgpdb/sgpdb",
+          "program": "${workspaceFolder}/cmd/syzygy/main.go",
+          "output": "${workspaceFolder}/cmd/syzygy/syzygy",
           "args": ["-all","https=false"]
         }
     ]

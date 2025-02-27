@@ -1,6 +1,6 @@
 {
-    "name": "SGPDB",
-    "short_name": "SGPDB",
+    "name": "SYZYGY",
+    "short_name": "SYZYGY",
     "icons": [
         {
             "src": "/static/icons/android-chrome-192x192.png?v=6",

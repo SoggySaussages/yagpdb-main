@@ -6,8 +6,8 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"github.com/botlabs-gg/sgpdb/v2/common"
-	"github.com/botlabs-gg/sgpdb/v2/common/config"
+	"github.com/SoggySaussages/syzygy/common"
+	"github.com/SoggySaussages/syzygy/common/config"
 	"github.com/google/safebrowsing"
 	"github.com/sirupsen/logrus"
 )
@@ -16,7 +16,7 @@ var SafeBrowser *safebrowsing.SafeBrowser
 
 var ErrNoSafebrowsingAPIKey = errors.New("no safebrowsing api key provided")
 
-var confSafebrowsingAPIKey = config.RegisterOption("sgpdb.google.safebrowsing_api_key", "Google safebrowsing API Key", "")
+var confSafebrowsingAPIKey = config.RegisterOption("syzygy.google.safebrowsing_api_key", "Google safebrowsing API Key", "")
 
 func runDatabase() error {
 	safebrowsingAPIKey := confSafebrowsingAPIKey.GetString()

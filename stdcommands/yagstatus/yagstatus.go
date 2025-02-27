@@ -5,11 +5,11 @@ import (
 	"runtime"
 	"time"
 
-	"github.com/botlabs-gg/sgpdb/v2/bot"
-	"github.com/botlabs-gg/sgpdb/v2/commands"
-	"github.com/botlabs-gg/sgpdb/v2/common"
-	"github.com/botlabs-gg/sgpdb/v2/lib/dcmd"
-	"github.com/botlabs-gg/sgpdb/v2/lib/discordgo"
+	"github.com/SoggySaussages/syzygy/bot"
+	"github.com/SoggySaussages/syzygy/commands"
+	"github.com/SoggySaussages/syzygy/common"
+	"github.com/SoggySaussages/syzygy/lib/dcmd"
+	"github.com/SoggySaussages/syzygy/lib/discordgo"
 	"github.com/shirou/gopsutil/load"
 	"github.com/shirou/gopsutil/mem"
 )
@@ -19,7 +19,7 @@ var Command = &commands.YAGCommand{
 	CmdCategory: commands.CategoryDebug,
 	Name:        "Yagstatus",
 	Aliases:     []string{"status"},
-	Description: "Shows sgpdb status, version, uptime, memory stats, and so on",
+	Description: "Shows syzygy status, version, uptime, memory stats, and so on",
 	RunInDM:     true,
 	RunFunc:     cmdFuncYagStatus,
 }
@@ -63,7 +63,7 @@ func cmdFuncYagStatus(data *dcmd.Data) (interface{}, error) {
 			Name:    botUser.Username,
 			IconURL: discordgo.EndpointUserAvatar(botUser.ID, botUser.Avatar),
 		},
-		Title: "SGPDB Status, version " + common.VERSION,
+		Title: "SYZYGY Status, version " + common.VERSION,
 		Fields: []*discordgo.MessageEmbedField{
 			{Name: "Servers", Value: fmt.Sprint(servers), Inline: true},
 			{Name: "Go Version", Value: runtime.Version(), Inline: true},

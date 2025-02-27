@@ -6,9 +6,9 @@ import (
 	"os"
 	"testing"
 
-	"github.com/botlabs-gg/sgpdb/v2/common"
+	"github.com/SoggySaussages/syzygy/common"
 
-	"github.com/botlabs-gg/sgpdb/v2/common/testutils"
+	"github.com/SoggySaussages/syzygy/common/testutils"
 )
 
 var db *sql.DB

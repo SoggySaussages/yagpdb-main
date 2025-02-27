@@ -1,6 +1,6 @@
 # Soundboard
 
-Soundboard plugin for SGPDB
+Soundboard plugin for SYZYGY
 
 Folder structure:
 

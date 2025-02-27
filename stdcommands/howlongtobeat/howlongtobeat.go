@@ -6,10 +6,10 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/botlabs-gg/sgpdb/v2/bot/paginatedmessages"
-	"github.com/botlabs-gg/sgpdb/v2/commands"
-	"github.com/botlabs-gg/sgpdb/v2/lib/dcmd"
-	"github.com/botlabs-gg/sgpdb/v2/lib/discordgo"
+	"github.com/SoggySaussages/syzygy/bot/paginatedmessages"
+	"github.com/SoggySaussages/syzygy/commands"
+	"github.com/SoggySaussages/syzygy/lib/dcmd"
+	"github.com/SoggySaussages/syzygy/lib/discordgo"
 )
 
 type hltb struct {

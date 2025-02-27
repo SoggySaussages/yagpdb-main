@@ -3,7 +3,7 @@ package run
 import (
 	"log/syslog"
 
-	"github.com/botlabs-gg/sgpdb/v2/common"
+	"github.com/SoggySaussages/syzygy/common"
 	"github.com/sirupsen/logrus"
 	lsyslog "github.com/sirupsen/logrus/hooks/syslog"
 )

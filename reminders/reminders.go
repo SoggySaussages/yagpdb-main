@@ -6,12 +6,12 @@ import (
 	"strings"
 	"time"
 
-	"github.com/botlabs-gg/sgpdb/v2/bot"
-	"github.com/botlabs-gg/sgpdb/v2/common"
-	"github.com/botlabs-gg/sgpdb/v2/common/mqueue"
-	"github.com/botlabs-gg/sgpdb/v2/common/scheduledevents2"
-	"github.com/botlabs-gg/sgpdb/v2/lib/discordgo"
-	"github.com/botlabs-gg/sgpdb/v2/reminders/models"
+	"github.com/SoggySaussages/syzygy/bot"
+	"github.com/SoggySaussages/syzygy/common"
+	"github.com/SoggySaussages/syzygy/common/mqueue"
+	"github.com/SoggySaussages/syzygy/common/scheduledevents2"
+	"github.com/SoggySaussages/syzygy/lib/discordgo"
+	"github.com/SoggySaussages/syzygy/reminders/models"
 	"github.com/sirupsen/logrus"
 	"github.com/volatiletech/sqlboiler/v4/boil"
 )
@@ -40,7 +40,7 @@ func TriggerReminder(r *models.Reminder) error {
 
 	logger.WithFields(logrus.Fields{"channel": r.ChannelID, "user": r.UserID, "message": r.Message, "id": r.ID}).Info("Triggered reminder")
 	embed := &discordgo.MessageEmbed{
-		Title:       "Reminder from SGPDB",
+		Title:       "Reminder from SYZYGY",
 		Description: common.ReplaceServerInvites(r.Message, r.GuildID, "(removed-invite)"),
 	}
 

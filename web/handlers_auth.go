@@ -7,16 +7,16 @@ import (
 	"strings"
 	"time"
 
-	"github.com/botlabs-gg/sgpdb/v2/common"
-	"github.com/botlabs-gg/sgpdb/v2/common/models"
-	"github.com/botlabs-gg/sgpdb/v2/lib/discordgo"
-	"github.com/botlabs-gg/sgpdb/v2/web/discorddata"
+	"github.com/SoggySaussages/syzygy/common"
+	"github.com/SoggySaussages/syzygy/common/models"
+	"github.com/SoggySaussages/syzygy/lib/discordgo"
+	"github.com/SoggySaussages/syzygy/web/discorddata"
 	"github.com/mediocregopher/radix/v3"
 	"golang.org/x/oauth2"
 )
 
 var (
-	SessionCookieName = "sgpdb-session-3"
+	SessionCookieName = "syzygy-session-3"
 	OauthConf         *oauth2.Config
 )
 
@@ -199,7 +199,7 @@ func CreateCookieSession(token *oauth2.Token) (cookie *http.Cookie, err error) {
 
 	cookie = &http.Cookie{
 		// The old cookie name can safely be used after the old format has been phased out (after a day in use)
-		// Name:   "sgpdb-session",
+		// Name:   "syzygy-session",
 		Name:   SessionCookieName,
 		Value:  yagToken,
 		MaxAge: int(cookieExpirey.Seconds()),

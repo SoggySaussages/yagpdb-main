@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/botlabs-gg/sgpdb/v2/lib/dshardorchestrator/orchestrator/rest"
+	"github.com/SoggySaussages/syzygy/lib/dshardorchestrator/orchestrator/rest"
 	"github.com/jedib0t/go-pretty/table"
 	"github.com/mitchellh/cli"
 )

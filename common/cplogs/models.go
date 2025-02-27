@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/botlabs-gg/sgpdb/v2/common"
+	"github.com/SoggySaussages/syzygy/common"
 )
 
 const DBSchema = `

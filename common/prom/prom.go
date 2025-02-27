@@ -8,14 +8,14 @@ import (
 	"time"
 
 	"emperror.dev/errors"
-	"github.com/botlabs-gg/sgpdb/v2/common/config"
+	"github.com/SoggySaussages/syzygy/common/config"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/sirupsen/logrus"
 )
 
 var (
-	ConfPromListenAddr      = config.RegisterOption("sgpdb.prom_listen_addr", "Prometheus listen address", "")
-	ConfPromListenPortRange = config.RegisterOption("sgpdb.prom_listen_port_range", "Prometheus listen port range", "6001-6100")
+	ConfPromListenAddr      = config.RegisterOption("syzygy.prom_listen_addr", "Prometheus listen address", "")
+	ConfPromListenPortRange = config.RegisterOption("syzygy.prom_listen_port_range", "Prometheus listen port range", "6001-6100")
 
 	parsedPortRange []int
 )

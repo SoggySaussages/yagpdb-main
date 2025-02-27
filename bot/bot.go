@@ -9,16 +9,16 @@ import (
 	"sync"
 	"time"
 
-	"github.com/botlabs-gg/sgpdb/v2/bot/eventsystem"
-	"github.com/botlabs-gg/sgpdb/v2/bot/shardmemberfetcher"
-	"github.com/botlabs-gg/sgpdb/v2/common"
-	"github.com/botlabs-gg/sgpdb/v2/common/config"
-	"github.com/botlabs-gg/sgpdb/v2/common/pubsub"
-	"github.com/botlabs-gg/sgpdb/v2/lib/discordgo"
-	"github.com/botlabs-gg/sgpdb/v2/lib/dshardorchestrator/node"
-	"github.com/botlabs-gg/sgpdb/v2/lib/dstate"
-	"github.com/botlabs-gg/sgpdb/v2/lib/dstate/inmemorytracker"
-	dshardmanager "github.com/botlabs-gg/sgpdb/v2/lib/jdshardmanager"
+	"github.com/SoggySaussages/syzygy/bot/eventsystem"
+	"github.com/SoggySaussages/syzygy/bot/shardmemberfetcher"
+	"github.com/SoggySaussages/syzygy/common"
+	"github.com/SoggySaussages/syzygy/common/config"
+	"github.com/SoggySaussages/syzygy/common/pubsub"
+	"github.com/SoggySaussages/syzygy/lib/discordgo"
+	"github.com/SoggySaussages/syzygy/lib/dshardorchestrator/node"
+	"github.com/SoggySaussages/syzygy/lib/dstate"
+	"github.com/SoggySaussages/syzygy/lib/dstate/inmemorytracker"
+	dshardmanager "github.com/SoggySaussages/syzygy/lib/jdshardmanager"
 	"github.com/mediocregopher/radix/v3"
 )
 
@@ -37,11 +37,11 @@ var (
 )
 
 var (
-	confConnEventChannel         = config.RegisterOption("sgpdb.connevt.channel", "Gateway connection logging channel", 0)
-	confConnStatus               = config.RegisterOption("sgpdb.connstatus.channel", "Gateway connection status channel", 0)
-	confShardOrchestratorAddress = config.RegisterOption("sgpdb.orchestrator.address", "Sharding orchestrator address to connect to, if set it will be put into orchstration mode", "")
+	confConnEventChannel         = config.RegisterOption("syzygy.connevt.channel", "Gateway connection logging channel", 0)
+	confConnStatus               = config.RegisterOption("syzygy.connstatus.channel", "Gateway connection status channel", 0)
+	confShardOrchestratorAddress = config.RegisterOption("syzygy.orchestrator.address", "Sharding orchestrator address to connect to, if set it will be put into orchstration mode", "")
 
-	confFixedShardingConfig = config.RegisterOption("sgpdb.sharding.fixed_config", "Fixed sharding config, mostly used during testing, allows you to run a single shard, the format is: 'id,count', example: '0,10'", "")
+	confFixedShardingConfig = config.RegisterOption("syzygy.sharding.fixed_config", "Fixed sharding config, mostly used during testing, allows you to run a single shard, the format is: 'id,count', example: '0,10'", "")
 
 	usingFixedSharding bool
 	fixedShardingID    int
@@ -70,7 +70,7 @@ var (
 	totalShardCount int
 )
 
-// Run intializes and starts the discord bot component of sgpdb
+// Run intializes and starts the discord bot component of syzygy
 func Run(nodeID string) {
 	setup()
 
@@ -137,7 +137,7 @@ func setupStandalone() {
 		ReadyTracker.shardsAdded(i)
 	}
 
-	err := common.RedisPool.Do(radix.FlatCmd(nil, "SET", "sgpdb_total_shards", totalShardCount))
+	err := common.RedisPool.Do(radix.FlatCmd(nil, "SET", "syzygy_total_shards", totalShardCount))
 	if err != nil {
 		logger.WithError(err).Error("failed setting shard count")
 	}
@@ -151,17 +151,17 @@ func readFixedShardingConfig() (id int, count int) {
 
 	split := strings.SplitN(conf, ",", 2)
 	if len(split) < 2 {
-		panic("Invalid sgpdb.sharding.fixed_config: " + conf)
+		panic("Invalid syzygy.sharding.fixed_config: " + conf)
 	}
 
 	parsedID, err := strconv.ParseInt(split[0], 10, 64)
 	if err != nil {
-		panic("Invalid sgpdb.sharding.fixed_config: " + err.Error())
+		panic("Invalid syzygy.sharding.fixed_config: " + err.Error())
 	}
 
 	parsedCount, err := strconv.ParseInt(split[1], 10, 64)
 	if err != nil {
-		panic("Invalid sgpdb.sharding.fixed_config: " + err.Error())
+		panic("Invalid syzygy.sharding.fixed_config: " + err.Error())
 	}
 
 	return int(parsedID), int(parsedCount)
@@ -261,7 +261,7 @@ type identifyRatelimiter struct {
 }
 
 func (rl *identifyRatelimiter) RatelimitIdentify(shardID int) {
-	const key = "sgpdb.gateway.identify.limit"
+	const key = "syzygy.gateway.identify.limit"
 	for {
 
 		if rl.checkSameBucket(shardID) {
@@ -325,27 +325,27 @@ func (rl *identifyRatelimiter) checkSameBucket(shardID int) bool {
 
 // var (
 // 	metricsCacheHits = promauto.NewCounter(prometheus.CounterOpts{
-// 		Name: "sgpdb_state_cache_hits_total",
+// 		Name: "syzygy_state_cache_hits_total",
 // 		Help: "Cache hits in the satte cache",
 // 	})
 
 // 	metricsCacheMisses = promauto.NewCounter(prometheus.CounterOpts{
-// 		Name: "sgpdb_state_cache_misses_total",
+// 		Name: "syzygy_state_cache_misses_total",
 // 		Help: "Cache misses in the sate cache",
 // 	})
 
 // 	metricsCacheEvictions = promauto.NewCounter(prometheus.CounterOpts{
-// 		Name: "sgpdb_state_cache_evicted_total",
+// 		Name: "syzygy_state_cache_evicted_total",
 // 		Help: "Cache evictions",
 // 	})
 
 // 	metricsCacheMemberEvictions = promauto.NewCounter(prometheus.CounterOpts{
-// 		Name: "sgpdb_state_members_evicted_total",
+// 		Name: "syzygy_state_members_evicted_total",
 // 		Help: "Members evicted from state cache",
 // 	})
 // )
 
-var confStateRemoveOfflineMembers = config.RegisterOption("sgpdb.state.remove_offline_members", "Remove offline members from state", true)
+var confStateRemoveOfflineMembers = config.RegisterOption("syzygy.state.remove_offline_members", "Remove offline members from state", true)
 
 // func setupState() {
 // 	// Things may rely on state being available at this point for initialization
@@ -429,7 +429,7 @@ func setupShardManager() {
 	ShardManager = dshardmanager.New(common.GetBotToken())
 	ShardManager.LogChannel = int64(connEvtChannel)
 	ShardManager.StatusMessageChannel = int64(connStatusChannel)
-	ShardManager.Name = "SGPDB"
+	ShardManager.Name = "SYZYGY"
 	ShardManager.GuildCountsFunc = GuildCountsFunc
 	ShardManager.SessionFunc = func(token string) (session *discordgo.Session, err error) {
 		session, err = discordgo.New(token)

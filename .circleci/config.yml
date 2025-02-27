@@ -20,11 +20,11 @@ jobs: # basic units of work in a run
       - run: sudo apt-get update
       - run: sudo apt-get install ffmpeg
       - run: 
-          name: main sgpdb binary build
+          name: main syzygy binary build
           command: |
             VERSION=$(git describe --tags)
-            cd cmd/sgpdb
-            go install -ldflags "-X github.com/botlabs-gg/sgpdb/v2/common.VERSION=${VERSION}"
+            cd cmd/syzygy
+            go install -ldflags "-X github.com/SoggySaussages/syzygy/common.VERSION=${VERSION}"
             cd -
       - run: cd cmd/shardorchestrator && go install && cd -
       - run: cd cmd/capturepanics && go install && cd -

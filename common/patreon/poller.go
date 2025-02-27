@@ -6,9 +6,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/botlabs-gg/sgpdb/v2/common"
-	"github.com/botlabs-gg/sgpdb/v2/common/config"
-	"github.com/botlabs-gg/sgpdb/v2/common/patreon/patreonapi"
+	"github.com/SoggySaussages/syzygy/common"
+	"github.com/SoggySaussages/syzygy/common/config"
+	"github.com/SoggySaussages/syzygy/common/patreon/patreonapi"
 	"github.com/mediocregopher/radix/v3"
 	"golang.org/x/oauth2"
 )
@@ -26,10 +26,10 @@ type Poller struct {
 }
 
 var (
-	confAccessToken  = config.RegisterOption("sgpdb.patreon.api_access_token", "Access token for the patreon integration", "")
-	confRefreshToken = config.RegisterOption("sgpdb.patreon.api_refresh_token", "Refresh token for the patreon integration", "")
-	confClientID     = config.RegisterOption("sgpdb.patreon.api_client_id", "Client id for the patreon integration", "")
-	confClientSecret = config.RegisterOption("sgpdb.patreon.api_client_secret", "Client secret for the patreon integration", "")
+	confAccessToken  = config.RegisterOption("syzygy.patreon.api_access_token", "Access token for the patreon integration", "")
+	confRefreshToken = config.RegisterOption("syzygy.patreon.api_refresh_token", "Refresh token for the patreon integration", "")
+	confClientID     = config.RegisterOption("syzygy.patreon.api_client_id", "Client id for the patreon integration", "")
+	confClientSecret = config.RegisterOption("syzygy.patreon.api_client_secret", "Client secret for the patreon integration", "")
 )
 
 func Run() {
@@ -40,7 +40,7 @@ func Run() {
 	clientSecret := confClientSecret.GetString()
 
 	if accessToken == "" || clientID == "" || clientSecret == "" {
-		PatreonDisabled(nil, "Missing one of SGPDB_PATREON_API_ACCESS_TOKEN, SGPDB_PATREON_API_CLIENT_ID, SGPDB_PATREON_API_CLIENT_SECRET")
+		PatreonDisabled(nil, "Missing one of SYZYGY_PATREON_API_ACCESS_TOKEN, SYZYGY_PATREON_API_CLIENT_ID, SYZYGY_PATREON_API_CLIENT_SECRET")
 		return
 	}
 

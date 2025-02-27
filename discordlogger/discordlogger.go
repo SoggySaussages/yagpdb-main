@@ -4,16 +4,16 @@ import (
 	"fmt"
 
 	"emperror.dev/errors"
-	"github.com/botlabs-gg/sgpdb/v2/bot"
-	"github.com/botlabs-gg/sgpdb/v2/bot/eventsystem"
-	"github.com/botlabs-gg/sgpdb/v2/bot/models"
-	"github.com/botlabs-gg/sgpdb/v2/common"
-	"github.com/botlabs-gg/sgpdb/v2/common/config"
+	"github.com/SoggySaussages/syzygy/bot"
+	"github.com/SoggySaussages/syzygy/bot/eventsystem"
+	"github.com/SoggySaussages/syzygy/bot/models"
+	"github.com/SoggySaussages/syzygy/common"
+	"github.com/SoggySaussages/syzygy/common/config"
 )
 
 var (
 	// Send bot leaves joins to this discord channel
-	confBotLeavesJoins = config.RegisterOption("sgpdb.botleavesjoins", "Channel to log added/left servers to", 0)
+	confBotLeavesJoins = config.RegisterOption("syzygy.botleavesjoins", "Channel to log added/left servers to", 0)
 
 	logger = common.GetPluginLogger(&Plugin{})
 )

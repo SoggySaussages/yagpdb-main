@@ -3,15 +3,15 @@ FROM docker.io/golang:1.23.3-alpine
 RUN apk --no-cache add ca-certificates ffmpeg tzdata
 RUN CGO_ENABLED=0 go install -ldflags "-s -w -extldflags '-static'" github.com/go-delve/delve/cmd/dlv@latest
 
-WORKDIR /app/sgpdb
+WORKDIR /app/syzygy
 COPY go.mod go.sum ./
 RUN go mod download
 
 COPY . .
 
-WORKDIR /app/sgpdb/cmd/sgpdb
+WORKDIR /app/syzygy/cmd/syzygy
 
 VOLUME ["/app/soundboard", "/app/cert"]
 EXPOSE 5000 4000
 EXPOSE 5100-5999
-CMD [ "/go/bin/dlv", "--listen=:4000", "--headless=true", "--log=true", "--accept-multiclient", "--api-version=2", "debug", "--continue", "--output=sgpdb", "--",  "-all", "-https=false" ]
+CMD [ "/go/bin/dlv", "--listen=:4000", "--headless=true", "--log=true", "--accept-multiclient", "--api-version=2", "debug", "--continue", "--output=syzygy", "--",  "-all", "-https=false" ]

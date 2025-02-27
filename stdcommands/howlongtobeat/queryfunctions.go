@@ -9,8 +9,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/botlabs-gg/sgpdb/v2/commands"
-	"github.com/botlabs-gg/sgpdb/v2/lib/jarowinkler"
+	"github.com/SoggySaussages/syzygy/commands"
+	"github.com/SoggySaussages/syzygy/lib/jarowinkler"
 )
 
 func getGameData(searchTitle string) ([]hltb, error) {
@@ -33,7 +33,7 @@ func getGameData(searchTitle string) ([]hltb, error) {
 	r, _ := http.NewRequest("POST", urlStr, strings.NewReader(string(body)))
 	r.Header.Add("Content-Type", "application/json")
 	r.Header.Add("Accept", "*/*")
-	r.Header.Add("User-Agent", "SGPDB.xyz (https://github.com/botlabs-gg/sgpdb)")
+	r.Header.Add("User-Agent", "SYZYGY.xyz (https://github.com/SoggySaussages/syzygy)")
 	r.Header.Add("origin", "https://howlongtobeat.com")
 	r.Header.Add("referer", "https://howlongtobeat.com/")
 

@@ -29,7 +29,7 @@ const templateSource = `// GENERATED using events_gen.go
 package eventsystem
 
 import (
-	 "github.com/botlabs-gg/sgpdb/v2/lib/discordgo"
+	 "github.com/SoggySaussages/syzygy/lib/discordgo"
 )
 
 type Event int
@@ -114,7 +114,7 @@ func CheckErr(errMsg string, err error) {
 func main() {
 	pkgs, err := packages.Load(&packages.Config{
 		Mode: packages.LoadFiles,
-	}, "github.com/botlabs-gg/sgpdb/v2/lib/discordgo")
+	}, "github.com/SoggySaussages/syzygy/lib/discordgo")
 
 	if err != nil {
 		panic(err)

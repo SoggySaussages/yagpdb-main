@@ -7,13 +7,13 @@ import (
 	"sync"
 	"time"
 
-	"github.com/botlabs-gg/sgpdb/v2/analytics"
-	"github.com/botlabs-gg/sgpdb/v2/common"
-	"github.com/botlabs-gg/sgpdb/v2/common/mqueue"
-	"github.com/botlabs-gg/sgpdb/v2/feeds"
-	"github.com/botlabs-gg/sgpdb/v2/lib/discordgo"
-	"github.com/botlabs-gg/sgpdb/v2/premium"
-	"github.com/botlabs-gg/sgpdb/v2/twitter/models"
+	"github.com/SoggySaussages/syzygy/analytics"
+	"github.com/SoggySaussages/syzygy/common"
+	"github.com/SoggySaussages/syzygy/common/mqueue"
+	"github.com/SoggySaussages/syzygy/feeds"
+	"github.com/SoggySaussages/syzygy/lib/discordgo"
+	"github.com/SoggySaussages/syzygy/premium"
+	"github.com/SoggySaussages/syzygy/twitter/models"
 	"github.com/mediocregopher/radix/v3"
 	twitterscraper "github.com/n0madic/twitter-scraper"
 	"github.com/prometheus/client_golang/prometheus"
@@ -227,7 +227,7 @@ OUTER:
 	if err != nil {
 		logrus.WithError(err).Errorf("Failed getting user info for userID %s", t.Username)
 	}
-	webhookUsername := "Twitter • SGPDB"
+	webhookUsername := "Twitter • SYZYGY"
 	embed := p.createTweetEmbed(t, &user)
 	for _, v := range relevantFeeds {
 		go analytics.RecordActiveUnit(v.GuildID, p, "posted_twitter_message")

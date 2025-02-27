@@ -3,8 +3,8 @@ package analytics
 import (
 	"sync"
 
-	"github.com/botlabs-gg/sgpdb/v2/common"
-	"github.com/botlabs-gg/sgpdb/v2/common/config"
+	"github.com/SoggySaussages/syzygy/common"
+	"github.com/SoggySaussages/syzygy/common/config"
 	"github.com/mediocregopher/radix/v3"
 )
 
@@ -36,7 +36,7 @@ func RecordActiveUnit(guildID int64, plugin common.Plugin, analyticName string) 
 	}
 }
 
-var confEnableAnalytics = config.RegisterOption("sgpdb.enable_analytics", "Enable usage analytics tracking", false)
+var confEnableAnalytics = config.RegisterOption("syzygy.enable_analytics", "Enable usage analytics tracking", false)
 
 func recordActiveUnit(guildID int64, plugin common.Plugin, analyticName string) error {
 	if !confEnableAnalytics.GetBool() {

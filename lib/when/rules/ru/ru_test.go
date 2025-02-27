@@ -4,8 +4,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/botlabs-gg/sgpdb/v2/lib/when"
-	"github.com/botlabs-gg/sgpdb/v2/lib/when/rules/ru"
+	"github.com/SoggySaussages/syzygy/lib/when"
+	"github.com/SoggySaussages/syzygy/lib/when/rules/ru"
 	"github.com/stretchr/testify/require"
 )
 

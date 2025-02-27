@@ -4,8 +4,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/botlabs-gg/sgpdb/v2/common"
-	"github.com/botlabs-gg/sgpdb/v2/common/backgroundworkers"
+	"github.com/SoggySaussages/syzygy/common"
+	"github.com/SoggySaussages/syzygy/common/backgroundworkers"
 	"github.com/mediocregopher/radix/v3"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
@@ -37,6 +37,6 @@ func (p *Plugin) updateMetrcis() {
 }
 
 var metricsQueueSize = promauto.NewGauge(prometheus.GaugeOpts{
-	Name: "sgpdb_mqueue_size_total",
+	Name: "syzygy_mqueue_size_total",
 	Help: "The size of the send message queue",
 })

@@ -3,8 +3,8 @@ package catfact
 import (
 	"math/rand"
 
-	"github.com/botlabs-gg/sgpdb/v2/commands"
-	"github.com/botlabs-gg/sgpdb/v2/lib/dcmd"
+	"github.com/SoggySaussages/syzygy/commands"
+	"github.com/SoggySaussages/syzygy/lib/dcmd"
 )
 
 var Command = &commands.YAGCommand{

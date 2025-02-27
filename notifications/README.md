@@ -1,6 +1,6 @@
 # Notifications
 
-Simple notifications plugin for SGPDB.
+Simple notifications plugin for SYZYGY.
 
 Will provide general notifications in a server for the following events:
 

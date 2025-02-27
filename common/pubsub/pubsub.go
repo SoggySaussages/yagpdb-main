@@ -1,4 +1,4 @@
-// The event system is used to propegate events from different sgpdb instances
+// The event system is used to propegate events from different syzygy instances
 // For example when you change the streamer settings, and event gets fired
 // Telling the streamer plugin to recheck everyones streaming status
 
@@ -14,8 +14,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/botlabs-gg/sgpdb/v2/common"
-	"github.com/botlabs-gg/sgpdb/v2/lib/discordgo"
+	"github.com/SoggySaussages/syzygy/common"
+	"github.com/SoggySaussages/syzygy/lib/discordgo"
 	"github.com/mediocregopher/radix/v3"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
@@ -106,18 +106,18 @@ func PollEvents() {
 }
 
 var metricsPubsubEvents = promauto.NewCounterVec(prometheus.CounterOpts{
-	Name: "sgpdb_pubsub_events_handled_total",
+	Name: "syzygy_pubsub_events_handled_total",
 	Help: "Number of pubsub events handled",
 }, []string{"event"})
 
 var metricsPubsubSent = promauto.NewCounterVec(prometheus.CounterOpts{
-	Name: "sgpdb_pubsub_events_sent_total",
-	Help: "SGPDB pubsub sent events",
+	Name: "syzygy_pubsub_events_sent_total",
+	Help: "SYZYGY pubsub sent events",
 }, []string{"event"})
 
 var metricsPubsubSkipped = promauto.NewCounterVec(prometheus.CounterOpts{
-	Name: "sgpdb_pubsub_events_skipped__total",
-	Help: "SGPDB pubsub skipped events (unmatched target, unknown evt etc)",
+	Name: "syzygy_pubsub_events_skipped__total",
+	Help: "SYZYGY pubsub skipped events (unmatched target, unknown evt etc)",
 }, []string{"event"})
 
 func runPollEvents() error {

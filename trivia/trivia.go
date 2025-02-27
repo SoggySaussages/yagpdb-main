@@ -1,6 +1,6 @@
 package trivia
 
-import "github.com/botlabs-gg/sgpdb/v2/common"
+import "github.com/SoggySaussages/syzygy/common"
 
 type Plugin struct{}
 

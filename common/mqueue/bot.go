@@ -3,13 +3,13 @@ package mqueue
 import (
 	"sync"
 
-	"github.com/botlabs-gg/sgpdb/v2/bot/eventsystem"
-	"github.com/botlabs-gg/sgpdb/v2/common"
-	"github.com/botlabs-gg/sgpdb/v2/lib/discordgo"
+	"github.com/SoggySaussages/syzygy/bot/eventsystem"
+	"github.com/SoggySaussages/syzygy/common"
+	"github.com/SoggySaussages/syzygy/lib/discordgo"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 
-	"github.com/botlabs-gg/sgpdb/v2/bot"
+	"github.com/SoggySaussages/syzygy/bot"
 )
 
 // type WebhookCacheKey struct {
@@ -61,12 +61,12 @@ func (p *Plugin) StopBot(wg *sync.WaitGroup) {
 
 var (
 	metricsRatelimit = promauto.NewCounter(prometheus.CounterOpts{
-		Name: "sgpdb_mqueue_ratelimits_total",
+		Name: "syzygy_mqueue_ratelimits_total",
 		Help: "Ratelimits hit on the webhook session",
 	})
 
 	metricsProcessed = promauto.NewCounterVec(prometheus.CounterOpts{
-		Name: "sgpdb_mqueue_processed_total",
+		Name: "syzygy_mqueue_processed_total",
 		Help: "Total mqueue elements processed",
 	}, []string{"source"})
 )

@@ -13,12 +13,12 @@ import (
 	"time"
 
 	"emperror.dev/errors"
-	"github.com/botlabs-gg/sgpdb/v2/common"
-	"github.com/botlabs-gg/sgpdb/v2/common/config"
-	"github.com/botlabs-gg/sgpdb/v2/common/cplogs"
-	"github.com/botlabs-gg/sgpdb/v2/lib/discordgo"
-	"github.com/botlabs-gg/sgpdb/v2/lib/dstate"
-	"github.com/botlabs-gg/sgpdb/v2/web/discorddata"
+	"github.com/SoggySaussages/syzygy/common"
+	"github.com/SoggySaussages/syzygy/common/config"
+	"github.com/SoggySaussages/syzygy/common/cplogs"
+	"github.com/SoggySaussages/syzygy/lib/discordgo"
+	"github.com/SoggySaussages/syzygy/lib/dstate"
+	"github.com/SoggySaussages/syzygy/web/discorddata"
 	"github.com/gorilla/schema"
 	"github.com/miolini/datacounter"
 	"github.com/prometheus/client_golang/prometheus"
@@ -29,7 +29,7 @@ import (
 )
 
 var (
-	confGAID = config.RegisterOption("sgpdb.ga_id", "Google analytics id", "")
+	confGAID = config.RegisterOption("syzygy.ga_id", "Google analytics id", "")
 )
 
 // Misc mw that adds some headers, (Strict-Transport-Security)
@@ -838,7 +838,7 @@ func SkipStaticMW(maybeSkip func(http.Handler) http.Handler, alwaysRunSuffixes .
 }
 
 var pageHitsStatic = promauto.NewCounterVec(prometheus.CounterOpts{
-	Name: "sgpdb_web_hits_total",
+	Name: "syzygy_web_hits_total",
 	Help: "Web hits total",
 }, []string{"type"})
 

@@ -13,10 +13,10 @@ services:
       # We change context so that we can copy the local repo in during
       # development
       context: ../
-      dockerfile: sgpdb_docker/Dockerfile
+      dockerfile: syzygy_docker/Dockerfile
     restart: unless-stopped
     command:
-      # - "/app/sgpdb"
+      # - "/app/syzygy"
       - "-all"
       - "-pa"
       - "-exthttps=false"

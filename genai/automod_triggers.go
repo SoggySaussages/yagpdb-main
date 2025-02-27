@@ -3,10 +3,10 @@ package genai
 import (
 	"strings"
 
-	"github.com/botlabs-gg/sgpdb/v2/automod"
-	"github.com/botlabs-gg/sgpdb/v2/bot"
-	"github.com/botlabs-gg/sgpdb/v2/lib/discordgo"
-	"github.com/botlabs-gg/sgpdb/v2/lib/dstate"
+	"github.com/SoggySaussages/syzygy/automod"
+	"github.com/SoggySaussages/syzygy/bot"
+	"github.com/SoggySaussages/syzygy/lib/discordgo"
+	"github.com/SoggySaussages/syzygy/lib/dstate"
 )
 
 type GenAIAutomodTriggerData struct {

@@ -5,37 +5,37 @@ import (
 	"strings"
 
 	"emperror.dev/errors"
-	"github.com/botlabs-gg/sgpdb/v2/common/config"
+	"github.com/SoggySaussages/syzygy/common/config"
 )
 
 var (
-	confOwner  = config.RegisterOption("sgpdb.owner", "ID of the owner of the bot", 0)
-	confOwners = config.RegisterOption("sgpdb.owners", "Comma seperated IDs of the owners of the bot", "")
+	confOwner  = config.RegisterOption("syzygy.owner", "ID of the owner of the bot", 0)
+	confOwners = config.RegisterOption("syzygy.owners", "Comma seperated IDs of the owners of the bot", "")
 
-	ConfClientID     = config.RegisterOption("sgpdb.clientid", "Client ID of the discord application", nil)
-	ConfClientSecret = config.RegisterOption("sgpdb.clientsecret", "Client Secret of the discord application", nil)
-	ConfBotToken     = config.RegisterOption("sgpdb.bottoken", "Token of the bot user", nil)
-	ConfHost         = config.RegisterOption("sgpdb.host", "Host without the protocol, example: example.com, used by the webserver", nil)
-	ConfEmail        = config.RegisterOption("sgpdb.email", "Email used when fetching lets encrypt certificate", "")
+	ConfClientID     = config.RegisterOption("syzygy.clientid", "Client ID of the discord application", nil)
+	ConfClientSecret = config.RegisterOption("syzygy.clientsecret", "Client Secret of the discord application", nil)
+	ConfBotToken     = config.RegisterOption("syzygy.bottoken", "Token of the bot user", nil)
+	ConfHost         = config.RegisterOption("syzygy.host", "Host without the protocol, example: example.com, used by the webserver", nil)
+	ConfEmail        = config.RegisterOption("syzygy.email", "Email used when fetching lets encrypt certificate", "")
 
-	ConfPQHost     = config.RegisterOption("sgpdb.pqhost", "Postgres host", "localhost")
-	ConfPQUsername = config.RegisterOption("sgpdb.pqusername", "Postgres user", "postgres")
-	ConfPQPassword = config.RegisterOption("sgpdb.pqpassword", "Postgres passoword", "")
-	ConfPQDB       = config.RegisterOption("sgpdb.pqdb", "Postgres database", "sgpdb")
+	ConfPQHost     = config.RegisterOption("syzygy.pqhost", "Postgres host", "localhost")
+	ConfPQUsername = config.RegisterOption("syzygy.pqusername", "Postgres user", "postgres")
+	ConfPQPassword = config.RegisterOption("syzygy.pqpassword", "Postgres passoword", "")
+	ConfPQDB       = config.RegisterOption("syzygy.pqdb", "Postgres database", "syzygy")
 
-	ConfMaxCCR            = config.RegisterOption("sgpdb.max_ccr", "Maximum number of concurrent outgoing requests to discord", 25)
-	ConfDisableKeepalives = config.RegisterOption("sgpdb.disable_keepalives", "Disables keepalive connections for outgoing requests to discord, this shouldn't be needed but i had networking issues once so i had to", false)
+	ConfMaxCCR            = config.RegisterOption("syzygy.max_ccr", "Maximum number of concurrent outgoing requests to discord", 25)
+	ConfDisableKeepalives = config.RegisterOption("syzygy.disable_keepalives", "Disables keepalive connections for outgoing requests to discord, this shouldn't be needed but i had networking issues once so i had to", false)
 
-	confNoSchemaInit = config.RegisterOption("sgpdb.no_schema_init", "Disable schema intiialization", false)
+	confNoSchemaInit = config.RegisterOption("syzygy.no_schema_init", "Disable schema intiialization", false)
 
 	confMaxSQLConns = config.RegisterOption("yagdb.pq_max_conns", "Max connections to postgres", 3)
 
-	ConfTotalShards             = config.RegisterOption("sgpdb.sharding.total_shards", "Total number shards", 0)
-	ConfActiveShards            = config.RegisterOption("sgpdb.sharding.active_shards", "Shards active on this hoste, ex: '1-10,25'", "")
-	ConfLargeBotShardingEnabled = config.RegisterOption("sgpdb.large_bot_sharding", "Set to enable large bot sharding (for 200k+ guilds)", false)
-	ConfBucketsPerNode          = config.RegisterOption("sgpdb.shard.buckets_per_node", "Number of buckets per node", 8)
-	ConfShardBucketSize         = config.RegisterOption("sgpdb.shard.shard_bucket_size", "Shards per bucket", 2)
-	ConfHttpProxy               = config.RegisterOption("sgpdb.http.proxy", "Proxy Url", "")
+	ConfTotalShards             = config.RegisterOption("syzygy.sharding.total_shards", "Total number shards", 0)
+	ConfActiveShards            = config.RegisterOption("syzygy.sharding.active_shards", "Shards active on this hoste, ex: '1-10,25'", "")
+	ConfLargeBotShardingEnabled = config.RegisterOption("syzygy.large_bot_sharding", "Set to enable large bot sharding (for 200k+ guilds)", false)
+	ConfBucketsPerNode          = config.RegisterOption("syzygy.shard.buckets_per_node", "Number of buckets per node", 8)
+	ConfShardBucketSize         = config.RegisterOption("syzygy.shard.shard_bucket_size", "Shards per bucket", 2)
+	ConfHttpProxy               = config.RegisterOption("syzygy.http.proxy", "Proxy Url", "")
 
 	BotOwners []int64
 )

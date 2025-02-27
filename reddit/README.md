@@ -1,4 +1,4 @@
-# Reddit plugin for SGPDB
+# Reddit plugin for SYZYGY
 
 ### How the feed works
 

@@ -4,9 +4,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/botlabs-gg/sgpdb/v2/common"
-	"github.com/botlabs-gg/sgpdb/v2/common/backgroundworkers"
-	"github.com/botlabs-gg/sgpdb/v2/logs/models"
+	"github.com/SoggySaussages/syzygy/common"
+	"github.com/SoggySaussages/syzygy/common/backgroundworkers"
+	"github.com/SoggySaussages/syzygy/logs/models"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 	"golang.org/x/net/context"
 )
@@ -16,7 +16,7 @@ var _ backgroundworkers.BackgroundWorkerPlugin = (*Plugin)(nil)
 func (p *Plugin) RunBackgroundWorker() {
 	ticker := time.NewTicker(time.Minute)
 	if !ConfEnableMessageLogPurge.GetBool() {
-		logger.Infof("[logs] Disabling background worker for message log purge, set sgpdb.enable_message_log_purge to true for this ")
+		logger.Infof("[logs] Disabling background worker for message log purge, set syzygy.enable_message_log_purge to true for this ")
 		(<-p.stopWorkers).Done()
 		return
 	}

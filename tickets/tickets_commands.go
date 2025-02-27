@@ -14,14 +14,14 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/botlabs-gg/sgpdb/v2/analytics"
-	"github.com/botlabs-gg/sgpdb/v2/commands"
-	"github.com/botlabs-gg/sgpdb/v2/common"
-	"github.com/botlabs-gg/sgpdb/v2/lib/dcmd"
-	"github.com/botlabs-gg/sgpdb/v2/lib/discordgo"
-	"github.com/botlabs-gg/sgpdb/v2/lib/dstate"
-	"github.com/botlabs-gg/sgpdb/v2/tickets/models"
-	"github.com/botlabs-gg/sgpdb/v2/web"
+	"github.com/SoggySaussages/syzygy/analytics"
+	"github.com/SoggySaussages/syzygy/commands"
+	"github.com/SoggySaussages/syzygy/common"
+	"github.com/SoggySaussages/syzygy/lib/dcmd"
+	"github.com/SoggySaussages/syzygy/lib/discordgo"
+	"github.com/SoggySaussages/syzygy/lib/dstate"
+	"github.com/SoggySaussages/syzygy/tickets/models"
+	"github.com/SoggySaussages/syzygy/web"
 	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
@@ -368,7 +368,7 @@ func (p *Plugin) AddCommands() {
 					return nil, err
 				}
 				if message.Author.ID != common.BotUser.ID {
-					return "You must select a message that SGPDB has sent.", nil
+					return "You must select a message that SYZYGY has sent.", nil
 				}
 
 				_, err = common.BotSession.ChannelMessageEditComplex(&discordgo.MessageEdit{

@@ -5,14 +5,14 @@ import (
 	"time"
 
 	"emperror.dev/errors"
-	"github.com/botlabs-gg/sgpdb/v2/bot"
-	"github.com/botlabs-gg/sgpdb/v2/common"
-	"github.com/botlabs-gg/sgpdb/v2/common/config"
-	"github.com/botlabs-gg/sgpdb/v2/common/featureflags"
-	"github.com/botlabs-gg/sgpdb/v2/common/scheduledevents2"
-	schEventsModels "github.com/botlabs-gg/sgpdb/v2/common/scheduledevents2/models"
-	"github.com/botlabs-gg/sgpdb/v2/common/templates"
-	"github.com/botlabs-gg/sgpdb/v2/lib/discordgo"
+	"github.com/SoggySaussages/syzygy/bot"
+	"github.com/SoggySaussages/syzygy/common"
+	"github.com/SoggySaussages/syzygy/common/config"
+	"github.com/SoggySaussages/syzygy/common/featureflags"
+	"github.com/SoggySaussages/syzygy/common/scheduledevents2"
+	schEventsModels "github.com/SoggySaussages/syzygy/common/scheduledevents2/models"
+	"github.com/SoggySaussages/syzygy/common/templates"
+	"github.com/SoggySaussages/syzygy/lib/discordgo"
 	"github.com/mediocregopher/radix/v3"
 )
 
@@ -55,7 +55,7 @@ func (p PremiumTier) String() string {
 }
 
 var (
-	confAllGuildsPremium = config.RegisterOption("sgpdb.premium.all_guilds_premium", "All servers have premium", false)
+	confAllGuildsPremium = config.RegisterOption("syzygy.premium.all_guilds_premium", "All servers have premium", false)
 )
 
 var logger = common.GetPluginLogger(&Plugin{})
@@ -317,7 +317,7 @@ func tierFlags(tier PremiumTier) []string {
 }
 
 func SendPremiumDM(userID int64, source PremiumSourceType, numSlots int) {
-	confSendPatreonPremiumDM := config.RegisterOption("sgpdb.premium.send_patreon_dm", "Send DMs to users when they receive premium slots", false)
+	confSendPatreonPremiumDM := config.RegisterOption("syzygy.premium.send_patreon_dm", "Send DMs to users when they receive premium slots", false)
 	if !confSendPatreonPremiumDM.GetBool() && source == PremiumSourceTypePatreon {
 		return
 	}

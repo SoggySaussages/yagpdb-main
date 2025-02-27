@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/botlabs-gg/sgpdb/v2/lib/discordgo"
+	"github.com/SoggySaussages/syzygy/lib/discordgo"
 	"github.com/mediocregopher/radix/v3"
 )
 

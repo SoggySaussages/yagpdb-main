@@ -8,7 +8,7 @@ import (
 	"reflect"
 	"sync"
 
-	"github.com/botlabs-gg/sgpdb/v2/lib/template/parse"
+	"github.com/SoggySaussages/syzygy/lib/template/parse"
 )
 
 // common holds the information shared by related templates.

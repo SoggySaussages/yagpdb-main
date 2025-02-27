@@ -5,12 +5,12 @@ package rsvp
 import (
 	"sync"
 
-	"github.com/botlabs-gg/sgpdb/v2/common"
-	"github.com/botlabs-gg/sgpdb/v2/lib/when"
-	"github.com/botlabs-gg/sgpdb/v2/lib/when/rules"
-	wcommon "github.com/botlabs-gg/sgpdb/v2/lib/when/rules/common"
-	"github.com/botlabs-gg/sgpdb/v2/lib/when/rules/en"
-	"github.com/botlabs-gg/sgpdb/v2/timezonecompanion/trules"
+	"github.com/SoggySaussages/syzygy/common"
+	"github.com/SoggySaussages/syzygy/lib/when"
+	"github.com/SoggySaussages/syzygy/lib/when/rules"
+	wcommon "github.com/SoggySaussages/syzygy/lib/when/rules/common"
+	"github.com/SoggySaussages/syzygy/lib/when/rules/en"
+	"github.com/SoggySaussages/syzygy/timezonecompanion/trules"
 )
 
 var (

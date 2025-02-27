@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/botlabs-gg/sgpdb/v2/lib/when/rules"
+	"github.com/SoggySaussages/syzygy/lib/when/rules"
 	"github.com/pkg/errors"
 )
 

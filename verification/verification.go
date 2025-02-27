@@ -3,13 +3,13 @@ package verification
 //go:generate sqlboiler --no-hooks psql
 
 import (
-	"github.com/botlabs-gg/sgpdb/v2/common"
-	"github.com/botlabs-gg/sgpdb/v2/common/config"
+	"github.com/SoggySaussages/syzygy/common"
+	"github.com/SoggySaussages/syzygy/common/config"
 )
 
-var confGoogleReCAPTCHASiteKey = config.RegisterOption("sgpdb.google.recaptcha_site_key", "Google reCAPTCHA site key", "")
-var confGoogleReCAPTCHASecret = config.RegisterOption("sgpdb.google.recaptcha_secret", "Google reCAPTCHA site secret", "")
-var confVerificationTrackIPs = config.RegisterOption("sgpdb.verification.track_ips", "Track verified users ip", true)
+var confGoogleReCAPTCHASiteKey = config.RegisterOption("syzygy.google.recaptcha_site_key", "Google reCAPTCHA site key", "")
+var confGoogleReCAPTCHASecret = config.RegisterOption("syzygy.google.recaptcha_secret", "Google reCAPTCHA site secret", "")
+var confVerificationTrackIPs = config.RegisterOption("syzygy.verification.track_ips", "Track verified users ip", true)
 
 type Plugin struct{}
 
@@ -26,7 +26,7 @@ var logger = common.GetPluginLogger(&Plugin{})
 func RegisterPlugin() {
 
 	if confGoogleReCAPTCHASecret.GetString() == "" || confGoogleReCAPTCHASiteKey.GetString() == "" {
-		logger.Warn("no SGPDB_GOOGLE_RECAPTCHA_SECRET and/or SGPDB_GOOGLE_RECAPTCHA_SITE_KEY provided, not enabling verification plugin")
+		logger.Warn("no SYZYGY_GOOGLE_RECAPTCHA_SECRET and/or SYZYGY_GOOGLE_RECAPTCHA_SITE_KEY provided, not enabling verification plugin")
 		return
 	}
 

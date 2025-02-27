@@ -10,13 +10,13 @@ import (
 	"sync"
 	"time"
 
-	"github.com/botlabs-gg/sgpdb/v2/common"
-	"github.com/botlabs-gg/sgpdb/v2/common/config"
-	"github.com/botlabs-gg/sgpdb/v2/premium"
-	"github.com/botlabs-gg/sgpdb/v2/serverstats/models"
+	"github.com/SoggySaussages/syzygy/common"
+	"github.com/SoggySaussages/syzygy/common/config"
+	"github.com/SoggySaussages/syzygy/premium"
+	"github.com/SoggySaussages/syzygy/serverstats/models"
 )
 
-var confDeprecated = config.RegisterOption("sgpdb.serverstats.deprecated", "Wether to mark server stats as disabled or not, this will disable recording of new stats", false)
+var confDeprecated = config.RegisterOption("syzygy.serverstats.deprecated", "Wether to mark server stats as disabled or not, this will disable recording of new stats", false)
 
 type Plugin struct {
 	stopStatsLoop chan *sync.WaitGroup

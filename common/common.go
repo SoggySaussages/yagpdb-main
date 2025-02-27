@@ -15,8 +15,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/botlabs-gg/sgpdb/v2/common/cacheset"
-	"github.com/botlabs-gg/sgpdb/v2/lib/discordgo"
+	"github.com/SoggySaussages/syzygy/common/cacheset"
+	"github.com/SoggySaussages/syzygy/lib/discordgo"
 	"github.com/jmoiron/sqlx"
 	"github.com/mediocregopher/radix/v3"
 	"github.com/prometheus/client_golang/prometheus"
@@ -40,7 +40,7 @@ var (
 
 	RedisPoolSize = 0
 
-	Testing = os.Getenv("SGPDB_TESTING") != ""
+	Testing = os.Getenv("SYZYGY_TESTING") != ""
 
 	CurrentRunCounter int64
 
@@ -88,7 +88,7 @@ func Init() error {
 		return err
 	}
 
-	db := "sgpdb"
+	db := "syzygy"
 	if ConfPQDB.GetString() != "" {
 		db = ConfPQDB.GetString()
 	}
@@ -121,7 +121,7 @@ func Init() error {
 
 	BotApplication = app
 
-	err = RedisPool.Do(radix.Cmd(&CurrentRunCounter, "INCR", "sgpdb_run_counter"))
+	err = RedisPool.Do(radix.Cmd(&CurrentRunCounter, "INCR", "syzygy_run_counter"))
 	if err != nil {
 		panic(err)
 	}
@@ -189,7 +189,7 @@ func setupGlobalDGoSession() (err error) {
 }
 
 func InitTest() {
-	testDB := os.Getenv("SGPDB_TEST_DB")
+	testDB := os.Getenv("SYZYGY_TEST_DB")
 	if testDB == "" {
 		return
 	}
@@ -202,11 +202,11 @@ func InitTest() {
 
 var (
 	metricsRedisReconnects = promauto.NewCounter(prometheus.CounterOpts{
-		Name: "sgpdb_redis_reconnects_total",
+		Name: "syzygy_redis_reconnects_total",
 		Help: "Number of reconnects to the redis server",
 	})
 	metricsRedisRetries = promauto.NewCounter(prometheus.CounterOpts{
-		Name: "sgpdb_redis_retries_total",
+		Name: "syzygy_redis_retries_total",
 		Help: "Number of retries on redis commands",
 	})
 )
@@ -214,7 +214,7 @@ var (
 var RedisAddr = loadRedisAddr()
 
 func loadRedisAddr() string {
-	addr := os.Getenv("SGPDB_REDIS")
+	addr := os.Getenv("SYZYGY_REDIS")
 	if addr == "" {
 		addr = "localhost:6379"
 	}
@@ -225,7 +225,7 @@ func loadRedisAddr() string {
 func connectRedis(unitTests bool) (err error) {
 	maxConns := RedisPoolSize
 	if maxConns == 0 {
-		maxConns, _ = strconv.Atoi(os.Getenv("SGPDB_REDIS_POOL_SIZE"))
+		maxConns, _ = strconv.Atoi(os.Getenv("SYZYGY_REDIS_POOL_SIZE"))
 		if maxConns == 0 {
 			maxConns = 10
 		}

@@ -1,4 +1,4 @@
-module github.com/botlabs-gg/sgpdb/v2
+module github.com/SoggySaussages/syzygy
 
 go 1.23.3
 

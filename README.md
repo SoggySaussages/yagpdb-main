@@ -1,6 +1,6 @@
-# SGPDB - Yet Another General Purpose Discord Bot
+# SYZYGY - Yet Another General Purpose Discord Bot
 
-SGPDB is a multifunctional, modular Discord bot. It is modular in the sense that for most things plugins exist -- However, some plugins may depend on other plugins.
+SYZYGY is a multifunctional, modular Discord bot. It is modular in the sense that for most things plugins exist -- However, some plugins may depend on other plugins.
 
 ## Plugins
 
@@ -19,7 +19,7 @@ SGPDB is a multifunctional, modular Discord bot. It is modular in the sense that
 
 ## Useful Links
 
-* [Homepage](https://sgpdb.xyz)
+* [Homepage](https://syzygy.xyz)
 * [Support Server](https://discord.gg/4udtcA5)
 * [Help Center](https://help.yagpdb.xyz)
 
@@ -32,7 +32,7 @@ There are two ways of selfhosting this bot: [standalone](#Hosting-Standalone), o
 Directions on creating an app and getting credentials may be found
 [here](https://github.com/reactiflux/discord-irc/wiki/Creating-a-discord-bot-&-getting-a-token).
 
-SGPDB does not require you to authorize the bot: all of that will be handled
+SYZYGY does not require you to authorize the bot: all of that will be handled
 via the Control Panel.
 
 In addition, you will need to add the following urls to the bot's "REDIRECT URI(S)" configuration:
@@ -45,29 +45,29 @@ In addition, you will need to add the following urls to the bot's "REDIRECT URI(
 If you have docker-compose installed, that might be the fastest route of getting the bot up and running:
 
 ```shell
-git clone https://github.com/botlabs-gg/sgpdb
-cp sgpdb/sgpdb_docker/{app.example.env,app.env}
-cp sgpdb/sgpdb_docker/{db.example.env,db.env}
+git clone https://github.com/SoggySaussages/syzygy
+cp syzygy/syzygy_docker/{app.example.env,app.env}
+cp syzygy/syzygy_docker/{db.example.env,db.env}
 ```
 
 Edit both env files accordingly. Make sure ports 80 and 443 are accessible on your network and that you have a proper image in `docker-compose.yml`:
 
 ```shell
-docker-compose -f sgpdb/sgpdb_docker/docker-compose.yml up
+docker-compose -f syzygy/syzygy_docker/docker-compose.yml up
 ```
 
 Alternatively, you can run the bot behind a proxy:
 
 ```shell
 docker network create proxy-tier
-docker-compose -p proxy sgpdb/sgpdb_docker/docker-compose.proxy.yml up
-docker-compose -f sgpdb/sgpdb_docker/docker-compose.proxied.yml up
+docker-compose -p proxy syzygy/syzygy_docker/docker-compose.proxy.yml up
+docker-compose -f syzygy/syzygy_docker/docker-compose.proxied.yml up
 ```
 
 During development, use the `docker-compose.dev.yml` file:
 
 ```shell
-docker-compose -f sgpdb/sgpdb_docker/docker-compose.dev.yml up
+docker-compose -f syzygy/syzygy_docker/docker-compose.dev.yml up
 ```
 
 ### Hosting Standalone
@@ -82,24 +82,24 @@ docker-compose -f sgpdb/sgpdb_docker/docker-compose.dev.yml up
 
 Configure Redis and Postgres with your desired settings.
 
-In postgres, create a new user `sgpdb` and database `sgpdb` and grant that user access to that database.
+In postgres, create a new user `syzygy` and database `syzygy` and grant that user access to that database.
 
-Set up the environment variables with the credentials from the [general setup](#General-Bot-Setup). See the [sample env file](cmd/sgpdb/sampleenvfile) for a list of all enviroment variables.
+Set up the environment variables with the credentials from the [general setup](#General-Bot-Setup). See the [sample env file](cmd/syzygy/sampleenvfile) for a list of all enviroment variables.
 
-Afterwards, run the build script located at `/cmd/sgpdb/build.sh` and  start the bot using `./sgpdb`:
+Afterwards, run the build script located at `/cmd/syzygy/build.sh` and  start the bot using `./syzygy`:
 
 ```shell
-git clone https://github.com/botlabs-gg/sgpdb
-cd sgpdb/cmd/sgpdb
+git clone https://github.com/SoggySaussages/syzygy
+cd syzygy/cmd/syzygy
 sh build.sh
-./sgpdb -all
+./syzygy -all
 ```
 
-See `./sgpdb -help` for all usable run flags. The webserver listens by default on ports 5000 (HTTP) and 5001 (HTTPS).
+See `./syzygy -help` for all usable run flags. The webserver listens by default on ports 5000 (HTTP) and 5001 (HTTPS).
 
 ## Databases
 
-SGPDB uses Redis for light data and caching, and postgresql for most configurations and heavy data, such as logs.
+SYZYGY uses Redis for light data and caching, and postgresql for most configurations and heavy data, such as logs.
 
 ### Updating
 

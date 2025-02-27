@@ -234,12 +234,12 @@ func (e *cachedEntry) expired(t time.Time) bool {
 
 var (
 	metricsCacheHits = promauto.NewCounter(prometheus.CounterOpts{
-		Name: "sgpdb_cacheset_cache_hits_total",
+		Name: "syzygy_cacheset_cache_hits_total",
 		Help: "Cache hits in the satte cache",
 	})
 
 	metricsCacheMisses = promauto.NewCounter(prometheus.CounterOpts{
-		Name: "sgpdb_cacheset_cache_misses_total",
+		Name: "syzygy_cacheset_cache_misses_total",
 		Help: "Cache misses in the sate cache",
 	})
 )

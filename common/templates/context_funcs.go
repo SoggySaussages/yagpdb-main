@@ -15,11 +15,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/botlabs-gg/sgpdb/v2/bot"
-	"github.com/botlabs-gg/sgpdb/v2/common"
-	"github.com/botlabs-gg/sgpdb/v2/common/scheduledevents2"
-	"github.com/botlabs-gg/sgpdb/v2/lib/discordgo"
-	"github.com/botlabs-gg/sgpdb/v2/lib/dstate"
+	"github.com/SoggySaussages/syzygy/bot"
+	"github.com/SoggySaussages/syzygy/common"
+	"github.com/SoggySaussages/syzygy/common/scheduledevents2"
+	"github.com/SoggySaussages/syzygy/lib/discordgo"
+	"github.com/SoggySaussages/syzygy/lib/dstate"
 	"github.com/volatiletech/null/v8"
 )
 
@@ -493,7 +493,7 @@ func (c *Context) tmplSendWebhookMessage(filterSpecialMentions bool, returnID bo
 			}
 		}
 		if found == nil {
-			w, err := common.BotSession.WebhookCreate(cid, "SGPDB", "")
+			w, err := common.BotSession.WebhookCreate(cid, "SYZYGY", "")
 			if err != nil {
 				return err
 			}

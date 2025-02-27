@@ -5,18 +5,18 @@ import (
 	"sync"
 	"time"
 
-	"github.com/botlabs-gg/sgpdb/v2/bot/models"
-	"github.com/botlabs-gg/sgpdb/v2/common/featureflags"
+	"github.com/SoggySaussages/syzygy/bot/models"
+	"github.com/SoggySaussages/syzygy/common/featureflags"
 	"github.com/mediocregopher/radix/v3"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/volatiletech/null/v8"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 
-	"github.com/botlabs-gg/sgpdb/v2/common"
-	"github.com/botlabs-gg/sgpdb/v2/lib/discordgo"
-	"github.com/botlabs-gg/sgpdb/v2/lib/dshardorchestrator"
-	"github.com/botlabs-gg/sgpdb/v2/lib/dstate"
+	"github.com/SoggySaussages/syzygy/common"
+	"github.com/SoggySaussages/syzygy/lib/discordgo"
+	"github.com/SoggySaussages/syzygy/lib/dshardorchestrator"
+	"github.com/SoggySaussages/syzygy/lib/dstate"
 )
 
 const (
@@ -55,8 +55,8 @@ type ShardMigrationHandler interface {
 }
 
 var metricsLeftGuilds = promauto.NewCounter(prometheus.CounterOpts{
-	Name: "sgpdb_left_guilds",
-	Help: "Guilds sgpdb left",
+	Name: "syzygy_left_guilds",
+	Help: "Guilds syzygy left",
 })
 
 func guildRemoved(guildID int64) {

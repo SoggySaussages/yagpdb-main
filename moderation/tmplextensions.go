@@ -6,10 +6,10 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/botlabs-gg/sgpdb/v2/common/templates"
-	"github.com/botlabs-gg/sgpdb/v2/lib/discordgo"
-	"github.com/botlabs-gg/sgpdb/v2/logs"
-	"github.com/botlabs-gg/sgpdb/v2/moderation/models"
+	"github.com/SoggySaussages/syzygy/common/templates"
+	"github.com/SoggySaussages/syzygy/lib/discordgo"
+	"github.com/SoggySaussages/syzygy/logs"
+	"github.com/SoggySaussages/syzygy/moderation/models"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 

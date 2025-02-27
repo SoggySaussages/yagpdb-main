@@ -11,11 +11,11 @@ import (
 	"sync"
 	"time"
 
-	"github.com/botlabs-gg/sgpdb/v2/commands"
-	"github.com/botlabs-gg/sgpdb/v2/common"
-	"github.com/botlabs-gg/sgpdb/v2/common/backgroundworkers"
-	"github.com/botlabs-gg/sgpdb/v2/lib/dca"
-	"github.com/botlabs-gg/sgpdb/v2/soundboard/models"
+	"github.com/SoggySaussages/syzygy/commands"
+	"github.com/SoggySaussages/syzygy/common"
+	"github.com/SoggySaussages/syzygy/common/backgroundworkers"
+	"github.com/SoggySaussages/syzygy/lib/dca"
+	"github.com/SoggySaussages/syzygy/soundboard/models"
 	"github.com/volatiletech/sqlboiler/v4/boil"
 	"goji.io/pat"
 )

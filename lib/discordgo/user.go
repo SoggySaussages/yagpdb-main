@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/botlabs-gg/sgpdb/v2/lib/gojay"
+	"github.com/SoggySaussages/syzygy/lib/gojay"
 )
 
 // A User stores all data for an individual Discord user.

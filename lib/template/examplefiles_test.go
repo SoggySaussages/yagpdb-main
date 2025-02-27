@@ -11,7 +11,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/botlabs-gg/sgpdb/v2/lib/template"
+	"github.com/SoggySaussages/syzygy/lib/template"
 )
 
 // templateFile defines the contents of a template to be stored in a file, for testing.

@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"emperror.dev/errors"
-	"github.com/botlabs-gg/sgpdb/v2/common/backgroundworkers"
+	"github.com/SoggySaussages/syzygy/common/backgroundworkers"
 	"github.com/google/safebrowsing"
 )
 
