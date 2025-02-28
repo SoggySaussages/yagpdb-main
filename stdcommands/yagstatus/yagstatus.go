@@ -5,11 +5,11 @@ import (
 	"runtime"
 	"time"
 
-	"github.com/botlabs-gg/sgpdb/v2/bot"
-	"github.com/botlabs-gg/sgpdb/v2/commands"
-	"github.com/botlabs-gg/sgpdb/v2/common"
-	"github.com/botlabs-gg/sgpdb/v2/lib/dcmd"
-	"github.com/botlabs-gg/sgpdb/v2/lib/discordgo"
+	"github.com/SoggySaussages/sgpdb/bot"
+	"github.com/SoggySaussages/sgpdb/commands"
+	"github.com/SoggySaussages/sgpdb/common"
+	"github.com/SoggySaussages/sgpdb/lib/dcmd"
+	"github.com/SoggySaussages/sgpdb/lib/discordgo"
 	"github.com/shirou/gopsutil/load"
 	"github.com/shirou/gopsutil/mem"
 )

@@ -4,11 +4,11 @@ import (
 	"strings"
 
 	"emperror.dev/errors"
-	"github.com/botlabs-gg/sgpdb/v2/analytics"
-	"github.com/botlabs-gg/sgpdb/v2/commands"
-	"github.com/botlabs-gg/sgpdb/v2/lib/dcmd"
-	"github.com/botlabs-gg/sgpdb/v2/lib/dstate"
-	"github.com/botlabs-gg/sgpdb/v2/soundboard/models"
+	"github.com/SoggySaussages/sgpdb/analytics"
+	"github.com/SoggySaussages/sgpdb/commands"
+	"github.com/SoggySaussages/sgpdb/lib/dcmd"
+	"github.com/SoggySaussages/sgpdb/lib/dstate"
+	"github.com/SoggySaussages/sgpdb/soundboard/models"
 )
 
 func (p *Plugin) AddCommands() {

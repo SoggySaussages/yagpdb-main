@@ -2,9 +2,9 @@ package moderation
 
 import (
 	"emperror.dev/errors"
-	"github.com/botlabs-gg/sgpdb/v2/common"
-	"github.com/botlabs-gg/sgpdb/v2/common/featureflags"
-	"github.com/botlabs-gg/sgpdb/v2/lib/discordgo"
+	"github.com/SoggySaussages/sgpdb/common"
+	"github.com/SoggySaussages/sgpdb/common/featureflags"
+	"github.com/SoggySaussages/sgpdb/lib/discordgo"
 )
 
 //go:generate sqlboiler --no-hooks psql

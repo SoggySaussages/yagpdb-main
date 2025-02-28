@@ -3,8 +3,8 @@ package verification
 //go:generate sqlboiler --no-hooks psql
 
 import (
-	"github.com/botlabs-gg/sgpdb/v2/common"
-	"github.com/botlabs-gg/sgpdb/v2/common/config"
+	"github.com/SoggySaussages/sgpdb/common"
+	"github.com/SoggySaussages/sgpdb/common/config"
 )
 
 var confGoogleReCAPTCHASiteKey = config.RegisterOption("sgpdb.google.recaptcha_site_key", "Google reCAPTCHA site key", "")

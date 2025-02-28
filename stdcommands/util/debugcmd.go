@@ -1,10 +1,10 @@
 package util
 
 import (
-	"github.com/botlabs-gg/sgpdb/v2/bot"
-	"github.com/botlabs-gg/sgpdb/v2/commands"
-	"github.com/botlabs-gg/sgpdb/v2/common"
-	"github.com/botlabs-gg/sgpdb/v2/lib/dcmd"
+	"github.com/SoggySaussages/sgpdb/bot"
+	"github.com/SoggySaussages/sgpdb/commands"
+	"github.com/SoggySaussages/sgpdb/common"
+	"github.com/SoggySaussages/sgpdb/lib/dcmd"
 )
 
 func isExecedByCC(data *dcmd.Data) bool {

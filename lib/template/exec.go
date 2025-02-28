@@ -14,7 +14,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/botlabs-gg/sgpdb/v2/lib/template/parse"
+	"github.com/SoggySaussages/sgpdb/lib/template/parse"
 )
 
 // maxExecDepth specifies the maximum stack depth of templates within

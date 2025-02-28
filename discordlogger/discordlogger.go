@@ -4,11 +4,11 @@ import (
 	"fmt"
 
 	"emperror.dev/errors"
-	"github.com/botlabs-gg/sgpdb/v2/bot"
-	"github.com/botlabs-gg/sgpdb/v2/bot/eventsystem"
-	"github.com/botlabs-gg/sgpdb/v2/bot/models"
-	"github.com/botlabs-gg/sgpdb/v2/common"
-	"github.com/botlabs-gg/sgpdb/v2/common/config"
+	"github.com/SoggySaussages/sgpdb/bot"
+	"github.com/SoggySaussages/sgpdb/bot/eventsystem"
+	"github.com/SoggySaussages/sgpdb/bot/models"
+	"github.com/SoggySaussages/sgpdb/common"
+	"github.com/SoggySaussages/sgpdb/common/config"
 )
 
 var (

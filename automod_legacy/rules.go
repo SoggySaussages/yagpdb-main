@@ -8,12 +8,12 @@ import (
 	"sync"
 	"time"
 
-	"github.com/botlabs-gg/sgpdb/v2/antiphishing"
-	"github.com/botlabs-gg/sgpdb/v2/bot"
-	"github.com/botlabs-gg/sgpdb/v2/common"
-	"github.com/botlabs-gg/sgpdb/v2/lib/discordgo"
-	"github.com/botlabs-gg/sgpdb/v2/lib/dstate"
-	"github.com/botlabs-gg/sgpdb/v2/safebrowsing"
+	"github.com/SoggySaussages/sgpdb/antiphishing"
+	"github.com/SoggySaussages/sgpdb/bot"
+	"github.com/SoggySaussages/sgpdb/common"
+	"github.com/SoggySaussages/sgpdb/lib/discordgo"
+	"github.com/SoggySaussages/sgpdb/lib/dstate"
+	"github.com/SoggySaussages/sgpdb/safebrowsing"
 	"github.com/mediocregopher/radix/v3"
 )
 

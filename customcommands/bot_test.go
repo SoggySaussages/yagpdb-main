@@ -3,9 +3,9 @@ package customcommands
 import (
 	"testing"
 
-	"github.com/botlabs-gg/sgpdb/v2/common"
-	"github.com/botlabs-gg/sgpdb/v2/customcommands/models"
-	"github.com/botlabs-gg/sgpdb/v2/lib/discordgo"
+	"github.com/SoggySaussages/sgpdb/common"
+	"github.com/SoggySaussages/sgpdb/customcommands/models"
+	"github.com/SoggySaussages/sgpdb/lib/discordgo"
 )
 
 func TestCheckMatch(t *testing.T) {

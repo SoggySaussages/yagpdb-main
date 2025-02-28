@@ -9,13 +9,13 @@ import (
 	"time"
 
 	"emperror.dev/errors"
-	"github.com/botlabs-gg/sgpdb/v2/analytics"
-	"github.com/botlabs-gg/sgpdb/v2/bot"
-	"github.com/botlabs-gg/sgpdb/v2/commands/models"
-	"github.com/botlabs-gg/sgpdb/v2/common"
-	"github.com/botlabs-gg/sgpdb/v2/lib/dcmd"
-	"github.com/botlabs-gg/sgpdb/v2/lib/discordgo"
-	"github.com/botlabs-gg/sgpdb/v2/lib/dstate"
+	"github.com/SoggySaussages/sgpdb/analytics"
+	"github.com/SoggySaussages/sgpdb/bot"
+	"github.com/SoggySaussages/sgpdb/commands/models"
+	"github.com/SoggySaussages/sgpdb/common"
+	"github.com/SoggySaussages/sgpdb/lib/dcmd"
+	"github.com/SoggySaussages/sgpdb/lib/discordgo"
+	"github.com/SoggySaussages/sgpdb/lib/dstate"
 	"github.com/mediocregopher/radix/v3"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
@@ -23,7 +23,7 @@ import (
 	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 
-	commonmodels "github.com/botlabs-gg/sgpdb/v2/common/models"
+	commonmodels "github.com/SoggySaussages/sgpdb/common/models"
 )
 
 type ContextKey int

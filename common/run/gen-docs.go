@@ -7,10 +7,10 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/botlabs-gg/sgpdb/v2/common/config"
+	"github.com/SoggySaussages/sgpdb/common/config"
 
-	"github.com/botlabs-gg/sgpdb/v2/commands"
-	"github.com/botlabs-gg/sgpdb/v2/lib/dcmd"
+	"github.com/SoggySaussages/sgpdb/commands"
+	"github.com/SoggySaussages/sgpdb/lib/dcmd"
 )
 
 func GenCommandsDocs() {

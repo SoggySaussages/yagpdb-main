@@ -18,16 +18,16 @@ import (
 	"unicode/utf8"
 
 	"emperror.dev/errors"
-	"github.com/botlabs-gg/sgpdb/v2/common"
-	"github.com/botlabs-gg/sgpdb/v2/common/cplogs"
-	"github.com/botlabs-gg/sgpdb/v2/common/featureflags"
-	prfx "github.com/botlabs-gg/sgpdb/v2/common/prefix"
-	"github.com/botlabs-gg/sgpdb/v2/common/pubsub"
-	yagtemplate "github.com/botlabs-gg/sgpdb/v2/common/templates"
-	"github.com/botlabs-gg/sgpdb/v2/customcommands/models"
-	"github.com/botlabs-gg/sgpdb/v2/lib/discordgo"
-	"github.com/botlabs-gg/sgpdb/v2/premium"
-	"github.com/botlabs-gg/sgpdb/v2/web"
+	"github.com/SoggySaussages/sgpdb/common"
+	"github.com/SoggySaussages/sgpdb/common/cplogs"
+	"github.com/SoggySaussages/sgpdb/common/featureflags"
+	prfx "github.com/SoggySaussages/sgpdb/common/prefix"
+	"github.com/SoggySaussages/sgpdb/common/pubsub"
+	yagtemplate "github.com/SoggySaussages/sgpdb/common/templates"
+	"github.com/SoggySaussages/sgpdb/customcommands/models"
+	"github.com/SoggySaussages/sgpdb/lib/discordgo"
+	"github.com/SoggySaussages/sgpdb/premium"
+	"github.com/SoggySaussages/sgpdb/web"
 	"github.com/mediocregopher/radix/v3"
 	"github.com/robfig/cron/v3"
 	"github.com/sirupsen/logrus"
@@ -566,7 +566,7 @@ func handleUpdateCommand(w http.ResponseWriter, r *http.Request) (web.TemplateDa
 			//	//	if dbModel.TimeTriggerInterval < 5 {
 			//	//		dbModel.TimeTriggerInterval = 5
 			//	//	}
-//
+			//
 			//	ok, err := checkIntervalLimits(ctx, activeGuild.ID, dbModel.LocalID, templateData)
 			//	if err != nil || !ok {
 			//		return templateData, err

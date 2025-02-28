@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/botlabs-gg/sgpdb/v2/bot/paginatedmessages"
-	"github.com/botlabs-gg/sgpdb/v2/common"
-	"github.com/botlabs-gg/sgpdb/v2/lib/dcmd"
-	"github.com/botlabs-gg/sgpdb/v2/lib/discordgo"
-	"github.com/botlabs-gg/sgpdb/v2/web"
+	"github.com/SoggySaussages/sgpdb/bot/paginatedmessages"
+	"github.com/SoggySaussages/sgpdb/common"
+	"github.com/SoggySaussages/sgpdb/lib/dcmd"
+	"github.com/SoggySaussages/sgpdb/lib/discordgo"
+	"github.com/SoggySaussages/sgpdb/web"
 )
 
 var cmdHelp = &YAGCommand{

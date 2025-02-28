@@ -6,9 +6,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/botlabs-gg/sgpdb/v2/common"
-	"github.com/botlabs-gg/sgpdb/v2/common/config"
-	"github.com/botlabs-gg/sgpdb/v2/common/patreon/patreonapi"
+	"github.com/SoggySaussages/sgpdb/common"
+	"github.com/SoggySaussages/sgpdb/common/config"
+	"github.com/SoggySaussages/sgpdb/common/patreon/patreonapi"
 	"github.com/mediocregopher/radix/v3"
 	"golang.org/x/oauth2"
 )

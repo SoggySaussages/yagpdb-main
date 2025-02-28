@@ -4,8 +4,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/botlabs-gg/sgpdb/v2/bot"
-	"github.com/botlabs-gg/sgpdb/v2/common/config"
+	"github.com/SoggySaussages/sgpdb/bot"
+	"github.com/SoggySaussages/sgpdb/common/config"
 )
 
 var confMaxConcurrentSends = config.RegisterOption("sgpdb.mqueue.max_concurrent_sends", "Max number of concurrent sends that mqueue will do", 3)

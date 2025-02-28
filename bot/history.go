@@ -1,8 +1,8 @@
 package bot
 
 import (
-	"github.com/botlabs-gg/sgpdb/v2/common"
-	"github.com/botlabs-gg/sgpdb/v2/lib/dstate"
+	"github.com/SoggySaussages/sgpdb/common"
+	"github.com/SoggySaussages/sgpdb/lib/dstate"
 )
 
 // GetMessages Gets messages from state if possible, if not then it retrieves from the discord api

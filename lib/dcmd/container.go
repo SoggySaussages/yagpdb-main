@@ -6,8 +6,8 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/botlabs-gg/sgpdb/v2/lib/discordgo"
-	"github.com/botlabs-gg/sgpdb/v2/lib/dstate"
+	"github.com/SoggySaussages/sgpdb/lib/discordgo"
+	"github.com/SoggySaussages/sgpdb/lib/dstate"
 )
 
 type MiddleWareFunc func(next RunFunc) RunFunc

@@ -6,10 +6,10 @@ import (
 	"time"
 
 	"emperror.dev/errors"
-	"github.com/botlabs-gg/sgpdb/v2/bot/botrest"
-	"github.com/botlabs-gg/sgpdb/v2/common"
-	"github.com/botlabs-gg/sgpdb/v2/lib/discordgo"
-	"github.com/botlabs-gg/sgpdb/v2/lib/dstate"
+	"github.com/SoggySaussages/sgpdb/bot/botrest"
+	"github.com/SoggySaussages/sgpdb/common"
+	"github.com/SoggySaussages/sgpdb/lib/discordgo"
+	"github.com/SoggySaussages/sgpdb/lib/dstate"
 	"github.com/karlseguin/ccache"
 	"golang.org/x/oauth2"
 )

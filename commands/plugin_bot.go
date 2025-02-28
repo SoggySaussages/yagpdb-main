@@ -10,13 +10,13 @@ import (
 	"unicode/utf8"
 
 	"emperror.dev/errors"
-	"github.com/botlabs-gg/sgpdb/v2/bot"
-	"github.com/botlabs-gg/sgpdb/v2/bot/eventsystem"
-	"github.com/botlabs-gg/sgpdb/v2/common"
-	prfx "github.com/botlabs-gg/sgpdb/v2/common/prefix"
-	"github.com/botlabs-gg/sgpdb/v2/lib/dcmd"
-	"github.com/botlabs-gg/sgpdb/v2/lib/discordgo"
-	"github.com/botlabs-gg/sgpdb/v2/lib/dstate"
+	"github.com/SoggySaussages/sgpdb/bot"
+	"github.com/SoggySaussages/sgpdb/bot/eventsystem"
+	"github.com/SoggySaussages/sgpdb/common"
+	prfx "github.com/SoggySaussages/sgpdb/common/prefix"
+	"github.com/SoggySaussages/sgpdb/lib/dcmd"
+	"github.com/SoggySaussages/sgpdb/lib/discordgo"
+	"github.com/SoggySaussages/sgpdb/lib/dstate"
 )
 
 var (

@@ -8,13 +8,13 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/botlabs-gg/sgpdb/v2/bot/eventsystem"
+	"github.com/SoggySaussages/sgpdb/bot/eventsystem"
 	"github.com/mediocregopher/radix/v3"
 
-	"github.com/botlabs-gg/sgpdb/v2/common"
-	"github.com/botlabs-gg/sgpdb/v2/lib/dshardorchestrator"
-	"github.com/botlabs-gg/sgpdb/v2/lib/dshardorchestrator/node"
-	"github.com/botlabs-gg/sgpdb/v2/lib/dstate"
+	"github.com/SoggySaussages/sgpdb/common"
+	"github.com/SoggySaussages/sgpdb/lib/dshardorchestrator"
+	"github.com/SoggySaussages/sgpdb/lib/dshardorchestrator/node"
+	"github.com/SoggySaussages/sgpdb/lib/dstate"
 )
 
 func init() {

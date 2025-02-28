@@ -1,8 +1,8 @@
 package autorole
 
 import (
-	"github.com/botlabs-gg/sgpdb/v2/common"
-	"github.com/botlabs-gg/sgpdb/v2/lib/discordgo"
+	"github.com/SoggySaussages/sgpdb/common"
+	"github.com/SoggySaussages/sgpdb/lib/discordgo"
 )
 
 var configCache = common.CacheSet.RegisterSlot("autorole_config", func(key interface{}) (interface{}, error) {

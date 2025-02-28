@@ -6,12 +6,12 @@ import (
 	"time"
 
 	"emperror.dev/errors"
-	"github.com/botlabs-gg/sgpdb/v2/common"
-	"github.com/botlabs-gg/sgpdb/v2/common/pubsub"
-	"github.com/botlabs-gg/sgpdb/v2/lib/discordgo"
-	"github.com/botlabs-gg/sgpdb/v2/premium"
-	"github.com/botlabs-gg/sgpdb/v2/premium/models"
-	"github.com/botlabs-gg/sgpdb/v2/web"
+	"github.com/SoggySaussages/sgpdb/common"
+	"github.com/SoggySaussages/sgpdb/common/pubsub"
+	"github.com/SoggySaussages/sgpdb/lib/discordgo"
+	"github.com/SoggySaussages/sgpdb/premium"
+	"github.com/SoggySaussages/sgpdb/premium/models"
+	"github.com/SoggySaussages/sgpdb/web"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 

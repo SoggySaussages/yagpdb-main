@@ -7,7 +7,7 @@ RUN go mod download
 COPY . .
 
 WORKDIR /appbuild/sgpdb/cmd/sgpdb
-RUN CGO_ENABLED=0 GOOS=linux go build -v -ldflags "-X github.com/botlabs-gg/sgpdb/v2/common.VERSION=$(git describe --tags)"
+RUN CGO_ENABLED=0 GOOS=linux go build -v -ldflags "-X github.com/SoggySaussages/sgpdb/common.VERSION=$(git describe --tags)"
 
 
 

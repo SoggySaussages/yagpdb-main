@@ -11,12 +11,12 @@ import (
 	"time"
 
 	"emperror.dev/errors"
-	"github.com/botlabs-gg/sgpdb/v2/bot/botrest"
-	"github.com/botlabs-gg/sgpdb/v2/common"
-	"github.com/botlabs-gg/sgpdb/v2/common/config"
-	"github.com/botlabs-gg/sgpdb/v2/common/internalapi"
-	"github.com/botlabs-gg/sgpdb/v2/lib/dshardorchestrator/orchestrator/rest"
-	"github.com/botlabs-gg/sgpdb/v2/web"
+	"github.com/SoggySaussages/sgpdb/bot/botrest"
+	"github.com/SoggySaussages/sgpdb/common"
+	"github.com/SoggySaussages/sgpdb/common/config"
+	"github.com/SoggySaussages/sgpdb/common/internalapi"
+	"github.com/SoggySaussages/sgpdb/lib/dshardorchestrator/orchestrator/rest"
+	"github.com/SoggySaussages/sgpdb/web"
 	"goji.io"
 	"goji.io/pat"
 )

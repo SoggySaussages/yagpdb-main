@@ -6,7 +6,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/botlabs-gg/sgpdb/v2/bot/eventsystem"
+	"github.com/SoggySaussages/sgpdb/bot/eventsystem"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 )

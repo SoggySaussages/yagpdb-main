@@ -5,14 +5,14 @@ import (
 	"time"
 
 	"emperror.dev/errors"
-	"github.com/botlabs-gg/sgpdb/v2/bot"
-	"github.com/botlabs-gg/sgpdb/v2/common"
-	"github.com/botlabs-gg/sgpdb/v2/common/config"
-	"github.com/botlabs-gg/sgpdb/v2/common/featureflags"
-	"github.com/botlabs-gg/sgpdb/v2/common/scheduledevents2"
-	schEventsModels "github.com/botlabs-gg/sgpdb/v2/common/scheduledevents2/models"
-	"github.com/botlabs-gg/sgpdb/v2/common/templates"
-	"github.com/botlabs-gg/sgpdb/v2/lib/discordgo"
+	"github.com/SoggySaussages/sgpdb/bot"
+	"github.com/SoggySaussages/sgpdb/common"
+	"github.com/SoggySaussages/sgpdb/common/config"
+	"github.com/SoggySaussages/sgpdb/common/featureflags"
+	"github.com/SoggySaussages/sgpdb/common/scheduledevents2"
+	schEventsModels "github.com/SoggySaussages/sgpdb/common/scheduledevents2/models"
+	"github.com/SoggySaussages/sgpdb/common/templates"
+	"github.com/SoggySaussages/sgpdb/lib/discordgo"
 	"github.com/mediocregopher/radix/v3"
 )
 

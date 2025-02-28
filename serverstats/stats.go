@@ -7,9 +7,9 @@ import (
 
 	"emperror.dev/errors"
 
-	"github.com/botlabs-gg/sgpdb/v2/bot/botrest"
-	"github.com/botlabs-gg/sgpdb/v2/common"
-	"github.com/botlabs-gg/sgpdb/v2/serverstats/messagestatscollector"
+	"github.com/SoggySaussages/sgpdb/bot/botrest"
+	"github.com/SoggySaussages/sgpdb/common"
+	"github.com/SoggySaussages/sgpdb/serverstats/messagestatscollector"
 	"github.com/mediocregopher/radix/v3"
 )
 

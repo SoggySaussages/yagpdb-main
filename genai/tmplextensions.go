@@ -3,8 +3,8 @@ package genai
 import (
 	"encoding/json"
 
-	"github.com/botlabs-gg/sgpdb/v2/common/templates"
-	"github.com/botlabs-gg/sgpdb/v2/lib/dstate"
+	"github.com/SoggySaussages/sgpdb/common/templates"
+	"github.com/SoggySaussages/sgpdb/lib/dstate"
 )
 
 func init() {

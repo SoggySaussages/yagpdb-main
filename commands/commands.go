@@ -6,14 +6,14 @@ package commands
 import (
 	"context"
 
-	"github.com/botlabs-gg/sgpdb/v2/bot/eventsystem"
-	"github.com/botlabs-gg/sgpdb/v2/commands/models"
-	"github.com/botlabs-gg/sgpdb/v2/common"
-	"github.com/botlabs-gg/sgpdb/v2/common/config"
-	"github.com/botlabs-gg/sgpdb/v2/common/featureflags"
-	prfx "github.com/botlabs-gg/sgpdb/v2/common/prefix"
-	"github.com/botlabs-gg/sgpdb/v2/lib/dcmd"
-	"github.com/botlabs-gg/sgpdb/v2/lib/discordgo"
+	"github.com/SoggySaussages/sgpdb/bot/eventsystem"
+	"github.com/SoggySaussages/sgpdb/commands/models"
+	"github.com/SoggySaussages/sgpdb/common"
+	"github.com/SoggySaussages/sgpdb/common/config"
+	"github.com/SoggySaussages/sgpdb/common/featureflags"
+	prfx "github.com/SoggySaussages/sgpdb/common/prefix"
+	"github.com/SoggySaussages/sgpdb/lib/dcmd"
+	"github.com/SoggySaussages/sgpdb/lib/discordgo"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 

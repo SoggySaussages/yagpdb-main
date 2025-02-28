@@ -3,8 +3,8 @@ package inmemorytracker
 import (
 	"container/list"
 
-	"github.com/botlabs-gg/sgpdb/v2/lib/discordgo"
-	"github.com/botlabs-gg/sgpdb/v2/lib/dstate"
+	"github.com/SoggySaussages/sgpdb/lib/discordgo"
+	"github.com/SoggySaussages/sgpdb/lib/dstate"
 )
 
 var _ dstate.StateTracker = (*InMemoryTracker)(nil)

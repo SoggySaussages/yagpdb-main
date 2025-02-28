@@ -9,15 +9,15 @@ import (
 
 	"emperror.dev/errors"
 
-	"github.com/botlabs-gg/sgpdb/v2/analytics"
-	"github.com/botlabs-gg/sgpdb/v2/bot"
-	"github.com/botlabs-gg/sgpdb/v2/bot/eventsystem"
-	"github.com/botlabs-gg/sgpdb/v2/common"
-	"github.com/botlabs-gg/sgpdb/v2/common/featureflags"
-	"github.com/botlabs-gg/sgpdb/v2/common/pubsub"
-	"github.com/botlabs-gg/sgpdb/v2/common/templates"
-	"github.com/botlabs-gg/sgpdb/v2/lib/discordgo"
-	"github.com/botlabs-gg/sgpdb/v2/lib/dstate"
+	"github.com/SoggySaussages/sgpdb/analytics"
+	"github.com/SoggySaussages/sgpdb/bot"
+	"github.com/SoggySaussages/sgpdb/bot/eventsystem"
+	"github.com/SoggySaussages/sgpdb/common"
+	"github.com/SoggySaussages/sgpdb/common/featureflags"
+	"github.com/SoggySaussages/sgpdb/common/pubsub"
+	"github.com/SoggySaussages/sgpdb/common/templates"
+	"github.com/SoggySaussages/sgpdb/lib/discordgo"
+	"github.com/SoggySaussages/sgpdb/lib/dstate"
 	"github.com/mediocregopher/radix/v3"
 )
 

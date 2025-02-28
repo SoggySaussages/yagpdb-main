@@ -10,14 +10,14 @@ import (
 	"time"
 	"unicode/utf8"
 
-	"github.com/botlabs-gg/sgpdb/v2/bot"
-	"github.com/botlabs-gg/sgpdb/v2/common"
-	"github.com/botlabs-gg/sgpdb/v2/common/scheduledevents2"
-	"github.com/botlabs-gg/sgpdb/v2/lib/dcmd"
-	"github.com/botlabs-gg/sgpdb/v2/lib/discordgo"
-	"github.com/botlabs-gg/sgpdb/v2/lib/dstate"
-	"github.com/botlabs-gg/sgpdb/v2/rsvp/models"
-	"github.com/botlabs-gg/sgpdb/v2/timezonecompanion"
+	"github.com/SoggySaussages/sgpdb/bot"
+	"github.com/SoggySaussages/sgpdb/common"
+	"github.com/SoggySaussages/sgpdb/common/scheduledevents2"
+	"github.com/SoggySaussages/sgpdb/lib/dcmd"
+	"github.com/SoggySaussages/sgpdb/lib/discordgo"
+	"github.com/SoggySaussages/sgpdb/lib/dstate"
+	"github.com/SoggySaussages/sgpdb/rsvp/models"
+	"github.com/SoggySaussages/sgpdb/timezonecompanion"
 	"github.com/volatiletech/sqlboiler/v4/boil"
 )
 

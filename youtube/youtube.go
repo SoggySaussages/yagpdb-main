@@ -8,12 +8,12 @@ import (
 	"net/url"
 	"sync"
 
-	"github.com/botlabs-gg/sgpdb/v2/common"
-	"github.com/botlabs-gg/sgpdb/v2/common/config"
-	"github.com/botlabs-gg/sgpdb/v2/common/mqueue"
-	"github.com/botlabs-gg/sgpdb/v2/lib/discordgo"
-	"github.com/botlabs-gg/sgpdb/v2/premium"
-	"github.com/botlabs-gg/sgpdb/v2/youtube/models"
+	"github.com/SoggySaussages/sgpdb/common"
+	"github.com/SoggySaussages/sgpdb/common/config"
+	"github.com/SoggySaussages/sgpdb/common/mqueue"
+	"github.com/SoggySaussages/sgpdb/lib/discordgo"
+	"github.com/SoggySaussages/sgpdb/premium"
+	"github.com/SoggySaussages/sgpdb/youtube/models"
 	"google.golang.org/api/youtube/v3"
 )
 

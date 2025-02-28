@@ -16,13 +16,13 @@ import (
 	"goji.io"
 	"goji.io/pat"
 
-	"github.com/botlabs-gg/sgpdb/v2/bot/botrest"
-	"github.com/botlabs-gg/sgpdb/v2/common"
-	"github.com/botlabs-gg/sgpdb/v2/common/cplogs"
-	"github.com/botlabs-gg/sgpdb/v2/common/pubsub"
-	"github.com/botlabs-gg/sgpdb/v2/lib/discordgo"
-	"github.com/botlabs-gg/sgpdb/v2/logs/models"
-	"github.com/botlabs-gg/sgpdb/v2/web"
+	"github.com/SoggySaussages/sgpdb/bot/botrest"
+	"github.com/SoggySaussages/sgpdb/common"
+	"github.com/SoggySaussages/sgpdb/common/cplogs"
+	"github.com/SoggySaussages/sgpdb/common/pubsub"
+	"github.com/SoggySaussages/sgpdb/lib/discordgo"
+	"github.com/SoggySaussages/sgpdb/logs/models"
+	"github.com/SoggySaussages/sgpdb/web"
 )
 
 //go:embed assets/logs_control_panel.html

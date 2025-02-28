@@ -4,7 +4,7 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/botlabs-gg/sgpdb/v2/lib/discordgo"
+	"github.com/SoggySaussages/sgpdb/lib/discordgo"
 )
 
 var testSession = &discordgo.Session{ShardID: 0, ShardCount: 1}

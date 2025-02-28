@@ -4,11 +4,11 @@ import (
 	"sort"
 	"time"
 
-	"github.com/botlabs-gg/sgpdb/v2/lib/when/rules"
-	"github.com/botlabs-gg/sgpdb/v2/lib/when/rules/br"
-	"github.com/botlabs-gg/sgpdb/v2/lib/when/rules/common"
-	"github.com/botlabs-gg/sgpdb/v2/lib/when/rules/en"
-	"github.com/botlabs-gg/sgpdb/v2/lib/when/rules/ru"
+	"github.com/SoggySaussages/sgpdb/lib/when/rules"
+	"github.com/SoggySaussages/sgpdb/lib/when/rules/br"
+	"github.com/SoggySaussages/sgpdb/lib/when/rules/common"
+	"github.com/SoggySaussages/sgpdb/lib/when/rules/en"
+	"github.com/SoggySaussages/sgpdb/lib/when/rules/ru"
 	"github.com/pkg/errors"
 )
 

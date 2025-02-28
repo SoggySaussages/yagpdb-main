@@ -6,8 +6,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/botlabs-gg/sgpdb/v2/lib/dshardorchestrator"
-	"github.com/botlabs-gg/sgpdb/v2/lib/dshardorchestrator/node"
+	"github.com/SoggySaussages/sgpdb/lib/dshardorchestrator"
+	"github.com/SoggySaussages/sgpdb/lib/dshardorchestrator/node"
 )
 
 type MockLauncher struct {

@@ -4,9 +4,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/botlabs-gg/sgpdb/v2/common"
-	"github.com/botlabs-gg/sgpdb/v2/common/backgroundworkers"
-	"github.com/botlabs-gg/sgpdb/v2/logs/models"
+	"github.com/SoggySaussages/sgpdb/common"
+	"github.com/SoggySaussages/sgpdb/common/backgroundworkers"
+	"github.com/SoggySaussages/sgpdb/logs/models"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 	"golang.org/x/net/context"
 )

@@ -4,9 +4,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/botlabs-gg/sgpdb/v2/lib/when"
-	"github.com/botlabs-gg/sgpdb/v2/lib/when/rules"
-	"github.com/botlabs-gg/sgpdb/v2/lib/when/rules/br"
+	"github.com/SoggySaussages/sgpdb/lib/when"
+	"github.com/SoggySaussages/sgpdb/lib/when/rules"
+	"github.com/SoggySaussages/sgpdb/lib/when/rules/br"
 )
 
 func TestHour(t *testing.T) {

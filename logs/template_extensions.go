@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"emperror.dev/errors"
-	"github.com/botlabs-gg/sgpdb/v2/common/templates"
+	"github.com/SoggySaussages/sgpdb/common/templates"
 )
 
 func init() {

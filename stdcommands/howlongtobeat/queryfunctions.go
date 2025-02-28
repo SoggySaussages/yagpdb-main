@@ -9,8 +9,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/botlabs-gg/sgpdb/v2/commands"
-	"github.com/botlabs-gg/sgpdb/v2/lib/jarowinkler"
+	"github.com/SoggySaussages/sgpdb/commands"
+	"github.com/SoggySaussages/sgpdb/lib/jarowinkler"
 )
 
 func getGameData(searchTitle string) ([]hltb, error) {

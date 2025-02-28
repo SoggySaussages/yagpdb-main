@@ -4,9 +4,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/botlabs-gg/sgpdb/v2/commands"
-	"github.com/botlabs-gg/sgpdb/v2/lib/dcmd"
-	"github.com/botlabs-gg/sgpdb/v2/timezonecompanion"
+	"github.com/SoggySaussages/sgpdb/commands"
+	"github.com/SoggySaussages/sgpdb/lib/dcmd"
+	"github.com/SoggySaussages/sgpdb/timezonecompanion"
 	"github.com/tkuchiki/go-timezone"
 )
 

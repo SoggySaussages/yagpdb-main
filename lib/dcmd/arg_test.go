@@ -3,7 +3,7 @@ package dcmd
 import (
 	"testing"
 
-	"github.com/botlabs-gg/sgpdb/v2/lib/discordgo"
+	"github.com/SoggySaussages/sgpdb/lib/discordgo"
 	"github.com/stretchr/testify/assert"
 )
 

@@ -6,11 +6,11 @@ import (
 	"time"
 
 	"emperror.dev/errors"
-	"github.com/botlabs-gg/sgpdb/v2/common"
-	"github.com/botlabs-gg/sgpdb/v2/common/backgroundworkers"
-	"github.com/botlabs-gg/sgpdb/v2/common/config"
-	"github.com/botlabs-gg/sgpdb/v2/premium"
-	"github.com/botlabs-gg/sgpdb/v2/serverstats/messagestatscollector"
+	"github.com/SoggySaussages/sgpdb/common"
+	"github.com/SoggySaussages/sgpdb/common/backgroundworkers"
+	"github.com/SoggySaussages/sgpdb/common/config"
+	"github.com/SoggySaussages/sgpdb/premium"
+	"github.com/SoggySaussages/sgpdb/serverstats/messagestatscollector"
 	"github.com/mediocregopher/radix/v3"
 )
 

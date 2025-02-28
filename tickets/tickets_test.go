@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/botlabs-gg/sgpdb/v2/lib/discordgo"
+	"github.com/SoggySaussages/sgpdb/lib/discordgo"
 )
 
 func TestInheritPermissionsFromCategory(t *testing.T) {

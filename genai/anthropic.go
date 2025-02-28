@@ -8,9 +8,9 @@ import (
 	"reflect"
 	"strconv"
 
+	"github.com/SoggySaussages/sgpdb/lib/dstate"
 	"github.com/anthropics/anthropic-sdk-go"
 	"github.com/anthropics/anthropic-sdk-go/option"
-	"github.com/botlabs-gg/sgpdb/v2/lib/dstate"
 )
 
 type GenAIProviderAnthropic struct{}

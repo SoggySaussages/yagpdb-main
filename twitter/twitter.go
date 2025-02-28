@@ -5,10 +5,10 @@ package twitter
 import (
 	"sync"
 
-	"github.com/botlabs-gg/sgpdb/v2/common"
-	"github.com/botlabs-gg/sgpdb/v2/common/config"
-	"github.com/botlabs-gg/sgpdb/v2/common/mqueue"
-	"github.com/botlabs-gg/sgpdb/v2/twitter/models"
+	"github.com/SoggySaussages/sgpdb/common"
+	"github.com/SoggySaussages/sgpdb/common/config"
+	"github.com/SoggySaussages/sgpdb/common/mqueue"
+	"github.com/SoggySaussages/sgpdb/twitter/models"
 	twitterscraper "github.com/n0madic/twitter-scraper"
 )
 

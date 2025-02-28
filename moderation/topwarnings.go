@@ -3,10 +3,10 @@ package moderation
 import (
 	"database/sql"
 
-	// "github.com/botlabs-gg/sgpdb/v2/lib/discordgo"
-	// "github.com/botlabs-gg/sgpdb/v2/lib/dstate"
-	"github.com/botlabs-gg/sgpdb/v2/bot"
-	"github.com/botlabs-gg/sgpdb/v2/common"
+	// "github.com/SoggySaussages/sgpdb/lib/discordgo"
+	// "github.com/SoggySaussages/sgpdb/lib/dstate"
+	"github.com/SoggySaussages/sgpdb/bot"
+	"github.com/SoggySaussages/sgpdb/common"
 )
 
 type WarnRankEntry struct {

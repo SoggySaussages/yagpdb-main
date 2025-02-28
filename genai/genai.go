@@ -8,11 +8,11 @@ import (
 	"strings"
 
 	"emperror.dev/errors"
-	"github.com/SoggySaussages/renascale/v2/commands"
-	"github.com/SoggySaussages/renascale/v2/common"
-	"github.com/SoggySaussages/renascale/v2/common/featureflags"
-	"github.com/SoggySaussages/renascale/v2/genai/models"
-	"github.com/SoggySaussages/renascale/v2/lib/dstate"
+	"github.com/SoggySaussages/sgpdb/commands"
+	"github.com/SoggySaussages/sgpdb/common"
+	"github.com/SoggySaussages/sgpdb/common/featureflags"
+	"github.com/SoggySaussages/sgpdb/genai/models"
+	"github.com/SoggySaussages/sgpdb/lib/dstate"
 )
 
 //go:generate sqlboiler --no-hooks psql

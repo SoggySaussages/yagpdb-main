@@ -6,11 +6,11 @@ import (
 	"strings"
 
 	"emperror.dev/errors"
-	"github.com/botlabs-gg/sgpdb/v2/bot"
-	"github.com/botlabs-gg/sgpdb/v2/commands"
-	"github.com/botlabs-gg/sgpdb/v2/lib/dcmd"
-	"github.com/botlabs-gg/sgpdb/v2/reddit/models"
-	"github.com/botlabs-gg/sgpdb/v2/stdcommands/util"
+	"github.com/SoggySaussages/sgpdb/bot"
+	"github.com/SoggySaussages/sgpdb/commands"
+	"github.com/SoggySaussages/sgpdb/lib/dcmd"
+	"github.com/SoggySaussages/sgpdb/reddit/models"
+	"github.com/SoggySaussages/sgpdb/stdcommands/util"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 

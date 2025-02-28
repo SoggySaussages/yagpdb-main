@@ -1,7 +1,7 @@
 package notifications
 
 import (
-	"github.com/botlabs-gg/sgpdb/v2/common"
+	"github.com/SoggySaussages/sgpdb/common"
 )
 
 //go:generate sqlboiler --no-hooks psql

@@ -12,9 +12,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/botlabs-gg/sgpdb/v2/common"
-	"github.com/botlabs-gg/sgpdb/v2/premium/models"
-	"github.com/botlabs-gg/sgpdb/v2/web"
+	"github.com/SoggySaussages/sgpdb/common"
+	"github.com/SoggySaussages/sgpdb/premium/models"
+	"github.com/SoggySaussages/sgpdb/web"
 	"github.com/didip/tollbooth"
 	"github.com/didip/tollbooth/limiter"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
