@@ -38,6 +38,7 @@ import (
 	"github.com/SoggySaussages/sgpdb/stdcommands/poll"
 	"github.com/SoggySaussages/sgpdb/stdcommands/roast"
 	"github.com/SoggySaussages/sgpdb/stdcommands/roll"
+	"github.com/SoggySaussages/sgpdb/stdcommands/say"
 	"github.com/SoggySaussages/sgpdb/stdcommands/setstatus"
 	"github.com/SoggySaussages/sgpdb/stdcommands/simpleembed"
 	"github.com/SoggySaussages/sgpdb/stdcommands/sleep"
@@ -108,6 +109,7 @@ func (p *Plugin) AddCommands() {
 		forex.Command,
 		roast.Command,
 		eightball.Command,
+		say.Command,
 
 		// Maintenance
 		stateinfo.Command,
