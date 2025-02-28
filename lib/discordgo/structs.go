@@ -1436,6 +1436,16 @@ type WebhookParams struct {
 	AllowedMentions *AllowedMentions   `json:"allowed_mentions,omitempty"`
 }
 
+// WebhookEdit stores data for editing of a webhook message.
+type WebhookEdit struct {
+	Content         *string               `json:"content,omitempty"`
+	Components      *[]MessageComponent   `json:"components,omitempty"`
+	Embeds          *[]*MessageEmbed      `json:"embeds,omitempty"`
+	Files           []*File               `json:"-"`
+	Attachments     *[]*MessageAttachment `json:"attachments,omitempty"`
+	AllowedMentions *AllowedMentions      `json:"allowed_mentions,omitempty"`
+}
+
 // MessageReaction stores the data for a message reaction.
 type MessageReaction struct {
 	UserID    int64 `json:"user_id,string"`

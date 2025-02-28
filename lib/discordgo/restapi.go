@@ -2346,6 +2346,36 @@ func (s *Session) WebhookExecuteComplex(webhookID int64, token string, wait bool
 	// return
 }
 
+// WebhookMessageEdit edits a webhook message and returns a new one.
+// webhookID : The ID of a webhook
+// token     : The auth token for the webhook
+// messageID : The ID of message to edit
+func (s *Session) WebhookMessageEdit(webhookID int64, messageID, token string, data *WebhookEdit) (st *Message, err error) {
+	uri := EndpointWebhookMessage(webhookID, token, messageID)
+
+	var response []byte
+	if len(data.Files) > 0 {
+		contentType, body, err := MultipartBodyWithJSON(data, data.Files)
+		if err != nil {
+			return nil, err
+		}
+
+		_, err = s.request("PATCH", uri, contentType, body, nil, "0")
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		response, err = s.RequestWithBucketID("PATCH", uri, data, nil, EndpointWebhookToken(0, ""))
+
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	err = unmarshal(response, &st)
+	return
+}
+
 // WebhookMessage gets a webhook message.
 // webhookID : The ID of a webhook
 // token     : The auth token for the webhook
