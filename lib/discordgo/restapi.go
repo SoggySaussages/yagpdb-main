@@ -2393,6 +2393,26 @@ func (s *Session) WebhookMessage(webhookID int64, token string, messageID int64)
 	return
 }
 
+func (s *Session) FirstAvailableWebhook(cid, botUserID int64) (found *Webhook, err error) {
+	webhooks, err := s.ChannelWebhooks(cid)
+	if err != nil {
+		return
+	}
+	for _, w := range webhooks {
+		if w.User.ID == botUserID {
+			found = w
+			break
+		}
+	}
+	if found == nil {
+		found, err = s.WebhookCreate(cid, "Syzygy | 3yAlgo", "")
+		if err != nil {
+			return
+		}
+	}
+	return
+}
+
 // MessageReactionAdd creates an emoji reaction to a message.
 // channelID : The channel ID.
 // messageID : The message ID.

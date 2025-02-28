@@ -481,23 +481,9 @@ func (c *Context) tmplSendWebhookMessage(filterSpecialMentions bool, returnID bo
 			}
 		}
 
-		webhooks, err := common.BotSession.ChannelWebhooks(cid)
+		found, err := common.BotSession.FirstAvailableWebhook(cid, common.BotUser.ID)
 		if err != nil {
 			return err
-		}
-		var found *discordgo.Webhook
-		for _, w := range webhooks {
-			if w.User.ID == common.BotUser.ID {
-				found = w
-				break
-			}
-		}
-		if found == nil {
-			w, err := common.BotSession.WebhookCreate(cid, "SGPDB", "")
-			if err != nil {
-				return err
-			}
-			found = w
 		}
 
 		m, err := common.BotSession.WebhookExecuteComplex(found.ID, found.Token, false, msg)
