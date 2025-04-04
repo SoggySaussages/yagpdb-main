@@ -191,7 +191,11 @@ func (yc *YAGCommand) Run(data *dcmd.Data) (interface{}, error) {
 	}
 
 	if !yc.RunInDM && data.Source == dcmd.TriggerSourceDM {
-		return nil, nil
+		var ret interface{}
+		if data.TriggerType == dcmd.TriggerTypeSlashCommands {
+			ret = "This command can be used only in servers"
+		}
+		return ret, nil
 	}
 
 	if yc.NSFW {
