@@ -9,11 +9,11 @@ import (
 	"github.com/botlabs-gg/yagpdb/v2/common"
 	"github.com/botlabs-gg/yagpdb/v2/common/config"
 	"github.com/botlabs-gg/yagpdb/v2/common/featureflags"
+	"github.com/botlabs-gg/yagpdb/v2/common/redis"
 	"github.com/botlabs-gg/yagpdb/v2/common/scheduledevents2"
 	schEventsModels "github.com/botlabs-gg/yagpdb/v2/common/scheduledevents2/models"
 	"github.com/botlabs-gg/yagpdb/v2/common/templates"
 	"github.com/botlabs-gg/yagpdb/v2/lib/discordgo"
-	"github.com/mediocregopher/radix/v3"
 )
 
 const (
@@ -156,7 +156,7 @@ func PremiumProvidedBy(guildID int64) (int64, error) {
 	}
 
 	var userID int64
-	err := common.RedisPool.Do(radix.FlatCmd(&userID, "HGET", RedisKeyPremiumGuilds, guildID))
+	err := common.RedisPool.Do(redis.FlatCmd(&userID, "HGET", RedisKeyPremiumGuilds, guildID))
 	return userID, errors.WithMessage(err, "PremiumProvidedBy")
 }
 
@@ -167,7 +167,7 @@ func AllGuildsOncePremium() (map[int64]time.Time, error) {
 	}
 
 	var result []int64
-	err := common.RedisPool.Do(radix.Cmd(&result, "ZRANGE", RedisKeyPremiumGuildLastActive, "0", "-1", "WITHSCORES"))
+	err := common.RedisPool.Do(redis.Cmd(&result, "ZRANGE", RedisKeyPremiumGuildLastActive, "0", "-1", "WITHSCORES"))
 	if err != nil {
 		return nil, errors.WrapIf(err, "zrange")
 	}
@@ -186,7 +186,7 @@ func AllGuildsOncePremium() (map[int64]time.Time, error) {
 
 func allGuildsOncePremiumAllPremiumEnabled() (map[int64]time.Time, error) {
 	var listedServers []int64
-	err := common.RedisPool.Do(radix.Cmd(&listedServers, "SMEMBERS", "connected_guilds"))
+	err := common.RedisPool.Do(redis.Cmd(&listedServers, "SMEMBERS", "connected_guilds"))
 	if err != nil {
 		return nil, err
 	}

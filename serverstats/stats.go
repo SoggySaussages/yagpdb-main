@@ -9,8 +9,8 @@ import (
 
 	"github.com/botlabs-gg/yagpdb/v2/bot/botrest"
 	"github.com/botlabs-gg/yagpdb/v2/common"
+	"github.com/botlabs-gg/yagpdb/v2/common/redis"
 	"github.com/botlabs-gg/yagpdb/v2/serverstats/messagestatscollector"
-	"github.com/mediocregopher/radix/v3"
 )
 
 type ChannelStats struct {
@@ -54,7 +54,7 @@ func readDailyMsgStats(t time.Time, guildID int64) (channelStats map[string]*Cha
 	year := t.Year()
 
 	raw := make(map[int64]int64)
-	err = common.RedisPool.Do(radix.Cmd(&raw, "ZRANGE", messagestatscollector.KeyMessageStats(guildID, year, day), "0", "-1", "WITHSCORES"))
+	err = common.RedisPool.Do(redis.Cmd(&raw, "ZRANGE", messagestatscollector.KeyMessageStats(guildID, year, day), "0", "-1", "WITHSCORES"))
 	if err != nil {
 		return nil, err
 	}
@@ -80,10 +80,10 @@ func readDailyMiscStats(t time.Time, guildID int64) (*DailyStats, error) {
 	var totalMembers int
 	var joins int
 	var leaves int
-	err := common.RedisPool.Do(radix.Pipeline(
-		radix.FlatCmd(&totalMembers, "ZSCORE", keyTotalMembers(year, day), guildID),
-		radix.FlatCmd(&joins, "ZSCORE", keyJoinedMembers(year, day), guildID),
-		radix.FlatCmd(&leaves, "ZSCORE", keyLeftMembers(year, day), guildID),
+	err := common.RedisPool.Do(redis.Pipeline(
+		redis.FlatCmd(&totalMembers, "ZSCORE", keyTotalMembers(year, day), guildID),
+		redis.FlatCmd(&joins, "ZSCORE", keyJoinedMembers(year, day), guildID),
+		redis.FlatCmd(&leaves, "ZSCORE", keyLeftMembers(year, day), guildID),
 	))
 
 	ds := &DailyStats{

@@ -3,13 +3,13 @@ package prefix
 import (
 	"github.com/botlabs-gg/yagpdb/v2/common"
 	"github.com/botlabs-gg/yagpdb/v2/common/featureflags"
+	"github.com/botlabs-gg/yagpdb/v2/common/redis"
 	"github.com/botlabs-gg/yagpdb/v2/lib/discordgo"
-	"github.com/mediocregopher/radix/v3"
 )
 
 func GetCommandPrefixRedis(guild int64) (string, error) {
 	var prefix string
-	err := common.RedisPool.Do(radix.Cmd(&prefix, "GET", "command_prefix:"+discordgo.StrID(guild)))
+	err := common.RedisPool.Do(redis.Cmd(&prefix, "GET", "command_prefix:"+discordgo.StrID(guild)))
 	if err == nil && prefix == "" {
 		prefix = DefaultCommandPrefix()
 	}

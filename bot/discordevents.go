@@ -15,8 +15,8 @@ import (
 	"github.com/botlabs-gg/yagpdb/v2/common"
 	"github.com/botlabs-gg/yagpdb/v2/common/featureflags"
 	"github.com/botlabs-gg/yagpdb/v2/common/pubsub"
+	"github.com/botlabs-gg/yagpdb/v2/common/redis"
 	"github.com/botlabs-gg/yagpdb/v2/lib/discordgo"
-	"github.com/mediocregopher/radix/v3"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/sirupsen/logrus"
@@ -58,7 +58,7 @@ func addBotHandlers() {
 var (
 	connectedGuildsCache = common.CacheSet.RegisterSlot("bot_connected_guilds", func(_ interface{}) (interface{}, error) {
 		var listedServers []int64
-		err := common.RedisPool.Do(radix.Cmd(&listedServers, "SMEMBERS", "connected_guilds"))
+		err := common.RedisPool.Do(redis.Cmd(&listedServers, "SMEMBERS", "connected_guilds"))
 		return listedServers, err
 	}, 0)
 )
@@ -135,9 +135,9 @@ func HandleGuildCreate(evt *eventsystem.EventData) (retry bool, err error) {
 	saddRes := 0
 	isBanned := false
 
-	err = common.RedisPool.Do(radix.Pipeline(
-		radix.Cmd(&saddRes, "SADD", "connected_guilds", discordgo.StrID(g.ID)),
-		radix.Cmd(&isBanned, "SISMEMBER", "banned_servers", discordgo.StrID(g.ID)),
+	err = common.RedisPool.Do(redis.Pipeline(
+		redis.Cmd(&saddRes, "SADD", "connected_guilds", discordgo.StrID(g.ID)),
+		redis.Cmd(&isBanned, "SISMEMBER", "banned_servers", discordgo.StrID(g.ID)),
 	))
 	if err != nil {
 		return true, errors.WithStackIf(err)
@@ -242,16 +242,16 @@ func handleInvalidateCacheEvent(evt *eventsystem.EventData) (bool, error) {
 
 func InvalidateCache(guildID, userID int64) {
 	if userID != 0 {
-		if err := common.RedisPool.Do(radix.Cmd(nil, "DEL", common.CacheKeyPrefix+discordgo.StrID(userID)+":guilds")); err != nil {
+		if err := common.RedisPool.Do(redis.Cmd(nil, "DEL", common.CacheKeyPrefix+discordgo.StrID(userID)+":guilds")); err != nil {
 			logger.WithField("guild", guildID).WithField("user", userID).WithError(err).Error("failed invalidating user guilds cache")
 		}
 	}
 	if guildID != 0 {
-		if err := common.RedisPool.Do(radix.Cmd(nil, "DEL", common.CacheKeyPrefix+common.KeyGuild(guildID))); err != nil {
+		if err := common.RedisPool.Do(redis.Cmd(nil, "DEL", common.CacheKeyPrefix+common.KeyGuild(guildID))); err != nil {
 			logger.WithField("guild", guildID).WithField("user", userID).WithError(err).Error("failed invalidating guild cache")
 		}
 
-		if err := common.RedisPool.Do(radix.Cmd(nil, "DEL", common.CacheKeyPrefix+common.KeyGuildChannels(guildID))); err != nil {
+		if err := common.RedisPool.Do(redis.Cmd(nil, "DEL", common.CacheKeyPrefix+common.KeyGuildChannels(guildID))); err != nil {
 			logger.WithField("guild", guildID).WithField("user", userID).WithError(err).Error("failed invalidating guild channels cache")
 		}
 	}

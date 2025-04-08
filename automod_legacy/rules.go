@@ -11,11 +11,11 @@ import (
 	"github.com/botlabs-gg/yagpdb/v2/antiphishing"
 	"github.com/botlabs-gg/yagpdb/v2/bot"
 	"github.com/botlabs-gg/yagpdb/v2/common"
+	"github.com/botlabs-gg/yagpdb/v2/common/redis"
 	"github.com/botlabs-gg/yagpdb/v2/lib/confusables"
 	"github.com/botlabs-gg/yagpdb/v2/lib/discordgo"
 	"github.com/botlabs-gg/yagpdb/v2/lib/dstate"
 	"github.com/botlabs-gg/yagpdb/v2/safebrowsing"
-	"github.com/mediocregopher/radix/v3"
 )
 
 var forwardSlashReplacer = strings.NewReplacer("\\", "")
@@ -74,13 +74,13 @@ func (r BaseRule) IgnoreChannelsParsed() []int64 {
 
 func (r BaseRule) PushViolation(key string) (p Punishment, err error) {
 	violations := 0
-	err = common.RedisPool.Do(radix.Cmd(&violations, "INCR", key))
+	err = common.RedisPool.Do(redis.Cmd(&violations, "INCR", key))
 	if err != nil {
 		return
 	}
 
 	if r.ViolationsExpire > 0 {
-		common.RedisPool.Do(radix.FlatCmd(nil, "EXPIRE", key, r.ViolationsExpire*60))
+		common.RedisPool.Do(redis.FlatCmd(nil, "EXPIRE", key, r.ViolationsExpire*60))
 	}
 
 	mute := r.MuteAfter > 0 && violations >= r.MuteAfter

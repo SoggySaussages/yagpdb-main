@@ -11,15 +11,15 @@ import (
 	"github.com/botlabs-gg/yagpdb/v2/bot/eventsystem"
 	"github.com/botlabs-gg/yagpdb/v2/commands"
 	"github.com/botlabs-gg/yagpdb/v2/common"
+	"github.com/botlabs-gg/yagpdb/v2/common/redis"
 	"github.com/botlabs-gg/yagpdb/v2/lib/dcmd"
 	"github.com/botlabs-gg/yagpdb/v2/lib/discordgo"
 	"github.com/botlabs-gg/yagpdb/v2/serverstats/messagestatscollector"
 	"github.com/botlabs-gg/yagpdb/v2/web"
-	"github.com/mediocregopher/radix/v3"
 )
 
 func MarkGuildAsToBeChecked(guildID int64) {
-	common.RedisPool.Do(radix.FlatCmd(nil, "SADD", "serverstats_active_guilds", guildID))
+	common.RedisPool.Do(redis.FlatCmd(nil, "SADD", "serverstats_active_guilds", guildID))
 }
 
 var (
@@ -179,13 +179,13 @@ func (p *Plugin) runOnlineUpdater() {
 		day := t.YearDay()
 		year := t.Year()
 
-		updateActions := make([]radix.CmdAction, 0, len(totalCounts)*2)
+		updateActions := make([]redis.RedisCmdAction, 0, len(totalCounts)*2)
 
 		for g, counts := range totalCounts {
-			updateActions = append(updateActions, radix.FlatCmd(nil, "ZADD", keyTotalMembers(year, day), counts[1], g), radix.FlatCmd(nil, "ZADD", keyOnlineMembers(year, day), counts[0], g))
+			updateActions = append(updateActions, redis.FlatCmd(nil, "ZADD", keyTotalMembers(year, day), counts[1], g), redis.FlatCmd(nil, "ZADD", keyOnlineMembers(year, day), counts[0], g))
 		}
 
-		err := common.RedisPool.Do(radix.Pipeline(updateActions...))
+		err := common.RedisPool.Do(redis.Pipeline(updateActions...))
 		if err != nil {
 			logger.WithError(err).Error("failed updating members period runner")
 		}

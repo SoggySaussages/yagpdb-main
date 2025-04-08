@@ -16,6 +16,7 @@ import (
 	"time"
 
 	"github.com/botlabs-gg/yagpdb/v2/common/cacheset"
+	"github.com/botlabs-gg/yagpdb/v2/common/redis"
 	"github.com/botlabs-gg/yagpdb/v2/lib/discordgo"
 	"github.com/jmoiron/sqlx"
 	"github.com/mediocregopher/radix/v3"
@@ -31,7 +32,7 @@ var (
 	PQ   *sql.DB
 	SQLX *sqlx.DB
 
-	RedisPool *radix.Pool
+	RedisPool *redis.RedisPool
 	CacheSet  = cacheset.NewManager(time.Hour)
 
 	BotSession     *discordgo.Session
@@ -121,7 +122,7 @@ func Init() error {
 
 	BotApplication = app
 
-	err = RedisPool.Do(radix.Cmd(&CurrentRunCounter, "INCR", "yagpdb_run_counter"))
+	err = RedisPool.Do(redis.Cmd(&CurrentRunCounter, "INCR", "yagpdb_run_counter"))
 	if err != nil {
 		panic(err)
 	}
@@ -251,7 +252,7 @@ func connectRedis(unitTests bool) (err error) {
 		)
 	}
 
-	RedisPool, err = radix.NewPool("tcp", RedisAddr, maxConns, opts...)
+	err = RedisPool.NewPool("tcp", RedisAddr, maxConns, opts...)
 	return
 }
 

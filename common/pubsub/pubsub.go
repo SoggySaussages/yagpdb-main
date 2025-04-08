@@ -15,6 +15,7 @@ import (
 	"time"
 
 	"github.com/botlabs-gg/yagpdb/v2/common"
+	"github.com/botlabs-gg/yagpdb/v2/common/redis"
 	"github.com/botlabs-gg/yagpdb/v2/lib/discordgo"
 	"github.com/mediocregopher/radix/v3"
 	"github.com/prometheus/client_golang/prometheus"
@@ -77,7 +78,7 @@ func Publish(evt string, target int64, data interface{}) error {
 
 	value := fmt.Sprintf("%d,%s,%s", target, evt, dataStr)
 	metricsPubsubSent.With(prometheus.Labels{"event": evt}).Inc()
-	return common.RedisPool.Do(radix.Cmd(nil, "PUBLISH", "events", value))
+	return common.RedisPool.Do(redis.Cmd(nil, "PUBLISH", "events", value))
 }
 
 func PublishLogErr(evt string, target int64, data interface{}) {

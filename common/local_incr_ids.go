@@ -5,7 +5,7 @@ import (
 	"strconv"
 
 	"emperror.dev/errors"
-	"github.com/mediocregopher/radix/v3"
+	"github.com/botlabs-gg/yagpdb/v2/common/redis"
 )
 
 // GenLocalIncrID creates a new or incremements a existing local id incrememter
@@ -14,7 +14,7 @@ import (
 // GenLocalIncrID is deprecated and GenLocalIncrIDPQ should be used instead
 func GenLocalIncrID(guildID int64, key string) (int64, error) {
 	var id int64
-	err := RedisPool.Do(radix.Cmd(&id, "HINCRBY", "local_ids:"+strconv.FormatInt(guildID, 10), key, "1"))
+	err := RedisPool.Do(redis.Cmd(&id, "HINCRBY", "local_ids:"+strconv.FormatInt(guildID, 10), key, "1"))
 	if err != nil {
 		logger.WithError(err).WithField("guild", guildID).WithField("key", key).Error("failed incrementing local id")
 	}

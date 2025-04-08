@@ -9,9 +9,9 @@ import (
 	"github.com/botlabs-gg/yagpdb/v2/common"
 	"github.com/botlabs-gg/yagpdb/v2/common/backgroundworkers"
 	"github.com/botlabs-gg/yagpdb/v2/common/config"
+	"github.com/botlabs-gg/yagpdb/v2/common/redis"
 	"github.com/botlabs-gg/yagpdb/v2/premium"
 	"github.com/botlabs-gg/yagpdb/v2/serverstats/messagestatscollector"
-	"github.com/mediocregopher/radix/v3"
 )
 
 const (
@@ -144,7 +144,7 @@ func (c *Compressor) updateCompress(t time.Time, legacy bool) (ran bool, next ti
 
 func (p *Plugin) getLastTimeRanHourly() time.Time {
 	var last int64
-	err := common.RedisPool.Do(radix.Cmd(&last, "GET", RedisKeyLastHourlyRan))
+	err := common.RedisPool.Do(redis.Cmd(&last, "GET", RedisKeyLastHourlyRan))
 	if err != nil {
 		logger.WithError(err).Error("[serverstats] failed getting last hourly worker run time")
 	}
@@ -469,7 +469,7 @@ const keyCompressionCompressionRanDays = "serverstats_compression_days_ran"
 
 func (c *Compressor) hasCompressionRan(year, day int) (bool, error) {
 	var ran bool
-	err := common.RedisPool.Do(radix.Cmd(&ran, "SISMEMBER", keyCompressionCompressionRanDays, fmt.Sprintf("%d:%d", year, day)))
+	err := common.RedisPool.Do(redis.Cmd(&ran, "SISMEMBER", keyCompressionCompressionRanDays, fmt.Sprintf("%d:%d", year, day)))
 	return ran, err
 }
 
@@ -506,43 +506,43 @@ func (c *Compressor) runCompressionDay(year, day int) error {
 func (c *Compressor) cleanTempRedisStats(year, day int) error {
 	// clean message stats
 	var activeGuilds []int64
-	err := common.RedisPool.Do(radix.Cmd(&activeGuilds, "SMEMBERS", messagestatscollector.KeyActiveGuilds(year, day)))
+	err := common.RedisPool.Do(redis.Cmd(&activeGuilds, "SMEMBERS", messagestatscollector.KeyActiveGuilds(year, day)))
 	if err != nil {
 		return errors.WithStackIf(err)
 	}
 
 	for _, g := range activeGuilds {
-		err = common.RedisPool.Do(radix.Cmd(nil, "DEL", messagestatscollector.KeyMessageStats(g, year, day)))
+		err = common.RedisPool.Do(redis.Cmd(nil, "DEL", messagestatscollector.KeyMessageStats(g, year, day)))
 		if err != nil {
 			return errors.WithStackIf(err)
 		}
 	}
 
-	err = common.RedisPool.Do(radix.Cmd(nil, "DEL", messagestatscollector.KeyActiveGuilds(year, day)))
+	err = common.RedisPool.Do(redis.Cmd(nil, "DEL", messagestatscollector.KeyActiveGuilds(year, day)))
 	if err != nil {
 		return errors.WithStackIf(err)
 	}
 
 	// clean other stats
-	err = common.RedisPool.Do(radix.Cmd(nil, "DEL", keyTotalMembers(year, day)))
+	err = common.RedisPool.Do(redis.Cmd(nil, "DEL", keyTotalMembers(year, day)))
 	if err != nil {
 		return errors.WithStackIf(err)
 	}
-	err = common.RedisPool.Do(radix.Cmd(nil, "DEL", keyOnlineMembers(year, day)))
+	err = common.RedisPool.Do(redis.Cmd(nil, "DEL", keyOnlineMembers(year, day)))
 	if err != nil {
 		return errors.WithStackIf(err)
 	}
-	err = common.RedisPool.Do(radix.Cmd(nil, "DEL", keyJoinedMembers(year, day)))
+	err = common.RedisPool.Do(redis.Cmd(nil, "DEL", keyJoinedMembers(year, day)))
 	if err != nil {
 		return errors.WithStackIf(err)
 	}
-	err = common.RedisPool.Do(radix.Cmd(nil, "DEL", keyLeftMembers(year, day)))
+	err = common.RedisPool.Do(redis.Cmd(nil, "DEL", keyLeftMembers(year, day)))
 	if err != nil {
 		return errors.WithStackIf(err)
 	}
 
 	// finally, clean up this state of this day
-	err = common.RedisPool.Do(radix.Cmd(nil, "DEL", keyCompressionCompressionRanDays, fmt.Sprintf("%d:%d", year, day)))
+	err = common.RedisPool.Do(redis.Cmd(nil, "DEL", keyCompressionCompressionRanDays, fmt.Sprintf("%d:%d", year, day)))
 	if err != nil {
 		return errors.WithStackIf(err)
 	}
@@ -585,7 +585,7 @@ func (c *Compressor) saveCollectedStats(year, day int, stats map[int64]*GuildSta
 	}
 
 	// mark this day as compressed
-	err = common.RedisPool.Do(radix.Cmd(nil, "SADD", keyCompressionCompressionRanDays, fmt.Sprintf("%d:%d", year, day)))
+	err = common.RedisPool.Do(redis.Cmd(nil, "SADD", keyCompressionCompressionRanDays, fmt.Sprintf("%d:%d", year, day)))
 	if err != nil {
 		tx.Rollback()
 		return errors.WithStackIf(err)
@@ -596,7 +596,7 @@ func (c *Compressor) saveCollectedStats(year, day int, stats map[int64]*GuildSta
 		tx.Rollback()
 
 		// try to rollback marking this guild as compressed
-		err2 := common.RedisPool.Do(radix.Cmd(nil, "SREM", keyCompressionCompressionRanDays, fmt.Sprintf("%d:%d", year, day)))
+		err2 := common.RedisPool.Do(redis.Cmd(nil, "SREM", keyCompressionCompressionRanDays, fmt.Sprintf("%d:%d", year, day)))
 		if err2 != nil {
 			// this requires manual internvention to repair, broken connection to db or something in the middle of commit?
 			// but atleast this wont produce duplicate stats
@@ -640,7 +640,7 @@ func (c *Compressor) collectStats(year, day int) (map[int64]*GuildStatsFrame, er
 
 func (c *Compressor) collectMessageStats(year, day int) (map[int64]*GuildStatsFrame, error) {
 	var activeGuilds []int64
-	err := common.RedisPool.Do(radix.Cmd(&activeGuilds, "SMEMBERS", messagestatscollector.KeyActiveGuilds(year, day)))
+	err := common.RedisPool.Do(redis.Cmd(&activeGuilds, "SMEMBERS", messagestatscollector.KeyActiveGuilds(year, day)))
 	if err != nil {
 		return nil, err
 	}
@@ -652,7 +652,7 @@ func (c *Compressor) collectMessageStats(year, day int) (map[int64]*GuildStatsFr
 
 	for _, g := range activeGuilds {
 		raw := make(map[int64]int64)
-		err = common.RedisPool.Do(radix.Cmd(&raw, "ZRANGE", messagestatscollector.KeyMessageStats(g, year, day), "0", "-1", "WITHSCORES"))
+		err = common.RedisPool.Do(redis.Cmd(&raw, "ZRANGE", messagestatscollector.KeyMessageStats(g, year, day), "0", "-1", "WITHSCORES"))
 		if err != nil {
 			return nil, err
 		}
@@ -672,7 +672,7 @@ func (c *Compressor) collectMessageStats(year, day int) (map[int64]*GuildStatsFr
 
 func (c *Compressor) collectTotalMembers(year, day int, stats map[int64]*GuildStatsFrame) error {
 	raw := make(map[int64]int64)
-	err := common.RedisPool.Do(radix.Cmd(&raw, "ZRANGE", keyTotalMembers(year, day), "0", "-1", "WITHSCORES"))
+	err := common.RedisPool.Do(redis.Cmd(&raw, "ZRANGE", keyTotalMembers(year, day), "0", "-1", "WITHSCORES"))
 	if err != nil {
 		return err
 	}
@@ -692,7 +692,7 @@ func (c *Compressor) collectTotalMembers(year, day int, stats map[int64]*GuildSt
 
 func (c *Compressor) collectJoins(year, day int, stats map[int64]*GuildStatsFrame) error {
 	raw := make(map[int64]int64)
-	err := common.RedisPool.Do(radix.Cmd(&raw, "ZRANGE", keyJoinedMembers(year, day), "0", "-1", "WITHSCORES"))
+	err := common.RedisPool.Do(redis.Cmd(&raw, "ZRANGE", keyJoinedMembers(year, day), "0", "-1", "WITHSCORES"))
 	if err != nil {
 		return err
 	}
@@ -712,7 +712,7 @@ func (c *Compressor) collectJoins(year, day int, stats map[int64]*GuildStatsFram
 
 func (c *Compressor) collectLeaves(year, day int, stats map[int64]*GuildStatsFrame) error {
 	raw := make(map[int64]int64)
-	err := common.RedisPool.Do(radix.Cmd(&raw, "ZRANGE", keyLeftMembers(year, day), "0", "-1", "WITHSCORES"))
+	err := common.RedisPool.Do(redis.Cmd(&raw, "ZRANGE", keyLeftMembers(year, day), "0", "-1", "WITHSCORES"))
 	if err != nil {
 		return err
 	}
@@ -732,7 +732,7 @@ func (c *Compressor) collectLeaves(year, day int, stats map[int64]*GuildStatsFra
 
 func (c *Compressor) collectOnlineMembers(year, day int, stats map[int64]*GuildStatsFrame) error {
 	raw := make(map[int64]int64)
-	err := common.RedisPool.Do(radix.Cmd(&raw, "ZRANGE", keyOnlineMembers(year, day), "0", "-1", "WITHSCORES"))
+	err := common.RedisPool.Do(redis.Cmd(&raw, "ZRANGE", keyOnlineMembers(year, day), "0", "-1", "WITHSCORES"))
 	if err != nil {
 		return err
 	}

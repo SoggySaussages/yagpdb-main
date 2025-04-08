@@ -14,7 +14,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/mediocregopher/radix/v3"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/volatiletech/null/v8"
@@ -22,6 +21,7 @@ import (
 	"emperror.dev/errors"
 	"github.com/botlabs-gg/yagpdb/v2/bot"
 	"github.com/botlabs-gg/yagpdb/v2/common"
+	"github.com/botlabs-gg/yagpdb/v2/common/redis"
 	"github.com/botlabs-gg/yagpdb/v2/common/scheduledevents2/models"
 	"github.com/botlabs-gg/yagpdb/v2/lib/discordgo"
 	"github.com/volatiletech/sqlboiler/v4/boil"
@@ -160,7 +160,7 @@ func (se *ScheduledEvents) check() {
 	defer se.currentlyProcessingMU.Unlock()
 
 	var pairs []string
-	err := common.RedisPool.Do(radix.FlatCmd(&pairs, "ZRANGEBYSCORE", "scheduled_events_soon", "-inf", time.Now().UTC().UnixMicro()))
+	err := common.RedisPool.Do(redis.FlatCmd(&pairs, "ZRANGEBYSCORE", "scheduled_events_soon", "-inf", time.Now().UTC().UnixMicro()))
 	if err != nil {
 		logger.WithError(err).Error("failed checking for scheduled events to process")
 		return
@@ -189,7 +189,7 @@ func (se *ScheduledEvents) check() {
 		}
 
 		isProcessed := false
-		err = common.RedisPool.Do(radix.FlatCmd(&isProcessed, "SISMEMBER", "recently_done_scheduled_events", id))
+		err = common.RedisPool.Do(redis.FlatCmd(&isProcessed, "SISMEMBER", "recently_done_scheduled_events", id))
 		if err != nil {
 			logger.WithError(err).Error("failed checking if item was processed")
 			continue
@@ -351,7 +351,7 @@ func (se *ScheduledEvents) processItem(id int64, guildID int64) {
 }
 
 func (se *ScheduledEvents) markDoneFast(id, guildID int64) {
-	err := common.RedisPool.Do(radix.FlatCmd(nil, "SADD", "recently_done_scheduled_events", id))
+	err := common.RedisPool.Do(redis.FlatCmd(nil, "SADD", "recently_done_scheduled_events", id))
 	if err != nil {
 		logger.WithError(err).Error("failed marking item as quickdone")
 	}
@@ -374,7 +374,7 @@ func (se *ScheduledEvents) markDone(item *models.ScheduledEvent, runErr error) {
 		logger.WithError(err).Error("failed marking item as processed")
 	}
 
-	err = common.RedisPool.Do(radix.Cmd(nil, "ZREM", "scheduled_events_soon", fmt.Sprintf("%d:%d", item.ID, item.GuildID)))
+	err = common.RedisPool.Do(redis.Cmd(nil, "ZREM", "scheduled_events_soon", fmt.Sprintf("%d:%d", item.ID, item.GuildID)))
 	if err != nil {
 		logger.WithError(err).Error("failed marking item as done in redis")
 	}
@@ -409,7 +409,7 @@ func (se *ScheduledEvents) markDoneID(id int64, guildID int64, runErr error) {
 }
 
 func markDoneRedis(guildID int64, id int64) {
-	err := common.RedisPool.Do(radix.Cmd(nil, "ZREM", "scheduled_events_soon", fmt.Sprintf("%d:%d", id, guildID)))
+	err := common.RedisPool.Do(redis.Cmd(nil, "ZREM", "scheduled_events_soon", fmt.Sprintf("%d:%d", id, guildID)))
 	if err != nil {
 		logger.WithError(err).Error("failed marking item as done")
 	}

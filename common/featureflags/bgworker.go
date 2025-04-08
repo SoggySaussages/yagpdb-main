@@ -8,7 +8,7 @@ import (
 	"emperror.dev/errors"
 	"github.com/botlabs-gg/yagpdb/v2/common"
 	"github.com/botlabs-gg/yagpdb/v2/common/backgroundworkers"
-	"github.com/mediocregopher/radix/v3"
+	"github.com/botlabs-gg/yagpdb/v2/common/redis"
 )
 
 var _ backgroundworkers.BackgroundWorkerPlugin = (*Plugin)(nil)
@@ -41,7 +41,7 @@ func (p *Plugin) StopBackgroundWorker(wg *sync.WaitGroup) {
 // checks if theres new feature flags which needs to be initialized
 func (p *Plugin) checkInitFeatureFlags() {
 	var currentInitFlags []string
-	err := common.RedisPool.Do(radix.Cmd(&currentInitFlags, "SMEMBERS", "feature_flags_initialized"))
+	err := common.RedisPool.Do(redis.Cmd(&currentInitFlags, "SMEMBERS", "feature_flags_initialized"))
 	if err != nil {
 		panic(fmt.Sprintf("Failed intializing feature flags, failed retreiving old intiailized feature-flags: %v", err))
 	}
@@ -87,7 +87,7 @@ func (p *Plugin) checkInitFeatureFlags() {
 			}
 
 			// mark all the new plugins as intialized
-			err = common.RedisPool.Do(radix.Cmd(nil, "SADD", append([]string{"feature_flags_initialized"}, newFlags...)...))
+			err = common.RedisPool.Do(redis.Cmd(nil, "SADD", append([]string{"feature_flags_initialized"}, newFlags...)...))
 			if err != nil {
 				panic(fmt.Sprintf("Failed intializing feature flags, failed setting new intialized feature flags: %v", err))
 			}
@@ -97,13 +97,13 @@ func (p *Plugin) checkInitFeatureFlags() {
 	}
 
 	// mark all guilds are dirty, but low priority as to not interrupt normal operation
-	err = common.RedisPool.Do(radix.Cmd(nil, "SUNIONSTORE", "feature_flags_dirty_low_priority", "feature_flags_dirty_low_priority", "connected_guilds"))
+	err = common.RedisPool.Do(redis.Cmd(nil, "SUNIONSTORE", "feature_flags_dirty_low_priority", "feature_flags_dirty_low_priority", "connected_guilds"))
 	if err != nil {
 		panic(fmt.Sprintf("Failed intializing feature flags, failed marking all guilds as dirty: %v", err))
 	}
 
 	// mark all the new plugins as intialized
-	err = common.RedisPool.Do(radix.Cmd(nil, "SADD", append([]string{"feature_flags_initialized"}, newFlags...)...))
+	err = common.RedisPool.Do(redis.Cmd(nil, "SADD", append([]string{"feature_flags_initialized"}, newFlags...)...))
 	if err != nil {
 		panic(fmt.Sprintf("Failed intializing feature flags, failed setting new intialized feature flags: %v", err))
 	}
@@ -128,14 +128,14 @@ func (p *Plugin) BatchInitialPluginUpdater(pbf PluginWithBatchFeatureFlags) erro
 	logger.Infof("Batch initial updating of %d guilds", len(guildsFlagMap))
 
 	// create the redis commands to add the keys
-	actions := make([]radix.CmdAction, 0, len(guildsFlagMap))
+	actions := make([]redis.RedisCmdAction, 0, len(guildsFlagMap))
 	for g, flags := range guildsFlagMap {
 		key := keyGuildFlags(g)
 		args := append([]string{key}, flags...)
-		actions = append(actions, radix.Cmd(nil, "SADD", args...))
+		actions = append(actions, redis.Cmd(nil, "SADD", args...))
 	}
 
-	err = common.RedisPool.Do(radix.Pipeline(actions...))
+	err = common.RedisPool.Do(redis.Pipeline(actions...))
 	if err != nil {
 		return err
 	}
@@ -149,14 +149,14 @@ func (p *Plugin) runUpdateDirtyFlags() (err error) {
 
 	list := "high priority"
 	var guildIDs []int64
-	if err := common.RedisPool.Do(radix.Cmd(&guildIDs, "SPOP", "feature_flags_dirty_high_priority", "25")); err != nil {
+	if err := common.RedisPool.Do(redis.Cmd(&guildIDs, "SPOP", "feature_flags_dirty_high_priority", "25")); err != nil {
 		return errors.WithStackIf(err)
 	}
 
 	if len(guildIDs) < 1 {
 		list = "low priority"
 		// No more high priority flags to update
-		if err := common.RedisPool.Do(radix.Cmd(&guildIDs, "SPOP", "feature_flags_dirty_low_priority", "25")); err != nil {
+		if err := common.RedisPool.Do(redis.Cmd(&guildIDs, "SPOP", "feature_flags_dirty_low_priority", "25")); err != nil {
 			return errors.WithStackIf(err)
 		}
 
@@ -182,7 +182,7 @@ func (p *Plugin) runUpdateDirtyFlags() (err error) {
 // MarkGuildDirty marks a guild's feature flags dirty
 func MarkGuildDirty(guildID int64) {
 	for {
-		err := common.RedisPool.Do(radix.FlatCmd(nil, "SADD", "feature_flags_dirty_high_priority", guildID))
+		err := common.RedisPool.Do(redis.FlatCmd(nil, "SADD", "feature_flags_dirty_high_priority", guildID))
 		if err == nil {
 			break
 		}

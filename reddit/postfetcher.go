@@ -7,8 +7,8 @@ import (
 
 	"emperror.dev/errors"
 	"github.com/botlabs-gg/yagpdb/v2/common"
+	"github.com/botlabs-gg/yagpdb/v2/common/redis"
 	greddit "github.com/botlabs-gg/yagpdb/v2/lib/go-reddit"
-	"github.com/mediocregopher/radix/v3"
 	"github.com/sirupsen/logrus"
 )
 
@@ -97,7 +97,7 @@ func (p *PostFetcher) Run() {
 
 func (p *PostFetcher) initCursor() (int64, error) {
 	var storedID int64
-	common.RedisPool.Do(radix.Cmd(&storedID, "GET", p.LastScannedPostIDKey))
+	common.RedisPool.Do(redis.Cmd(&storedID, "GET", p.LastScannedPostIDKey))
 	if storedID != 0 {
 		p.log.Info("reddit feed continuing from ", storedID)
 		return storedID, nil
@@ -177,7 +177,7 @@ func (p *PostFetcher) GetNewPosts() ([]*greddit.Link, error) {
 
 	if highestID != -1 {
 		p.LastID = highestID
-		common.RedisPool.Do(radix.FlatCmd(nil, "SET", p.LastScannedPostIDKey, highestID))
+		common.RedisPool.Do(redis.FlatCmd(nil, "SET", p.LastScannedPostIDKey, highestID))
 	}
 
 	if !p.hasCaughtUp {

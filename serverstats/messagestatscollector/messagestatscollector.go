@@ -5,8 +5,8 @@ import (
 	"time"
 
 	"github.com/botlabs-gg/yagpdb/v2/common"
+	"github.com/botlabs-gg/yagpdb/v2/common/redis"
 	"github.com/botlabs-gg/yagpdb/v2/lib/discordgo"
-	"github.com/mediocregopher/radix/v3"
 	"github.com/sirupsen/logrus"
 )
 
@@ -98,12 +98,12 @@ func (c *Collector) flush() error {
 	day := t.YearDay()
 	year := t.Year()
 	for k, v := range c.channels {
-		err := common.RedisPool.Do(radix.FlatCmd(nil, "ZINCRBY", KeyMessageStats(v.GuildID, year, day), v.Count, v.ChannelID))
+		err := common.RedisPool.Do(redis.FlatCmd(nil, "ZINCRBY", KeyMessageStats(v.GuildID, year, day), v.Count, v.ChannelID))
 		if err != nil {
 			return err
 		}
 
-		err = common.RedisPool.Do(radix.FlatCmd(nil, "SADD", KeyActiveGuilds(year, day), v.GuildID))
+		err = common.RedisPool.Do(redis.FlatCmd(nil, "SADD", KeyActiveGuilds(year, day), v.GuildID))
 		if err != nil {
 			return err
 		}

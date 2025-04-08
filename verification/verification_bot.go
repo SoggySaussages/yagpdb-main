@@ -16,6 +16,7 @@ import (
 	"github.com/botlabs-gg/yagpdb/v2/bot"
 	"github.com/botlabs-gg/yagpdb/v2/bot/eventsystem"
 	"github.com/botlabs-gg/yagpdb/v2/common"
+	"github.com/botlabs-gg/yagpdb/v2/common/redis"
 	"github.com/botlabs-gg/yagpdb/v2/common/scheduledevents2"
 	seventsmodels "github.com/botlabs-gg/yagpdb/v2/common/scheduledevents2/models"
 	"github.com/botlabs-gg/yagpdb/v2/common/templates"
@@ -24,7 +25,6 @@ import (
 	"github.com/botlabs-gg/yagpdb/v2/moderation"
 	"github.com/botlabs-gg/yagpdb/v2/verification/models"
 	"github.com/botlabs-gg/yagpdb/v2/web"
-	"github.com/mediocregopher/radix/v3"
 	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
@@ -57,7 +57,7 @@ func VerificationPendingMembersKey(gID int64) string {
 
 func memberPresentInVerificationPendingSet(guildID int64, userID int64) bool {
 	var memberScore int
-	err := common.RedisPool.Do(radix.Cmd(&memberScore, "ZSCORE", VerificationPendingMembersKey(guildID), strconv.FormatInt(userID, 10)))
+	err := common.RedisPool.Do(redis.Cmd(&memberScore, "ZSCORE", VerificationPendingMembersKey(guildID), strconv.FormatInt(userID, 10)))
 	if err != nil {
 		logger.WithError(err).Error("Failed fetching member from the verification pending set")
 	}
@@ -71,7 +71,7 @@ func addMemberToVerificationPendingSet(guildID int64, userID int64) {
 		return
 	}
 
-	err := common.RedisPool.Do(radix.Cmd(nil, "ZADD", VerificationPendingMembersKey(guildID), "1", strconv.FormatInt(userID, 10)))
+	err := common.RedisPool.Do(redis.Cmd(nil, "ZADD", VerificationPendingMembersKey(guildID), "1", strconv.FormatInt(userID, 10)))
 	if err != nil {
 		logger.WithError(err).Error("Failed adding member to the verification pending set")
 	}
@@ -155,7 +155,7 @@ func (p *Plugin) handleMemberUpdate(evt *eventsystem.EventData) {
 
 	if memberPresentInVerificationPendingSet(updateEvt.GuildID, updateEvt.User.ID) {
 		// Member was found in the verification pending set, remove from the set and assign role to the member
-		err := common.RedisPool.Do(radix.Cmd(nil, "ZREM", VerificationPendingMembersKey(updateEvt.GuildID), strconv.FormatInt(updateEvt.User.ID, 10)))
+		err := common.RedisPool.Do(redis.Cmd(nil, "ZREM", VerificationPendingMembersKey(updateEvt.GuildID), strconv.FormatInt(updateEvt.User.ID, 10)))
 		if err != nil {
 			logger.WithError(err).Error("Failed removing member from the verification pending set")
 		}

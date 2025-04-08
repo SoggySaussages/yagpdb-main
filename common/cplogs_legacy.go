@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/botlabs-gg/yagpdb/v2/common/redis"
 	"github.com/botlabs-gg/yagpdb/v2/lib/discordgo"
-	"github.com/mediocregopher/radix/v3"
 )
 
 type CPLogEntryLegacy struct {
@@ -36,8 +36,8 @@ func AddCPLogEntryLegacy(user *discordgo.User, guild int64, args ...interface{})
 	}
 
 	key := "cp_logs:" + discordgo.StrID(guild)
-	err = RedisPool.Do(radix.Cmd(nil, "LPUSH", key, string(serialized)))
-	RedisPool.Do(radix.Cmd(nil, "LTRIM", key, "0", "100"))
+	err = RedisPool.Do(redis.Cmd(nil, "LPUSH", key, string(serialized)))
+	RedisPool.Do(redis.Cmd(nil, "LTRIM", key, "0", "100"))
 	if err != nil {
 		logger.WithError(err).WithField("guild", guild).Error("Failed updating cp logs")
 	}
@@ -45,7 +45,7 @@ func AddCPLogEntryLegacy(user *discordgo.User, guild int64, args ...interface{})
 
 func GetCPLogEntriesLegacy(guild int64) ([]*CPLogEntryLegacy, error) {
 	var entriesRaw [][]byte
-	err := RedisPool.Do(radix.Cmd(&entriesRaw, "LRANGE", "cp_logs:"+discordgo.StrID(guild), "0", "-1"))
+	err := RedisPool.Do(redis.Cmd(&entriesRaw, "LRANGE", "cp_logs:"+discordgo.StrID(guild), "0", "-1"))
 	if err != nil {
 		return nil, err
 	}

@@ -9,8 +9,8 @@ import (
 	"emperror.dev/errors"
 	"github.com/botlabs-gg/yagpdb/v2/common"
 	"github.com/botlabs-gg/yagpdb/v2/common/backgroundworkers"
+	"github.com/botlabs-gg/yagpdb/v2/common/redis"
 	"github.com/botlabs-gg/yagpdb/v2/premium/models"
-	"github.com/mediocregopher/radix/v3"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 
@@ -82,7 +82,7 @@ func updatePremiumServers(ctx context.Context) error {
 
 	if len(slots) < 1 {
 		// Fast path
-		err = common.RedisPool.Do(radix.Cmd(nil, "DEL", RedisKeyPremiumGuilds))
+		err = common.RedisPool.Do(redis.Cmd(nil, "DEL", RedisKeyPremiumGuilds))
 		return errors.WithMessage(err, "do.Del")
 	}
 
@@ -98,16 +98,16 @@ func updatePremiumServers(ctx context.Context) error {
 		rCmdLastTimesPremium = append(rCmdLastTimesPremium, now, strGID)
 	}
 
-	if err = common.RedisPool.Do(radix.Cmd(nil, "DEL", RedisKeyPremiumGuildsTmp)); err != nil {
+	if err = common.RedisPool.Do(redis.Cmd(nil, "DEL", RedisKeyPremiumGuildsTmp)); err != nil {
 		return errors.WithMessage(err, "del tmp")
 	}
-	if err = common.RedisPool.Do(radix.Cmd(nil, "HMSET", rCmd...)); err != nil {
+	if err = common.RedisPool.Do(redis.Cmd(nil, "HMSET", rCmd...)); err != nil {
 		return errors.WithMessage(err, "hmset")
 	}
-	if err = common.RedisPool.Do(radix.Cmd(nil, "RENAME", RedisKeyPremiumGuildsTmp, RedisKeyPremiumGuilds)); err != nil {
+	if err = common.RedisPool.Do(redis.Cmd(nil, "RENAME", RedisKeyPremiumGuildsTmp, RedisKeyPremiumGuilds)); err != nil {
 		return errors.WithMessage(err, "rename")
 	}
 
-	err = common.RedisPool.Do(radix.Cmd(nil, "ZADD", rCmdLastTimesPremium...))
+	err = common.RedisPool.Do(redis.Cmd(nil, "ZADD", rCmdLastTimesPremium...))
 	return errors.WithMessage(err, "last_premium_times")
 }

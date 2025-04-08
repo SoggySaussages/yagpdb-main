@@ -21,12 +21,12 @@ import (
 	"github.com/botlabs-gg/yagpdb/v2/common/featureflags"
 	prfx "github.com/botlabs-gg/yagpdb/v2/common/prefix"
 	"github.com/botlabs-gg/yagpdb/v2/common/pubsub"
+	"github.com/botlabs-gg/yagpdb/v2/common/redis"
 	yagtemplate "github.com/botlabs-gg/yagpdb/v2/common/templates"
 	"github.com/botlabs-gg/yagpdb/v2/customcommands/models"
 	"github.com/botlabs-gg/yagpdb/v2/lib/discordgo"
 	"github.com/botlabs-gg/yagpdb/v2/premium"
 	"github.com/botlabs-gg/yagpdb/v2/web"
-	"github.com/mediocregopher/radix/v3"
 	"github.com/robfig/cron/v3"
 	"github.com/sirupsen/logrus"
 	"github.com/volatiletech/null/v8"
@@ -678,7 +678,7 @@ func keyRunCmdCooldown(guildID, userID int64) string {
 
 func checkSetCooldown(guildID, userID int64) (bool, error) {
 	var resp string
-	err := common.RedisPool.Do(radix.FlatCmd(&resp, "SET", keyRunCmdCooldown(guildID, userID), true, "EX", RunCmdCooldownSeconds, "NX"))
+	err := common.RedisPool.Do(redis.FlatCmd(&resp, "SET", keyRunCmdCooldown(guildID, userID), true, "EX", RunCmdCooldownSeconds, "NX"))
 	if err != nil {
 		return false, err
 	}

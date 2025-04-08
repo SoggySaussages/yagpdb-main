@@ -7,7 +7,7 @@ import (
 
 	"github.com/botlabs-gg/yagpdb/v2/bot/models"
 	"github.com/botlabs-gg/yagpdb/v2/common/featureflags"
-	"github.com/mediocregopher/radix/v3"
+	"github.com/botlabs-gg/yagpdb/v2/common/redis"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/volatiletech/null/v8"
@@ -63,7 +63,7 @@ func guildRemoved(guildID int64) {
 	metricsLeftGuilds.Inc()
 	commonEventsTotal.With(prometheus.Labels{"type": "Guild Delete"}).Inc()
 
-	common.RedisPool.Do(radix.Cmd(nil, "SREM", "connected_guilds", discordgo.StrID(guildID)))
+	common.RedisPool.Do(redis.Cmd(nil, "SREM", "connected_guilds", discordgo.StrID(guildID)))
 
 	_, err := models.JoinedGuilds(qm.Where("id = ?", guildID)).UpdateAll(context.Background(), common.PQ, models.M{
 		"left_at": null.TimeFrom(time.Now()),

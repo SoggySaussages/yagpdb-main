@@ -6,7 +6,7 @@ import (
 
 	"github.com/botlabs-gg/yagpdb/v2/common"
 	"github.com/botlabs-gg/yagpdb/v2/common/backgroundworkers"
-	"github.com/mediocregopher/radix/v3"
+	"github.com/botlabs-gg/yagpdb/v2/common/redis"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 )
@@ -28,7 +28,7 @@ func (p *Plugin) StopBackgroundWorker(wg *sync.WaitGroup) {
 
 func (p *Plugin) updateMetrcis() {
 	var n int64
-	err := common.RedisPool.Do(radix.Cmd(&n, "ZCARD", "mqueue"))
+	err := common.RedisPool.Do(redis.Cmd(&n, "ZCARD", "mqueue"))
 	if err != nil {
 		logger.WithError(err).Error("failed updating mqueue metrics")
 	}

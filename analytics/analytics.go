@@ -5,7 +5,7 @@ import (
 
 	"github.com/botlabs-gg/yagpdb/v2/common"
 	"github.com/botlabs-gg/yagpdb/v2/common/config"
-	"github.com/mediocregopher/radix/v3"
+	"github.com/botlabs-gg/yagpdb/v2/common/redis"
 )
 
 var logger = common.GetPluginLogger(&Plugin{})
@@ -43,7 +43,7 @@ func recordActiveUnit(guildID int64, plugin common.Plugin, analyticName string) 
 		return nil
 	}
 
-	err := common.RedisPool.Do(radix.FlatCmd(nil, "HINCRBY", "anaylytics_active_units."+plugin.PluginInfo().SysName+"."+analyticName, guildID, 1))
+	err := common.RedisPool.Do(redis.FlatCmd(nil, "HINCRBY", "anaylytics_active_units."+plugin.PluginInfo().SysName+"."+analyticName, guildID, 1))
 	if err != nil {
 		return err
 	}

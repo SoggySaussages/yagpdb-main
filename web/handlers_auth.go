@@ -9,9 +9,9 @@ import (
 
 	"github.com/botlabs-gg/yagpdb/v2/common"
 	"github.com/botlabs-gg/yagpdb/v2/common/models"
+	"github.com/botlabs-gg/yagpdb/v2/common/redis"
 	"github.com/botlabs-gg/yagpdb/v2/lib/discordgo"
 	"github.com/botlabs-gg/yagpdb/v2/web/discorddata"
-	"github.com/mediocregopher/radix/v3"
 	"golang.org/x/oauth2"
 )
 
@@ -48,7 +48,7 @@ func HandleLogin(w http.ResponseWriter, r *http.Request) {
 
 	redir := r.FormValue("goto")
 	if redir != "" && strings.HasPrefix(redir, "/") {
-		common.RedisPool.Do(radix.Cmd(nil, "SET", "csrf_redir:"+csrfToken, redir, "EX", "500"))
+		common.RedisPool.Do(redis.Cmd(nil, "SET", "csrf_redir:"+csrfToken, redir, "EX", "500"))
 	}
 
 	url := OauthConf.AuthCodeURL(csrfToken, oauth2.AccessTypeOnline)
@@ -90,11 +90,11 @@ func HandleConfirmLogin(w http.ResponseWriter, r *http.Request) {
 	http.SetCookie(w, sessionCookie)
 
 	var redirUrl string
-	err = common.RedisPool.Do(radix.Cmd(&redirUrl, "GET", "csrf_redir:"+state))
+	err = common.RedisPool.Do(redis.Cmd(&redirUrl, "GET", "csrf_redir:"+state))
 	if err != nil {
 		redirUrl = "/manage"
 	} else {
-		common.RedisPool.Do(radix.Cmd(nil, "DEL", "csrf_redir:"+state))
+		common.RedisPool.Do(redis.Cmd(nil, "DEL", "csrf_redir:"+state))
 	}
 
 	http.Redirect(w, r, redirUrl, http.StatusTemporaryRedirect)
@@ -124,8 +124,8 @@ func CreateCSRFToken() (string, error) {
 	str := RandBase64(32)
 	logger.Infof("generated new CSRF Token %s", str)
 	err := common.MultipleCmds(
-		radix.Cmd(nil, "LPUSH", "csrf", str),
-		radix.Cmd(nil, "LTRIM", "csrf", "0", "999"), // Store only 1000 crsf tokens, might need to be increased later
+		redis.Cmd(nil, "LPUSH", "csrf", str),
+		redis.Cmd(nil, "LTRIM", "csrf", "0", "999"), // Store only 1000 crsf tokens, might need to be increased later
 	)
 
 	return str, err
@@ -134,7 +134,7 @@ func CreateCSRFToken() (string, error) {
 // CheckCSRFToken returns true if it matched and false if not, an error if something bad happened
 func CheckCSRFToken(token string) (bool, error) {
 	var num int
-	err := common.RedisPool.Do(radix.Cmd(&num, "LREM", "csrf", "1", token))
+	err := common.RedisPool.Do(redis.Cmd(&num, "LREM", "csrf", "1", token))
 	if err != nil {
 		return false, err
 	}
@@ -157,7 +157,7 @@ func discordAuthTokenFromYag(yagToken string) (t *oauth2.Token, err error) {
 	// }
 
 	var b64 string
-	err = common.RedisPool.Do(radix.Cmd(&b64, "HGET", "web_sessions", yagToken))
+	err = common.RedisPool.Do(redis.Cmd(&b64, "HGET", "web_sessions", yagToken))
 	if err != nil {
 		return nil, err
 	}
@@ -208,7 +208,7 @@ func CreateCookieSession(token *oauth2.Token) (cookie *http.Cookie, err error) {
 
 	// store token in redis
 	didSet := false
-	common.RedisPool.Do(radix.Cmd(&didSet, "HSETNX", "web_sessions", yagToken, string(dataRaw)))
+	common.RedisPool.Do(redis.Cmd(&didSet, "HSETNX", "web_sessions", yagToken, string(dataRaw)))
 	if !didSet {
 		return nil, ErrDuplicateToken
 	}

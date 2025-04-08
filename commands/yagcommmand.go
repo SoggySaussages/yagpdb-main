@@ -16,7 +16,6 @@ import (
 	"github.com/botlabs-gg/yagpdb/v2/lib/dcmd"
 	"github.com/botlabs-gg/yagpdb/v2/lib/discordgo"
 	"github.com/botlabs-gg/yagpdb/v2/lib/dstate"
-	"github.com/mediocregopher/radix/v3"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/sirupsen/logrus"
@@ -24,6 +23,7 @@ import (
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 
 	commonmodels "github.com/botlabs-gg/yagpdb/v2/common/models"
+	"github.com/botlabs-gg/yagpdb/v2/common/redis"
 )
 
 type ContextKey int
@@ -685,7 +685,7 @@ func (cs *YAGCommand) customEnabled(guildID int64) (bool, error) {
 
 	// Check redis for settings
 	var enabled bool
-	err := common.RedisPool.Do(radix.Cmd(&enabled, "GET", cs.Key+discordgo.StrID(guildID)))
+	err := common.RedisPool.Do(redis.Cmd(&enabled, "GET", cs.Key+discordgo.StrID(guildID)))
 	if err != nil {
 		return false, err
 	}
@@ -857,7 +857,7 @@ func (cs *YAGCommand) UserScopeCooldownLeft(cc []*dcmd.Container, userID int64) 
 	}
 
 	var ttl int
-	err := common.RedisPool.Do(radix.Cmd(&ttl, "TTL", RKeyCommandCooldown(userID, cs.FindNameFromContainerChain(cc))))
+	err := common.RedisPool.Do(redis.Cmd(&ttl, "TTL", RKeyCommandCooldown(userID, cs.FindNameFromContainerChain(cc))))
 	if err != nil {
 		return 0, errors.WithStackIf(err)
 	}
@@ -872,7 +872,7 @@ func (cs *YAGCommand) GuildScopeCooldownLeft(cc []*dcmd.Container, guildID int64
 	}
 
 	var ttl int
-	err := common.RedisPool.Do(radix.Cmd(&ttl, "TTL", RKeyCommandCooldownGuild(guildID, cs.FindNameFromContainerChain(cc))))
+	err := common.RedisPool.Do(redis.Cmd(&ttl, "TTL", RKeyCommandCooldownGuild(guildID, cs.FindNameFromContainerChain(cc))))
 	if err != nil {
 		return 0, errors.WithStackIf(err)
 	}
@@ -902,7 +902,7 @@ func (cs *YAGCommand) SetCooldownUser(cc []*dcmd.Container, userID int64) error 
 	}
 	now := time.Now().Unix()
 
-	err := common.RedisPool.Do(radix.FlatCmd(nil, "SET", RKeyCommandCooldown(userID, cs.FindNameFromContainerChain(cc)), now, "EX", cs.Cooldown))
+	err := common.RedisPool.Do(redis.FlatCmd(nil, "SET", RKeyCommandCooldown(userID, cs.FindNameFromContainerChain(cc)), now, "EX", cs.Cooldown))
 	return errors.WithStackIf(err)
 }
 
@@ -913,7 +913,7 @@ func (cs *YAGCommand) SetCooldownGuild(cc []*dcmd.Container, guildID int64) erro
 	}
 
 	now := time.Now().Unix()
-	err := common.RedisPool.Do(radix.FlatCmd(nil, "SET", RKeyCommandCooldownGuild(guildID, cs.FindNameFromContainerChain(cc)), now, "EX", cs.GuildScopeCooldown))
+	err := common.RedisPool.Do(redis.FlatCmd(nil, "SET", RKeyCommandCooldownGuild(guildID, cs.FindNameFromContainerChain(cc)), now, "EX", cs.GuildScopeCooldown))
 	return errors.WithStackIf(err)
 }
 

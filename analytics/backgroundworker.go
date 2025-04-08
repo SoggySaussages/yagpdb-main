@@ -9,6 +9,7 @@ import (
 	"emperror.dev/errors"
 	"github.com/botlabs-gg/yagpdb/v2/common"
 	"github.com/botlabs-gg/yagpdb/v2/common/backgroundworkers"
+	"github.com/botlabs-gg/yagpdb/v2/common/redis"
 	"github.com/mediocregopher/radix/v3"
 )
 
@@ -49,8 +50,9 @@ type ActivityBucket struct {
 func (p *Plugin) saveTempStats() error {
 	compiled := make(map[string][]*ActivityBucket)
 
-	err := common.RedisPool.Do(radix.WithConn("", func(c radix.Conn) error {
-		s := radix.NewScanner(c, radix.ScanOpts{
+	err := common.RedisPool.Do(redis.WithConn("", func(client radix.Conn) error {
+		c := redis.Client{client}
+		s := redis.NewScanner(c, radix.ScanOpts{
 			Command: "SCAN",
 			Pattern: "anaylytics_active_units.*",
 		})
@@ -59,14 +61,14 @@ func (p *Plugin) saveTempStats() error {
 		for s.Next(&key) {
 
 			// copy it to a safe location first
-			err := c.Do(radix.Cmd(nil, "RENAME", key, "temp_"+key))
+			err := c.Do(redis.Cmd(nil, "RENAME", key, "temp_"+key))
 			if err != nil {
 				return errors.WithStackIf(err)
 			}
 
 			// read raw counts
 			var rawCounts map[string]string
-			err = c.Do(radix.Cmd(&rawCounts, "HGETALL", "temp_"+key))
+			err = c.Do(redis.Cmd(&rawCounts, "HGETALL", "temp_"+key))
 			if err != nil {
 				return errors.WithStackIf(err)
 			}
@@ -104,7 +106,7 @@ func (p *Plugin) saveTempStats() error {
 			compiled[plugin+"."+metricName] = bucket
 
 			// clear it
-			err = c.Do(radix.Cmd(nil, "DEL", "temp_"+key))
+			err = c.Do(redis.Cmd(nil, "DEL", "temp_"+key))
 			if err != nil {
 				return errors.WithStackIf(err)
 			}

@@ -15,10 +15,10 @@ import (
 	"github.com/botlabs-gg/yagpdb/v2/commands/models"
 	"github.com/botlabs-gg/yagpdb/v2/common"
 	"github.com/botlabs-gg/yagpdb/v2/common/pubsub"
+	"github.com/botlabs-gg/yagpdb/v2/common/redis"
 	"github.com/botlabs-gg/yagpdb/v2/lib/dcmd"
 	"github.com/botlabs-gg/yagpdb/v2/lib/discordgo"
 	"github.com/botlabs-gg/yagpdb/v2/lib/dstate"
-	"github.com/mediocregopher/radix/v3"
 )
 
 var (
@@ -67,7 +67,7 @@ func (p *Plugin) updateGlobalCommands() {
 	encoded, _ := json.MarshalIndent(result, "", " ")
 
 	current := ""
-	err := common.RedisPool.Do(radix.Cmd(&current, "GET", "slash_commands_current"))
+	err := common.RedisPool.Do(redis.Cmd(&current, "GET", "slash_commands_current"))
 	if err != nil {
 		logger.WithError(err).Error("failed retrieving current saved slash commands")
 		return
@@ -111,7 +111,7 @@ OUTER:
 
 	atomic.StoreInt32(slashCommandsIdsSet, 1)
 
-	err = common.RedisPool.Do(radix.Cmd(nil, "SET", "slash_commands_current", string(encoded)))
+	err = common.RedisPool.Do(redis.Cmd(nil, "SET", "slash_commands_current", string(encoded)))
 	if err != nil {
 		logger.WithError(err).Error("failed setting current slash commands in redis")
 	}
@@ -330,7 +330,7 @@ func updateSlashCommandGuildPermissions(gs *dstate.GuildSet) (updated bool, err 
 	fmt.Println(string(serialized))
 	hash := sha256.Sum256(serialized)
 	oldHash := []byte{}
-	err = common.RedisPool.Do(radix.Cmd(&oldHash, "GET", fmt.Sprintf("slash_cmd_perms_sum:%d", gs.ID)))
+	err = common.RedisPool.Do(redis.Cmd(&oldHash, "GET", fmt.Sprintf("slash_cmd_perms_sum:%d", gs.ID)))
 	if err != nil {
 		return false, err
 	}
@@ -346,7 +346,7 @@ func updateSlashCommandGuildPermissions(gs *dstate.GuildSet) (updated bool, err 
 		return false, err
 	}
 
-	err = common.RedisPool.Do(radix.FlatCmd(nil, "SET", fmt.Sprintf("slash_cmd_perms_sum:%d", gs.ID), hash[:]))
+	err = common.RedisPool.Do(redis.FlatCmd(nil, "SET", fmt.Sprintf("slash_cmd_perms_sum:%d", gs.ID), hash[:]))
 	if err != nil {
 		return false, err
 	}

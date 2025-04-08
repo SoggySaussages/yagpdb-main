@@ -8,9 +8,9 @@ import (
 
 	"github.com/botlabs-gg/yagpdb/v2/common"
 	"github.com/botlabs-gg/yagpdb/v2/common/internalapi"
+	"github.com/botlabs-gg/yagpdb/v2/common/redis"
 	"github.com/botlabs-gg/yagpdb/v2/lib/discordgo"
 	"github.com/botlabs-gg/yagpdb/v2/lib/dstate"
-	"github.com/mediocregopher/radix/v3"
 )
 
 var clientLogger = common.GetFixedPrefixLogger("botrest_client")
@@ -100,7 +100,7 @@ func GetNodeStatuses() (st *NodeStatusesResponse, err error) {
 
 	// Special handling if were in clustered mode
 	var clustered bool
-	err = common.RedisPool.Do(radix.Cmd(&clustered, "EXISTS", "dshardorchestrator_nodes_z"))
+	err = common.RedisPool.Do(redis.Cmd(&clustered, "EXISTS", "dshardorchestrator_nodes_z"))
 	if err != nil {
 		return nil, err
 	}

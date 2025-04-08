@@ -9,9 +9,9 @@ import (
 	"emperror.dev/errors"
 	"github.com/botlabs-gg/yagpdb/v2/common"
 	"github.com/botlabs-gg/yagpdb/v2/common/featureflags"
+	"github.com/botlabs-gg/yagpdb/v2/common/redis"
 	"github.com/botlabs-gg/yagpdb/v2/common/scheduledevents2"
 	"github.com/botlabs-gg/yagpdb/v2/premium/models"
-	"github.com/mediocregopher/radix/v3"
 	"github.com/volatiletech/null/v8"
 	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
@@ -127,7 +127,7 @@ func AttachSlotToGuild(ctx context.Context, slotID int64, userID int64, guildID 
 		return errors.WithMessage(err, "Commit")
 	}
 
-	err = common.RedisPool.Do(radix.FlatCmd(nil, "HSET", RedisKeyPremiumGuilds, guildID, userID))
+	err = common.RedisPool.Do(redis.FlatCmd(nil, "HSET", RedisKeyPremiumGuilds, guildID, userID))
 	if err != nil {
 		return errors.WithStackIf(err)
 	}
@@ -180,7 +180,7 @@ func DetachSlotFromGuild(ctx context.Context, slotID int64, userID int64) error 
 		return errors.WithMessage(err, "Commit")
 	}
 
-	err = common.RedisPool.Do(radix.FlatCmd(nil, "HDEL", RedisKeyPremiumGuilds, oldGuildID))
+	err = common.RedisPool.Do(redis.FlatCmd(nil, "HDEL", RedisKeyPremiumGuilds, oldGuildID))
 	if err != nil {
 		return errors.WithStackIf(err)
 	}
@@ -260,7 +260,7 @@ func SlotExpired(ctx context.Context, slot *models.PremiumSlot) error {
 		return errors.WithMessage(err, "Commit")
 	}
 
-	err = common.RedisPool.Do(radix.FlatCmd(nil, "HSET", RedisKeyPremiumGuilds, slot.GuildID.Int64, slot.UserID))
+	err = common.RedisPool.Do(redis.FlatCmd(nil, "HSET", RedisKeyPremiumGuilds, slot.GuildID.Int64, slot.UserID))
 	return errors.WithMessage(err, "HSET")
 }
 

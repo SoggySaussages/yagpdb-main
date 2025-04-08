@@ -10,11 +10,11 @@ import (
 	"github.com/botlabs-gg/yagpdb/v2/analytics"
 	"github.com/botlabs-gg/yagpdb/v2/common"
 	"github.com/botlabs-gg/yagpdb/v2/common/mqueue"
+	"github.com/botlabs-gg/yagpdb/v2/common/redis"
 	"github.com/botlabs-gg/yagpdb/v2/feeds"
 	"github.com/botlabs-gg/yagpdb/v2/lib/discordgo"
 	"github.com/botlabs-gg/yagpdb/v2/premium"
 	"github.com/botlabs-gg/yagpdb/v2/twitter/models"
-	"github.com/mediocregopher/radix/v3"
 	twitterscraper "github.com/n0madic/twitter-scraper"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
@@ -67,7 +67,7 @@ func (p *Plugin) runFeedLoop() {
 func (p *Plugin) getLastTweetInfo(username string) (tweetId string, tweetTime time.Time, err error) {
 	// Find the last video time for this channel
 	var unixSeconds int64
-	err = common.RedisPool.Do(radix.Cmd(&unixSeconds, "GET", KeyLastTweetTime(username)))
+	err = common.RedisPool.Do(redis.Cmd(&unixSeconds, "GET", KeyLastTweetTime(username)))
 
 	var lastProcessedTweetTime time.Time
 	if err != nil || unixSeconds == 0 {
@@ -77,7 +77,7 @@ func (p *Plugin) getLastTweetInfo(username string) (tweetId string, tweetTime ti
 	}
 
 	var lastTweetID string
-	err = common.RedisPool.Do(radix.Cmd(&lastTweetID, "GET", KeyLastTweetID(username)))
+	err = common.RedisPool.Do(redis.Cmd(&lastTweetID, "GET", KeyLastTweetID(username)))
 	return lastTweetID, lastProcessedTweetTime, err
 }
 
@@ -211,13 +211,13 @@ OUTER:
 	if len(relevantFeeds) < 1 {
 		return
 	}
-	err := common.RedisPool.Do(radix.FlatCmd(nil, "SET", KeyLastTweetTime(t.Username), time.Now().Unix()))
+	err := common.RedisPool.Do(redis.FlatCmd(nil, "SET", KeyLastTweetTime(t.Username), time.Now().Unix()))
 	if err != nil {
 		logrus.WithError(err).Errorf("Failed Saving tweet time for %s ", t.UserID)
 		return
 	}
 
-	err = common.RedisPool.Do(radix.FlatCmd(nil, "SET", KeyLastTweetID(t.Username), t.ID))
+	err = common.RedisPool.Do(redis.FlatCmd(nil, "SET", KeyLastTweetID(t.Username), t.ID))
 	if err != nil {
 		logrus.WithError(err).Errorf("Failed Saving tweet id for %s ", t.Username)
 		return

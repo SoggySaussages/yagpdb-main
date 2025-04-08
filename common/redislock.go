@@ -5,14 +5,14 @@ import (
 	"time"
 
 	"emperror.dev/errors"
-	"github.com/mediocregopher/radix/v3"
+	"github.com/botlabs-gg/yagpdb/v2/common/redis"
 )
 
 // Locks the lock and if succeded sets it to expire after maxdur
 // So that if someting went wrong its not locked forever
 func TryLockRedisKey(key string, maxDur int) (bool, error) {
 	resp := ""
-	err := RedisPool.Do(radix.Cmd(&resp, "SET", key, "1", "NX", "EX", strconv.Itoa(maxDur)))
+	err := RedisPool.Do(redis.Cmd(&resp, "SET", key, "1", "NX", "EX", strconv.Itoa(maxDur)))
 	if err != nil {
 		return false, err
 	}
@@ -57,7 +57,7 @@ func BlockingLockRedisKey(key string, maxTryDuration time.Duration, maxLockDur i
 
 func UnlockRedisKey(key string) {
 	for {
-		err := RedisPool.Do(radix.Cmd(nil, "DEL", key))
+		err := RedisPool.Do(redis.Cmd(nil, "DEL", key))
 		if err != nil {
 			time.Sleep(time.Second)
 			continue

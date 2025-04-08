@@ -15,11 +15,11 @@ import (
 	"github.com/botlabs-gg/yagpdb/v2/bot/eventsystem"
 	"github.com/botlabs-gg/yagpdb/v2/commands"
 	"github.com/botlabs-gg/yagpdb/v2/common"
+	"github.com/botlabs-gg/yagpdb/v2/common/redis"
 	"github.com/botlabs-gg/yagpdb/v2/common/scheduledevents2"
 	schEventsModels "github.com/botlabs-gg/yagpdb/v2/common/scheduledevents2/models"
 	"github.com/botlabs-gg/yagpdb/v2/lib/discordgo"
 	"github.com/botlabs-gg/yagpdb/v2/lib/dstate"
-	"github.com/mediocregopher/radix/v3"
 	"github.com/volatiletech/null/v8"
 	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
@@ -280,7 +280,7 @@ func (p *Plugin) handleAutomodExecution(evt *eventsystem.EventData) {
 
 	var exists string
 
-	if err := common.RedisPool.Do(radix.Cmd(&exists, "GET", redisKey)); err != nil {
+	if err := common.RedisPool.Do(redis.Cmd(&exists, "GET", redisKey)); err != nil {
 		return
 	}
 	if exists == "1" {
@@ -288,7 +288,7 @@ func (p *Plugin) handleAutomodExecution(evt *eventsystem.EventData) {
 	}
 
 	// Expires a temporary value after 5 seconds
-	if err := common.RedisPool.Do(radix.Cmd(nil, "SET", redisKey, "1", "EX", "5")); err != nil {
+	if err := common.RedisPool.Do(redis.Cmd(nil, "SET", redisKey, "1", "EX", "5")); err != nil {
 		return
 	}
 

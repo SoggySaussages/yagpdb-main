@@ -16,6 +16,7 @@ import (
 	"github.com/botlabs-gg/yagpdb/v2/analytics"
 	"github.com/botlabs-gg/yagpdb/v2/common"
 	"github.com/botlabs-gg/yagpdb/v2/common/mqueue"
+	"github.com/botlabs-gg/yagpdb/v2/common/redis"
 	"github.com/botlabs-gg/yagpdb/v2/common/templates"
 	"github.com/botlabs-gg/yagpdb/v2/feeds"
 	"github.com/botlabs-gg/yagpdb/v2/lib/discordgo"
@@ -70,7 +71,7 @@ func (p *Plugin) deleteOldVideos() {
 			if videoCacheDays < 1 {
 				videoCacheDays = 1
 			}
-			common.RedisPool.Do(radix.FlatCmd(&expiring, "ZREMRANGEBYSCORE", RedisKeyPublishedVideoList, "-inf", time.Now().AddDate(0, 0, -1*videoCacheDays).Unix()))
+			common.RedisPool.Do(redis.FlatCmd(&expiring, "ZREMRANGEBYSCORE", RedisKeyPublishedVideoList, "-inf", time.Now().AddDate(0, 0, -1*videoCacheDays).Unix()))
 			logger.Infof("Removed %d old videos", expiring)
 		}
 	}
@@ -118,7 +119,7 @@ func (p *Plugin) checkExpiringWebsubs() {
 	maxScore := time.Now().Unix()
 
 	var expiring []string
-	err = common.RedisPool.Do(radix.FlatCmd(&expiring, "ZRANGEBYSCORE", RedisKeyWebSubChannels, "-inf", maxScore))
+	err = common.RedisPool.Do(redis.FlatCmd(&expiring, "ZRANGEBYSCORE", RedisKeyWebSubChannels, "-inf", maxScore))
 	if err != nil {
 		logger.WithError(err).Error("Failed checking websubs")
 		return
@@ -154,7 +155,8 @@ func (p *Plugin) syncWebSubs() {
 		return
 	}
 
-	common.RedisPool.Do(radix.WithConn(RedisKeyWebSubChannels, func(client radix.Conn) error {
+	common.RedisPool.Do(redis.WithConn(RedisKeyWebSubChannels, func(c radix.Conn) error {
+		client := redis.Client{c}
 		locked := false
 		if !locked {
 			err := common.BlockingLockRedisKey(RedisChannelsLockKey, 0, 5000)
@@ -181,7 +183,7 @@ func (p *Plugin) syncWebSubs() {
 			var didChunkUpdate bool
 			for _, channel := range chunk {
 				var mn int64
-				client.Do(radix.Cmd(&mn, "ZSCORE", RedisKeyWebSubChannels, channel))
+				client.Do(redis.Cmd(&mn, "ZSCORE", RedisKeyWebSubChannels, channel))
 				if mn < time.Now().Unix() {
 					didChunkUpdate = true
 					// Channel not added to redis, resubscribe and add to redis
@@ -524,9 +526,9 @@ func (p *Plugin) MaybeRemoveChannelWatch(channel string) {
 	}
 
 	err = common.MultipleCmds(
-		radix.Cmd(nil, "DEL", KeyLastVidTime(channel)),
-		radix.Cmd(nil, "DEL", KeyLastVidID(channel)),
-		radix.Cmd(nil, "ZREM", RedisKeyWebSubChannels, channel),
+		redis.Cmd(nil, "DEL", KeyLastVidTime(channel)),
+		redis.Cmd(nil, "DEL", KeyLastVidID(channel)),
+		redis.Cmd(nil, "ZREM", RedisKeyWebSubChannels, channel),
 	)
 
 	if err != nil {
@@ -554,7 +556,7 @@ func (p *Plugin) MaybeAddChannelWatch(lock bool, channel string) error {
 	now := time.Now().Unix()
 
 	mn := radix.MaybeNil{}
-	err := common.RedisPool.Do(radix.Cmd(&mn, "ZSCORE", RedisKeyWebSubChannels, channel))
+	err := common.RedisPool.Do(redis.Cmd(&mn, "ZSCORE", RedisKeyWebSubChannels, channel))
 	if err != nil {
 		return err
 	}
@@ -564,7 +566,7 @@ func (p *Plugin) MaybeAddChannelWatch(lock bool, channel string) error {
 		return nil
 	}
 
-	err = common.RedisPool.Do(radix.FlatCmd(nil, "SET", KeyLastVidTime(channel), now))
+	err = common.RedisPool.Do(redis.FlatCmd(nil, "SET", KeyLastVidTime(channel), now))
 	if err != nil {
 		return err
 	}
@@ -611,7 +613,7 @@ func (p *Plugin) CheckVideo(parsedVideo XMLFeed) error {
 	}
 
 	mn := radix.MaybeNil{}
-	common.RedisPool.Do(radix.Cmd(&mn, "ZSCORE", RedisKeyPublishedVideoList, videoID))
+	common.RedisPool.Do(redis.Cmd(&mn, "ZSCORE", RedisKeyPublishedVideoList, videoID))
 	if !mn.Nil {
 		// video was already published, maybe just an update on it?
 		logger.Infof("Skipped Already Published video for youtube channel %s: video_id: %s", channelID, videoID)
@@ -679,7 +681,7 @@ func (p *Plugin) isShortsRedirect(videoId string) bool {
 
 func (p *Plugin) postVideo(subs models.YoutubeChannelSubscriptionSlice, publishedAt time.Time, video *youtube.Video, channelID string) error {
 	// add video to list of published videos
-	err := common.RedisPool.Do(radix.FlatCmd(nil, "ZADD", RedisKeyPublishedVideoList, publishedAt.Unix(), video.Id))
+	err := common.RedisPool.Do(redis.FlatCmd(nil, "ZADD", RedisKeyPublishedVideoList, publishedAt.Unix(), video.Id))
 	if err != nil {
 		return err
 	}

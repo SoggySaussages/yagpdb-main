@@ -9,10 +9,10 @@ import (
 	"time"
 
 	"github.com/botlabs-gg/yagpdb/v2/common"
+	"github.com/botlabs-gg/yagpdb/v2/common/redis"
 	"github.com/botlabs-gg/yagpdb/v2/lib/dshardorchestrator"
 	"github.com/botlabs-gg/yagpdb/v2/lib/dshardorchestrator/orchestrator"
 	"github.com/botlabs-gg/yagpdb/v2/lib/dshardorchestrator/orchestrator/rest"
-	"github.com/mediocregopher/radix/v3"
 	"github.com/sirupsen/logrus"
 
 	_ "github.com/botlabs-gg/yagpdb/v2/bot" // register the custom orchestrator events
@@ -113,7 +113,7 @@ func UpdateRedisNodes(orch *orchestrator.Orchestrator) {
 				continue
 			}
 
-			err := common.RedisPool.Do(radix.FlatCmd(nil, "ZADD", RedisNodesKey, time.Now().Unix(), v.ID))
+			err := common.RedisPool.Do(redis.FlatCmd(nil, "ZADD", RedisNodesKey, time.Now().Unix(), v.ID))
 			if err != nil {
 				logrus.WithError(err).Error("[orchestrator] failed setting active nodes in redis")
 			}

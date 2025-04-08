@@ -4,16 +4,17 @@ import (
 	"encoding/json"
 
 	"github.com/botlabs-gg/yagpdb/v2/common"
+	"github.com/botlabs-gg/yagpdb/v2/common/redis"
 	"github.com/mediocregopher/radix/v3"
 )
 
 var _ Storage = (*RedisBackend)(nil)
 
 type RedisBackend struct {
-	pool *radix.Pool
+	pool *redis.RedisPool
 }
 
-func NewRedisBackend(pool *radix.Pool) *RedisBackend {
+func NewRedisBackend(pool *redis.RedisPool) *RedisBackend {
 	return &RedisBackend{
 		pool: pool,
 	}
@@ -22,7 +23,7 @@ func NewRedisBackend(pool *radix.Pool) *RedisBackend {
 func (rb *RedisBackend) GetFullQueue() ([]*workItem, error) {
 	var results [][]byte
 
-	err := rb.pool.Do(radix.Cmd(&results, "ZRANGEBYSCORE", "mqueue", "-1", "+inf"))
+	err := rb.pool.Do(redis.Cmd(&results, "ZRANGEBYSCORE", "mqueue", "-1", "+inf"))
 	if err != nil {
 		logger.WithError(err).Error("Failed polling redis mqueue")
 		return nil, err
@@ -55,21 +56,21 @@ func (rb *RedisBackend) AppendItem(elem *QueuedElement) error {
 		return err
 	}
 
-	err = rb.pool.Do(radix.Cmd(nil, "ZADD", "mqueue", "-1", string(serialized)))
+	err = rb.pool.Do(redis.Cmd(nil, "ZADD", "mqueue", "-1", string(serialized)))
 	if err != nil {
 		return err
 	}
 
-	err = rb.pool.Do(radix.Cmd(nil, "PUBLISH", mqueue_pubsub_key, string(serialized)))
+	err = rb.pool.Do(redis.Cmd(nil, "PUBLISH", mqueue_pubsub_key, string(serialized)))
 	return err
 }
 
 func (rb *RedisBackend) DelItem(item *workItem) error {
-	return rb.pool.Do(radix.Cmd(nil, "ZREM", "mqueue", string(item.Raw)))
+	return rb.pool.Do(redis.Cmd(nil, "ZREM", "mqueue", string(item.Raw)))
 }
 
 func (rb *RedisBackend) NextID() (next int64, err error) {
-	err = rb.pool.Do(radix.Cmd(&next, "INCR", "mqueue_id_counter"))
+	err = rb.pool.Do(redis.Cmd(&next, "INCR", "mqueue_id_counter"))
 	return
 }
 

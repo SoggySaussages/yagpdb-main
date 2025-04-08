@@ -10,10 +10,10 @@ import (
 
 	"github.com/botlabs-gg/yagpdb/v2/common"
 	"github.com/botlabs-gg/yagpdb/v2/common/pubsub"
+	"github.com/botlabs-gg/yagpdb/v2/common/redis"
 	"github.com/botlabs-gg/yagpdb/v2/lib/discordgo"
 	"github.com/botlabs-gg/yagpdb/v2/lib/dstate"
 	"github.com/bwmarrin/snowflake"
-	"github.com/mediocregopher/radix/v3"
 	"github.com/patrickmn/go-cache"
 )
 
@@ -121,10 +121,10 @@ func SetStatus(activityType, statusType, statusText, streamingUrl string) {
 	if statusText == "" {
 		statusText = common.VERSION + " :)"
 	}
-	err1 := common.RedisPool.Do(radix.Cmd(nil, "SET", "status_activity_type", activityType))
-	err2 := common.RedisPool.Do(radix.Cmd(nil, "SET", "status_type", statusType))
-	err3 := common.RedisPool.Do(radix.Cmd(nil, "SET", "status_text", statusText))
-	err4 := common.RedisPool.Do(radix.Cmd(nil, "SET", "status_streaming_url", streamingUrl))
+	err1 := common.RedisPool.Do(redis.Cmd(nil, "SET", "status_activity_type", activityType))
+	err2 := common.RedisPool.Do(redis.Cmd(nil, "SET", "status_type", statusType))
+	err3 := common.RedisPool.Do(redis.Cmd(nil, "SET", "status_text", statusText))
+	err4 := common.RedisPool.Do(redis.Cmd(nil, "SET", "status_streaming_url", streamingUrl))
 
 	if err1 != nil {
 		logger.WithError(err1).Error("failed setting bot status in redis")
@@ -298,10 +298,10 @@ func RefreshStatus(session *discordgo.Session) {
 	var activityTypeStr, statusTypeStr, statusText, streamingUrl string
 	//var activityType discordgo.ActivityType
 	var statusType discordgo.Status
-	err1 := common.RedisPool.Do(radix.Cmd(&activityTypeStr, "GET", "status_activity_type"))
-	err2 := common.RedisPool.Do(radix.Cmd(&statusTypeStr, "GET", "status_type"))
-	err3 := common.RedisPool.Do(radix.Cmd(&statusText, "GET", "status_text"))
-	err4 := common.RedisPool.Do(radix.Cmd(&streamingUrl, "GET", "status_streaming_url"))
+	err1 := common.RedisPool.Do(redis.Cmd(&activityTypeStr, "GET", "status_activity_type"))
+	err2 := common.RedisPool.Do(redis.Cmd(&statusTypeStr, "GET", "status_type"))
+	err3 := common.RedisPool.Do(redis.Cmd(&statusText, "GET", "status_text"))
+	err4 := common.RedisPool.Do(redis.Cmd(&streamingUrl, "GET", "status_streaming_url"))
 
 	if err1 != nil {
 		logger.WithError(err1).Error("failed retrieving bot activity type")
@@ -412,8 +412,8 @@ func GetUsers(guildID int64, ids ...int64) []*discordgo.User {
 			logger.WithError(err).WithField("guild", guildID).Error("failed retrieving user from api")
 			resp = append(resp, &discordgo.User{
 				Discriminator: "0",
-				ID:       id,
-				Username: "Unknown (" + strconv.FormatInt(id, 10) + ")",
+				ID:            id,
+				Username:      "Unknown (" + strconv.FormatInt(id, 10) + ")",
 			})
 			continue
 		}

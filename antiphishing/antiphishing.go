@@ -10,8 +10,8 @@ import (
 	"sync"
 
 	"github.com/botlabs-gg/yagpdb/v2/common"
+	"github.com/botlabs-gg/yagpdb/v2/common/redis"
 	"github.com/botlabs-gg/yagpdb/v2/lib/confusables"
-	"github.com/mediocregopher/radix/v3"
 	"github.com/sirupsen/logrus"
 )
 
@@ -120,14 +120,14 @@ func updateCachedPhishingDomains(seconds uint32) ([]string, []string, error) {
 	}
 	if len(deleted) > 0 {
 		deletedArgs := append([]string{RedisKeyPhishingDomains}, deleted...)
-		err = common.RedisPool.Do(radix.Cmd(nil, "SREM", deletedArgs...))
+		err = common.RedisPool.Do(redis.Cmd(nil, "SREM", deletedArgs...))
 		if err != nil {
 			return nil, nil, err
 		}
 	}
 	if len(added) > 0 {
 		addedArgs := append([]string{RedisKeyPhishingDomains}, added...)
-		err = common.RedisPool.Do(radix.Cmd(nil, "SADD", addedArgs...))
+		err = common.RedisPool.Do(redis.Cmd(nil, "SADD", addedArgs...))
 		if err != nil {
 			return nil, nil, err
 		}
@@ -143,12 +143,12 @@ func cacheAllPhishingDomains() ([]string, error) {
 
 	// clear old domains incase there was a false positive
 	args := append([]string{RedisKeyPhishingDomains}, domains...)
-	err = common.RedisPool.Do(radix.Cmd(nil, "DEL", RedisKeyPhishingDomains))
+	err = common.RedisPool.Do(redis.Cmd(nil, "DEL", RedisKeyPhishingDomains))
 	if err != nil {
 		return nil, err
 	}
 	// and save new domains to redis set
-	err = common.RedisPool.Do(radix.Cmd(nil, "SADD", args...))
+	err = common.RedisPool.Do(redis.Cmd(nil, "SADD", args...))
 	if err != nil {
 		return nil, err
 	}
@@ -162,7 +162,7 @@ func checkCacheForPhishingDomain(link string) (bool, error) {
 		return false, nil
 	}
 	domain = strings.ToLower(domain)
-	err := common.RedisPool.Do(radix.FlatCmd(&isBadDomain, "SISMEMBER", RedisKeyPhishingDomains, domain))
+	err := common.RedisPool.Do(redis.FlatCmd(&isBadDomain, "SISMEMBER", RedisKeyPhishingDomains, domain))
 	if err != nil {
 		logrus.WithError(err).Error(`[antiphishing] failed to check for phishing domains, error from cache`)
 		return false, err

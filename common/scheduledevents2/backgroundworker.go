@@ -10,6 +10,7 @@ import (
 	"emperror.dev/errors"
 	"github.com/botlabs-gg/yagpdb/v2/common"
 	"github.com/botlabs-gg/yagpdb/v2/common/backgroundworkers"
+	"github.com/botlabs-gg/yagpdb/v2/common/redis"
 	"github.com/botlabs-gg/yagpdb/v2/common/scheduledevents2/models"
 	"github.com/mediocregopher/radix/v3"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
@@ -81,10 +82,11 @@ func runFlushNewEvents() error {
 		return errors.WithStackIf(err)
 	}
 
-	err = common.RedisPool.Do(radix.WithConn("a", func(c radix.Conn) error {
+	err = common.RedisPool.Do(redis.WithConn("a", func(client radix.Conn) error {
+		c := redis.Client{client}
 		for _, v := range eventsTriggeringSoon {
 			isDone := false
-			c.Do(radix.FlatCmd(&isDone, "SISMEMBER", "recently_done_scheduled_events", v.ID))
+			c.Do(redis.FlatCmd(&isDone, "SISMEMBER", "recently_done_scheduled_events", v.ID))
 			if isDone {
 				continue
 			}
@@ -102,9 +104,9 @@ func runFlushNewEvents() error {
 }
 
 // flushEventToRedis flushes an event to redis, this is done as a performance improvement as the postgres db is only queried as often
-func flushEventToRedis(c radix.Client, evt *models.ScheduledEvent) error {
+func flushEventToRedis(c redis.RedisClient, evt *models.ScheduledEvent) error {
 	v := fmt.Sprintf("%d:%d", evt.ID, evt.GuildID)
-	err := c.Do(radix.Cmd(nil, "ZADD", "scheduled_events_soon", strconv.FormatInt(evt.TriggersAt.UTC().UnixMicro(), 10), v))
+	err := c.Do(redis.Cmd(nil, "ZADD", "scheduled_events_soon", strconv.FormatInt(evt.TriggersAt.UTC().UnixMicro(), 10), v))
 	if err != nil {
 		return err
 	}
@@ -113,14 +115,14 @@ func flushEventToRedis(c radix.Client, evt *models.ScheduledEvent) error {
 }
 
 // UpdateFlushedEvent updates a already flushed event by either removing it if its above the treshold, or updating the score
-func UpdateFlushedEvent(t time.Time, c radix.Client, evt *models.ScheduledEvent) error {
+func UpdateFlushedEvent(t time.Time, c redis.RedisClient, evt *models.ScheduledEvent) error {
 	delta := evt.TriggersAt.Sub(t)
 	if delta < flushTresholdMinutes*time.Minute {
 		return flushEventToRedis(c, evt)
 	}
 
 	// otherwise delete it
-	err := c.Do(radix.Cmd(nil, "ZREM", "scheduled_events_soon", fmt.Sprintf("%d:%d", evt.ID, evt.GuildID)))
+	err := c.Do(redis.Cmd(nil, "ZREM", "scheduled_events_soon", fmt.Sprintf("%d:%d", evt.ID, evt.GuildID)))
 	return err
 }
 
@@ -130,7 +132,7 @@ func (p *ScheduledEvents) StopBackgroundWorker(wg *sync.WaitGroup) {
 
 func cleanupRecent() error {
 	var recent []int64
-	err := common.RedisPool.Do(radix.Cmd(&recent, "SMEMBERS", "recently_done_scheduled_events"))
+	err := common.RedisPool.Do(redis.Cmd(&recent, "SMEMBERS", "recently_done_scheduled_events"))
 	if err != nil {
 		return err
 	}
@@ -187,5 +189,5 @@ func cleanupRecentBatch(ids []int64) error {
 
 	args[0] = "recently_done_scheduled_events"
 
-	return common.RedisPool.Do(radix.Cmd(nil, "SREM", args...))
+	return common.RedisPool.Do(redis.Cmd(nil, "SREM", args...))
 }

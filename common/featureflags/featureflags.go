@@ -8,6 +8,7 @@ import (
 	"emperror.dev/errors"
 	"github.com/botlabs-gg/yagpdb/v2/common"
 	"github.com/botlabs-gg/yagpdb/v2/common/pubsub"
+	"github.com/botlabs-gg/yagpdb/v2/common/redis"
 	"github.com/mediocregopher/radix/v3"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
@@ -72,7 +73,7 @@ func (c *flagCache) getGuildFlags(guildID int64) ([]string, error) {
 	}
 
 	var result []string
-	err := common.RedisPool.Do(radix.Cmd(&result, "SMEMBERS", keyGuildFlags(guildID)))
+	err := common.RedisPool.Do(redis.Cmd(&result, "SMEMBERS", keyGuildFlags(guildID)))
 	if err != nil {
 		return nil, errors.WithStackIf(err)
 	}
@@ -85,7 +86,7 @@ func (c *flagCache) initCacheBatch(guilds []int64) error {
 	c.l.Lock()
 	defer c.l.Unlock()
 
-	actions := make([]radix.CmdAction, 0, len(guilds))
+	actions := make([]redis.RedisCmdAction, 0, len(guilds))
 	results := make([][]string, 0, len(guilds))
 	fetchingGuilds := make([]int64, 0, len(guilds))
 	i := 0
@@ -96,7 +97,7 @@ func (c *flagCache) initCacheBatch(guilds []int64) error {
 
 		results = append(results, make([]string, 0))
 		// results[g] = make([]string, 0)
-		actions = append(actions, radix.Cmd(&results[i], "SMEMBERS", keyGuildFlags(g)))
+		actions = append(actions, redis.Cmd(&results[i], "SMEMBERS", keyGuildFlags(g)))
 		fetchingGuilds = append(fetchingGuilds, g)
 
 		i++
@@ -106,7 +107,7 @@ func (c *flagCache) initCacheBatch(guilds []int64) error {
 		return nil
 	}
 
-	err := common.RedisPool.Do(radix.Pipeline(actions...))
+	err := common.RedisPool.Do(redis.Pipeline(actions...))
 	if err != nil {
 		return err
 	}
@@ -273,7 +274,7 @@ func updatePluginFeatureFlags(guildID int64, p PluginWithFeatureFlags) error {
 
 	key := keyGuildFlags(guildID)
 
-	err = common.RedisPool.Do(radix.WithConn(key, func(conn radix.Conn) error {
+	err = common.RedisPool.Do(redis.WithConn(key, func(conn radix.Conn) error {
 
 		// apply the added/unchanged flags first
 		if len(filtered) > 0 {
@@ -304,7 +305,7 @@ func updatePluginFeatureFlags(guildID int64, p PluginWithFeatureFlags) error {
 // in some scenarios manual flag management is usefull and since updating flags
 // dosen't trample over unknown flags its completely reliable aswelll
 func AddManualGuildFlags(guildID int64, flags ...string) error {
-	err := common.RedisPool.Do(radix.Cmd(nil, "SADD", append([]string{keyGuildFlags(guildID)}, flags...)...))
+	err := common.RedisPool.Do(redis.Cmd(nil, "SADD", append([]string{keyGuildFlags(guildID)}, flags...)...))
 	if err == nil {
 		pubsub.PublishLogErr(evictCachePubSubEvent, guildID, nil)
 		pubsub.PublishLogErr(evictCachePubSubEvent2, -1, EvictCacheData{GuildID: guildID})
@@ -316,7 +317,7 @@ func AddManualGuildFlags(guildID int64, flags ...string) error {
 // in some scenarios manual flag management is usefull and since updating flags
 // dosen't trample over unknown flags its completely reliable aswelll
 func RemoveManualGuildFlags(guildID int64, flags ...string) error {
-	err := common.RedisPool.Do(radix.Cmd(nil, "SREM", append([]string{keyGuildFlags(guildID)}, flags...)...))
+	err := common.RedisPool.Do(redis.Cmd(nil, "SREM", append([]string{keyGuildFlags(guildID)}, flags...)...))
 	if err == nil {
 		pubsub.PublishLogErr(evictCachePubSubEvent, guildID, nil)
 		pubsub.PublishLogErr(evictCachePubSubEvent2, -1, EvictCacheData{GuildID: guildID})

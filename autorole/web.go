@@ -12,10 +12,10 @@ import (
 	"github.com/botlabs-gg/yagpdb/v2/common"
 	"github.com/botlabs-gg/yagpdb/v2/common/cplogs"
 	"github.com/botlabs-gg/yagpdb/v2/common/pubsub"
+	"github.com/botlabs-gg/yagpdb/v2/common/redis"
 	"github.com/botlabs-gg/yagpdb/v2/lib/discordgo"
 	"github.com/botlabs-gg/yagpdb/v2/premium"
 	"github.com/botlabs-gg/yagpdb/v2/web"
-	"github.com/mediocregopher/radix/v3"
 	"goji.io"
 	"goji.io/pat"
 )
@@ -87,7 +87,7 @@ func handleGetAutoroleMainPage(w http.ResponseWriter, r *http.Request) interface
 
 	var status int
 	fullScanActive := false
-	common.RedisPool.Do(radix.Cmd(&status, "GET", RedisKeyFullScanStatus(activeGuild.ID)))
+	common.RedisPool.Do(redis.Cmd(&status, "GET", RedisKeyFullScanStatus(activeGuild.ID)))
 	if status > 0 {
 		fullScanActive = true
 		var fullScanStatus string
@@ -101,7 +101,7 @@ func handleGetAutoroleMainPage(w http.ResponseWriter, r *http.Request) interface
 		case FullScanAssigningRole:
 			fullScanStatus = "Assigning roles"
 			var assignedRoles string
-			common.RedisPool.Do(radix.Cmd(&assignedRoles, "GET", RedisKeyFullScanAssignedRoles(activeGuild.ID)))
+			common.RedisPool.Do(redis.Cmd(&assignedRoles, "GET", RedisKeyFullScanAssignedRoles(activeGuild.ID)))
 			tmpl["AssignedRoles"] = assignedRoles
 		case FullScanCancelled:
 			fullScanStatus = "Cancelled"
@@ -111,7 +111,7 @@ func handleGetAutoroleMainPage(w http.ResponseWriter, r *http.Request) interface
 	tmpl["FullScanActive"] = fullScanActive
 
 	var proc int
-	common.RedisPool.Do(radix.Cmd(&proc, "GET", KeyProcessing(activeGuild.ID)))
+	common.RedisPool.Do(redis.Cmd(&proc, "GET", KeyProcessing(activeGuild.ID)))
 	tmpl["Processing"] = proc
 	tmpl["ProcessingETA"] = int(proc / 60)
 
@@ -146,12 +146,12 @@ func handleCancelFullScan(w http.ResponseWriter, r *http.Request) (web.TemplateD
 	activeGuild, tmpl := web.GetBaseCPContextData(ctx)
 
 	var status int64
-	common.RedisPool.Do(radix.Cmd(&status, "GET", RedisKeyFullScanStatus(activeGuild.ID)))
+	common.RedisPool.Do(redis.Cmd(&status, "GET", RedisKeyFullScanStatus(activeGuild.ID)))
 	if status == 0 {
 		return tmpl.AddAlerts(web.ErrorAlert("Full scan is not active. Please refresh the page.")), nil
 	}
 
-	err := common.RedisPool.Do(radix.Cmd(nil, "SETEX", RedisKeyFullScanStatus(activeGuild.ID), "10", strconv.Itoa(FullScanCancelled)))
+	err := common.RedisPool.Do(redis.Cmd(nil, "SETEX", RedisKeyFullScanStatus(activeGuild.ID), "10", strconv.Itoa(FullScanCancelled)))
 	if err != nil {
 		logger.WithError(err).Error("Failed marking Full scan as cancelled")
 	}

@@ -8,7 +8,7 @@ import (
 
 	"github.com/botlabs-gg/yagpdb/v2/bot/eventsystem"
 	"github.com/botlabs-gg/yagpdb/v2/common"
-	"github.com/mediocregopher/radix/v3"
+	"github.com/botlabs-gg/yagpdb/v2/common/redis"
 )
 
 type serverMemberStatsUpdater struct {
@@ -143,7 +143,7 @@ func (mu *serverMemberStatsUpdater) flush() {
 	day := t.YearDay()
 	for _, v := range mu.processing {
 		if v.TotalCount > 0 {
-			err := common.RedisPool.Do(radix.FlatCmd(nil, "ZADD", keyTotalMembers(year, day), v.TotalCount, v.GuildID))
+			err := common.RedisPool.Do(redis.FlatCmd(nil, "ZADD", keyTotalMembers(year, day), v.TotalCount, v.GuildID))
 			if err != nil {
 				leftOver = append(leftOver, v)
 				logger.WithError(err).Error("failed flushing serverstats total members")
@@ -153,7 +153,7 @@ func (mu *serverMemberStatsUpdater) flush() {
 			// apply a total members change if present
 			memberMod := v.Joins - v.Leaves
 			if memberMod > 0 {
-				err := common.RedisPool.Do(radix.FlatCmd(nil, "ZINCRBY", keyTotalMembers(year, day), memberMod, v.GuildID))
+				err := common.RedisPool.Do(redis.FlatCmd(nil, "ZINCRBY", keyTotalMembers(year, day), memberMod, v.GuildID))
 				if err != nil {
 					leftOver = append(leftOver, v)
 					logger.WithError(err).Error("failed flushing serverstats total changemod")
@@ -163,7 +163,7 @@ func (mu *serverMemberStatsUpdater) flush() {
 		}
 
 		if v.Joins > 0 {
-			err := common.RedisPool.Do(radix.FlatCmd(nil, "ZINCRBY", keyJoinedMembers(year, day), v.Joins, v.GuildID))
+			err := common.RedisPool.Do(redis.FlatCmd(nil, "ZINCRBY", keyJoinedMembers(year, day), v.Joins, v.GuildID))
 			if err != nil {
 				leftOver = append(leftOver, v)
 				logger.WithError(err).Error("failed flushing serverstats joins")
@@ -174,7 +174,7 @@ func (mu *serverMemberStatsUpdater) flush() {
 		}
 
 		if v.Leaves > 0 {
-			err := common.RedisPool.Do(radix.FlatCmd(nil, "ZINCRBY", keyLeftMembers(year, day), v.Leaves, v.GuildID))
+			err := common.RedisPool.Do(redis.FlatCmd(nil, "ZINCRBY", keyLeftMembers(year, day), v.Leaves, v.GuildID))
 			if err != nil {
 				leftOver = append(leftOver, v)
 				logger.WithError(err).Error("failed flushing serverstats leaves")

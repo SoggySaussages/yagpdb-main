@@ -9,7 +9,7 @@ import (
 	"github.com/botlabs-gg/yagpdb/v2/common"
 	"github.com/botlabs-gg/yagpdb/v2/common/config"
 	"github.com/botlabs-gg/yagpdb/v2/common/patreon/patreonapi"
-	"github.com/mediocregopher/radix/v3"
+	"github.com/botlabs-gg/yagpdb/v2/common/redis"
 	"golang.org/x/oauth2"
 )
 
@@ -45,7 +45,7 @@ func Run() {
 	}
 
 	var storedRefreshToken string
-	common.RedisPool.Do(radix.Cmd(&storedRefreshToken, "GET", "patreon_refresh_token"))
+	common.RedisPool.Do(redis.Cmd(&storedRefreshToken, "GET", "patreon_refresh_token"))
 
 	config := &oauth2.Config{
 		ClientID:     clientID,
@@ -262,7 +262,7 @@ func (t *TokenSourceSaver) Token() (*oauth2.Token, error) {
 	if err == nil {
 		if t.lastRefreshToken != tk.RefreshToken {
 			logger.Info("New refresh token")
-			common.RedisPool.Do(radix.Cmd(nil, "SET", "patreon_refresh_token", tk.RefreshToken))
+			common.RedisPool.Do(redis.Cmd(nil, "SET", "patreon_refresh_token", tk.RefreshToken))
 			t.lastRefreshToken = tk.RefreshToken
 		}
 	}

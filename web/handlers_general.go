@@ -21,10 +21,10 @@ import (
 	"github.com/botlabs-gg/yagpdb/v2/common/models"
 	"github.com/botlabs-gg/yagpdb/v2/common/patreon"
 	"github.com/botlabs-gg/yagpdb/v2/common/pubsub"
+	"github.com/botlabs-gg/yagpdb/v2/common/redis"
 	"github.com/botlabs-gg/yagpdb/v2/lib/discordgo"
 	"github.com/botlabs-gg/yagpdb/v2/lib/dstate"
 	"github.com/botlabs-gg/yagpdb/v2/web/discordblog"
-	"github.com/mediocregopher/radix/v3"
 	"github.com/patrickmn/go-cache"
 	"goji.io/pat"
 )
@@ -143,7 +143,7 @@ func HandleLandingPage(w http.ResponseWriter, r *http.Request) (TemplateData, er
 	_, tmpl := GetCreateTemplateData(r.Context())
 
 	var joinedServers int
-	common.RedisPool.Do(radix.Cmd(&joinedServers, "SCARD", "connected_guilds"))
+	common.RedisPool.Do(redis.Cmd(&joinedServers, "SCARD", "connected_guilds"))
 
 	tmpl["JoinedServers"] = joinedServers
 	tmpl["DemoServerID"] = confDemoServerID.GetString()
