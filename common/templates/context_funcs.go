@@ -51,7 +51,7 @@ func (c *Context) tmplSendDM(s ...interface{}) string {
 			return ""
 		}
 	default:
-		msgSend.Content = fmt.Sprint(s...)
+		msgSend.Content = common.ReplaceServerInvites(fmt.Sprint(s...), 0, "[removed-server-invite]")
 	}
 	//	serverInfo := []discordgo.MessageComponent{
 	//		discordgo.ActionsRow{
