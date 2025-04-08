@@ -59,6 +59,7 @@ func (p *Plugin) saveTempStats() error {
 
 		var key string
 		for s.Next(&key) {
+			key = strings.TrimPrefix(key, redis.Prefix)
 
 			// copy it to a safe location first
 			err := c.Do(redis.Cmd(nil, "RENAME", key, "temp_"+key))

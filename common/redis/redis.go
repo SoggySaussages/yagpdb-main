@@ -7,7 +7,7 @@ import (
 	"github.com/mediocregopher/radix/v3"
 )
 
-var prefix = os.Getenv("YAGPDB_REDIS_PREFIX")
+var Prefix = os.Getenv("YAGPDB_REDIS_PREFIX")
 
 type RedisCmdAction struct {
 	a radix.CmdAction
@@ -80,7 +80,7 @@ func Cmd(rcv interface{}, cmd string, args ...string) RedisCmdAction {
 //
 // The receiver to FlatCmd follows the same rules as for Cmd.
 func FlatCmd(rcv interface{}, cmd, key string, args ...interface{}) RedisCmdAction {
-	return RedisCmdAction{radix.FlatCmd(rcv, cmd, prefix+key, args...)}
+	return RedisCmdAction{radix.FlatCmd(rcv, cmd, Prefix+key, args...)}
 }
 
 // WithConn is used to perform a set of independent Actions on the same Conn.
@@ -161,7 +161,7 @@ func argsPrefixedKeys(cmd string, args []string) []string {
 }
 
 func prefixKey(key string) string {
-	return prefix + key
+	return Prefix + key
 }
 
 func prefixKeys(keys []string) (prefixed []string) {
